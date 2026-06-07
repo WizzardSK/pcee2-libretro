@@ -358,13 +358,19 @@ LONG PageFaultHandler::ExceptionHandler(PEXCEPTION_POINTERS exi)
 	return (handled == HandlerResult::ContinueExecution) ? EXCEPTION_CONTINUE_EXECUTION : EXCEPTION_CONTINUE_SEARCH;
 }
 
+static PVOID s_veh_handle = nullptr;
+
 bool PageFaultHandler::Install(Error* error)
 {
 	std::unique_lock lock(s_exception_handler_mutex);
-	pxAssertRel(!s_installed, "Page fault handler has already been installed.");
 
-	PVOID handle = AddVectoredExceptionHandler(1, ExceptionHandler);
-	if (!handle)
+	// The handler is process-wide and stateless; libretro frontends can cycle
+	// retro_deinit/retro_init in one process, making reinstallation a no-op.
+	if (s_installed)
+		return true;
+
+	s_veh_handle = AddVectoredExceptionHandler(1, ExceptionHandler);
+	if (!s_veh_handle)
 	{
 		Error::SetWin32(error, "AddVectoredExceptionHandler() failed: ", GetLastError());
 		return false;
@@ -372,4 +378,15 @@ bool PageFaultHandler::Install(Error* error)
 
 	s_installed = true;
 	return true;
+}
+
+void PageFaultHandler::Uninstall()
+{
+	std::unique_lock lock(s_exception_handler_mutex);
+	if (!s_installed)
+		return;
+
+	RemoveVectoredExceptionHandler(s_veh_handle);
+	s_veh_handle = nullptr;
+	s_installed = false;
 }

@@ -664,6 +664,10 @@ if(USE_VULKAN)
 	)
 	target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers glslang)
 	target_include_directories(PCSX2_FLAGS INTERFACE ${SHADERC_INCLUDE_DIR})
+	if(SHADERC_STATIC)
+		target_link_libraries(PCSX2_FLAGS INTERFACE ${SHADERC_LIBRARY})
+		target_compile_definitions(PCSX2_FLAGS INTERFACE PCSX2_STATIC_SHADERC)
+	endif()
 endif()
 
 set(pcsx2GSMetalShaders

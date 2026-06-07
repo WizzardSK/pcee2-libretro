@@ -287,6 +287,10 @@ namespace InputManager
 	void SetUSBVibrationIntensity(u32 port, float large_or_single_motor_intensity, float small_motor_intensity);
 	void SetPadVibrationIntensity(u32 pad_index, float large_or_single_motor_intensity, float small_motor_intensity);
 
+	/// Optional host hook receiving raw pad vibration intensities, for frontends
+	/// that deliver rumble themselves (e.g. libretro) instead of via input sources.
+	void SetPadVibrationCallback(void (*callback)(u32 pad_index, float large_motor, float small_motor));
+
 	/// Zeros all vibration intensities. Call when pausing.
 	/// The pad vibration state will internally remain, so that when emulation is unpaused, the effect resumes.
 	void PauseVibration();

@@ -444,6 +444,102 @@ static GSVector4i CalculateDrawSrcRect(const GSTexture* src, const GSVector2i re
 	return GSVector4i(left, top, right, bottom);
 }
 
+// --------------------------------------------------------------------------------------
+// Continuous framebuffer readback (libretro-style frontends).
+//
+// Double-buffered: each vsync queues a GPU copy of the current frame into one
+// download buffer, and maps + delivers the copy queued at the previous vsync.
+// The one-frame delay means Map() almost never stalls on the GPU.
+// --------------------------------------------------------------------------------------
+static GSFramebufferReadbackCallback s_fb_readback_cb = nullptr;
+static std::atomic<u64> s_fb_readback_size{0}; // (width << 32) | height, set from any thread
+static GSTexture* s_fb_readback_rt = nullptr;
+static std::unique_ptr<GSDownloadTexture> s_fb_readback_dl[2];
+static bool s_fb_readback_pending[2] = {};
+static u32 s_fb_readback_slot = 0;
+
+void GSSetFramebufferReadback(GSFramebufferReadbackCallback callback, u32 width, u32 height)
+{
+	s_fb_readback_cb = callback;
+	s_fb_readback_size.store((static_cast<u64>(width) << 32) | height, std::memory_order_release);
+}
+
+void GSReleaseFramebufferReadbackResources()
+{
+	for (u32 i = 0; i < 2; i++)
+	{
+		s_fb_readback_dl[i].reset();
+		s_fb_readback_pending[i] = false;
+	}
+	if (s_fb_readback_rt)
+	{
+		g_gs_device->Recycle(s_fb_readback_rt);
+		s_fb_readback_rt = nullptr;
+	}
+}
+
+static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src_rect, const GSVector4& src_uv,
+	bool is_progressive)
+{
+	const u64 packed_size = s_fb_readback_size.load(std::memory_order_acquire);
+	const u32 width = static_cast<u32>(packed_size >> 32);
+	const u32 height = static_cast<u32>(packed_size & 0xFFFFFFFFu);
+	if (width == 0 || height == 0)
+		return;
+
+	// (re)allocate on size change
+	if (s_fb_readback_rt &&
+		(static_cast<u32>(s_fb_readback_rt->GetWidth()) != width || static_cast<u32>(s_fb_readback_rt->GetHeight()) != height))
+	{
+		GSReleaseFramebufferReadbackResources();
+	}
+	if (!s_fb_readback_rt)
+	{
+		s_fb_readback_rt = g_gs_device->CreateRenderTarget(width, height, GSTexture::Format::Color, false);
+		if (!s_fb_readback_rt)
+			return;
+	}
+	if (!s_fb_readback_dl[0])
+	{
+		for (u32 i = 0; i < 2; i++)
+		{
+			s_fb_readback_dl[i] = g_gs_device->CreateDownloadTexture(width, height, GSTexture::Format::Color);
+			if (!s_fb_readback_dl[i])
+			{
+				GSReleaseFramebufferReadbackResources();
+				return;
+			}
+		}
+	}
+
+	// render the display into the readback target (letterboxed)
+	const GSVector4 draw_rect = CalculateDrawDstRect(width, height, src_rect, current->GetSize(),
+		GSDisplayAlignment::Center, false, is_progressive);
+	g_gs_device->ClearRenderTarget(s_fb_readback_rt, 0);
+	g_gs_device->StretchRect(current, src_uv, s_fb_readback_rt, draw_rect, ShaderConvert::TRANSPARENCY_FILTER,
+		BilnIf(GSConfig.LinearPresent != GSPostBilinearMode::Off));
+
+	const GSVector4i rc(0, 0, width, height);
+	const u32 idx = s_fb_readback_slot;
+	s_fb_readback_dl[idx]->CopyFromTexture(rc, s_fb_readback_rt, rc, 0);
+	s_fb_readback_pending[idx] = true;
+
+	// deliver the frame queued at the previous vsync
+	const u32 prev = idx ^ 1;
+	if (s_fb_readback_pending[prev])
+	{
+		s_fb_readback_dl[prev]->Flush();
+		if (s_fb_readback_dl[prev]->Map(rc))
+		{
+			s_fb_readback_cb(reinterpret_cast<const u32*>(s_fb_readback_dl[prev]->GetMapPointer()),
+				s_fb_readback_dl[prev]->GetMapPitch() / sizeof(u32), width, height);
+			s_fb_readback_dl[prev]->Unmap();
+		}
+		s_fb_readback_pending[prev] = false;
+	}
+	s_fb_readback_slot = prev;
+}
+
 static const char* GetScreenshotSuffix()
 {
 	static constexpr const char* suffixes[static_cast<u8>(GSScreenshotFormat::Count)] = {
@@ -678,6 +774,9 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 			if (GSConfig.OsdShowGPU)
 				PerformanceMetrics::OnGPUPresent(g_gs_device->GetAndResetAccumulatedGPUTime());
 		}
+
+		if (s_fb_readback_cb && current && !blank_frame)
+			PerformFramebufferReadback(current, src_rect, src_uv, GetVideoMode() == GSVideoMode::SDTV_480P);
 
 		PerformanceMetrics::Update(registers_written, fb_sprite_frame, false);
 	}

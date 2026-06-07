@@ -81,10 +81,49 @@ std::string DynamicLibrary::GetVersionedFilename(const char* libname, int major,
 #endif
 }
 
+/// Returns the directory containing the module this code is linked into (e.g.
+/// a libretro core), so bare library names can be resolved next to it.
+static std::string GetThisModuleDirectory()
+{
+#ifdef _WIN32
+	HMODULE module = nullptr;
+	if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+			reinterpret_cast<LPCWSTR>(&GetThisModuleDirectory), &module))
+	{
+		return {};
+	}
+
+	wchar_t path[MAX_PATH];
+	const DWORD len = GetModuleFileNameW(module, path, std::size(path));
+	if (len == 0 || len >= std::size(path))
+		return {};
+
+	return std::string(Path::GetDirectory(StringUtil::WideStringToUTF8String(path)));
+#else
+	Dl_info info;
+	if (!dladdr(reinterpret_cast<void*>(&GetThisModuleDirectory), &info) || !info.dli_fname)
+		return {};
+
+	return std::string(Path::GetDirectory(info.dli_fname));
+#endif
+}
+
 bool DynamicLibrary::Open(const char* filename, Error* error)
 {
 #ifdef _WIN32
 	m_handle = reinterpret_cast<void*>(LoadLibraryW(StringUtil::UTF8StringToWideString(filename).c_str()));
+	if (!m_handle && !Path::IsAbsolute(filename))
+	{
+		// try next to the module we live in (e.g. the libretro core's directory)
+		const std::string module_dir = GetThisModuleDirectory();
+		if (!module_dir.empty())
+		{
+			const std::string module_relative = Path::Combine(module_dir, filename);
+			if (FileSystem::FileExists(module_relative.c_str()))
+				m_handle = reinterpret_cast<void*>(
+					LoadLibraryW(StringUtil::UTF8StringToWideString(module_relative).c_str()));
+		}
+	}
 	if (!m_handle)
 	{
 		Error::SetWin32(error, TinyString::from_format("Loading {} failed: ", filename), GetLastError());
@@ -94,6 +133,17 @@ bool DynamicLibrary::Open(const char* filename, Error* error)
 	return true;
 #else
 	m_handle = dlopen(filename, RTLD_NOW);
+	if (!m_handle && !Path::IsAbsolute(filename))
+	{
+		// try next to the module we live in (e.g. the libretro core's directory)
+		const std::string module_dir = GetThisModuleDirectory();
+		if (!module_dir.empty())
+		{
+			const std::string module_relative = Path::Combine(module_dir, filename);
+			if (FileSystem::FileExists(module_relative.c_str()))
+				m_handle = dlopen(module_relative.c_str(), RTLD_NOW);
+		}
+	}
 	if (!m_handle)
 	{
 #ifdef __APPLE__

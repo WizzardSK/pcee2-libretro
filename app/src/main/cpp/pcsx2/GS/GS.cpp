@@ -174,6 +174,7 @@ static void CloseGSDevice(bool clear_state)
 	if (!g_gs_device)
 		return;
 
+	GSReleaseFramebufferReadbackResources();
 	ImGuiManager::Shutdown(clear_state);
 	g_gs_device->Destroy();
 	g_gs_device.reset();

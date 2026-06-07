@@ -1065,6 +1065,58 @@ bool SaveState_ZipToDisk(std::unique_ptr<ArchiveEntryList> srclist, std::unique_
 	return true;
 }
 
+bool SaveState_ZipToBuffer(std::unique_ptr<ArchiveEntryList> srclist, std::vector<u8>* out_buffer, Error* error)
+{
+	zip_error_t ze = {};
+	zip_source_t* zs = zip_source_buffer_create(nullptr, 0, 0, &ze);
+	zip_t* zf = nullptr;
+	if (zs && !(zf = zip_open_from_source(zs, ZIP_TRUNCATE, &ze)))
+	{
+		Error::SetString(error, fmt::format("Failed to open in-memory zip for save state: {}", zip_error_strerror(&ze)));
+		zip_source_free(zs);
+		return false;
+	}
+
+	// keep the source alive past zip_close() so we can read the data back
+	zip_source_keep(zs);
+
+	if (!SaveState_AddToZip(zf, srclist.get(), nullptr))
+	{
+		Error::SetString(error, "Failed to add state data to in-memory zip.");
+		zip_discard(zf);
+		zip_source_free(zs);
+		return false;
+	}
+
+	if (zip_close(zf) != 0)
+	{
+		Error::SetString(error, fmt::format("Failed to finalize in-memory zip: {}", zip_strerror(zf)));
+		zip_discard(zf);
+		zip_source_free(zs);
+		return false;
+	}
+
+	bool result = false;
+	if (zip_source_open(zs) == 0)
+	{
+		zip_source_seek(zs, 0, SEEK_END);
+		const zip_int64_t size = zip_source_tell(zs);
+		zip_source_seek(zs, 0, SEEK_SET);
+		if (size > 0)
+		{
+			out_buffer->resize(static_cast<size_t>(size));
+			result = (zip_source_read(zs, out_buffer->data(), out_buffer->size()) == size);
+		}
+		zip_source_close(zs);
+	}
+	zip_source_free(zs);
+
+	if (!result)
+		Error::SetString(error, "Failed to read back in-memory zip data.");
+
+	return result;
+}
+
 bool SaveState_ReadScreenshot(const std::string& filename, u32* out_width, u32* out_height, std::vector<u32>* out_pixels)
 {
 	zip_error_t ze = {};
@@ -1154,6 +1206,8 @@ static bool LoadInternalStructuresState(zip_t* zf, s64 index, Error* error)
 	return true;
 }
 
+static bool SaveState_UnzipFromZipObject(const std::string& filename, zip_t* zf, Error* error);
+
 bool SaveState_UnzipFromDisk(const std::string& filename, Error* error)
 {
 	zip_error_t ze = {};
@@ -1169,12 +1223,39 @@ bool SaveState_UnzipFromDisk(const std::string& filename, Error* error)
 		return false;
 	}
 
+	return SaveState_UnzipFromZipObject(filename, zf.get(), error);
+}
+
+bool SaveState_UnzipFromBuffer(const u8* data, size_t size, Error* error)
+{
+	zip_error_t ze = {};
+	zip_source_t* zs = zip_source_buffer_create(data, size, 0, &ze);
+	zip_t* zf = nullptr;
+	if (zs && !(zf = zip_open_from_source(zs, ZIP_RDONLY, &ze)))
+	{
+		// have to clean up source ourselves on open failure
+		zip_source_free(zs);
+		zs = nullptr;
+	}
+	if (!zf)
+	{
+		Error::SetString(error, fmt::format("Savestate zip error: {}", zip_error_strerror(&ze)));
+		return false;
+	}
+
+	const bool result = SaveState_UnzipFromZipObject("<memory>", zf, error);
+	zip_discard(zf);
+	return result;
+}
+
+static bool SaveState_UnzipFromZipObject(const std::string& filename, zip_t* zfp, Error* error)
+{
 	// look for version and screenshot information in the zip stream:
-	if (!CheckVersion(filename, zf.get(), error))
+	if (!CheckVersion(filename, zfp, error))
 		return false;
 
 	// check that all parts are included
-	const s64 internal_index = CheckFileExistsInState(zf.get(), EntryFilename_InternalStructures, true);
+	const s64 internal_index = CheckFileExistsInState(zfp, EntryFilename_InternalStructures, true);
 	s64 entryIndices[std::size(SavestateEntries)];
 
 	// Log any parts and pieces that are missing, and then generate an exception.
@@ -1182,7 +1263,7 @@ bool SaveState_UnzipFromDisk(const std::string& filename, Error* error)
 	for (u32 i = 0; i < std::size(SavestateEntries); i++)
 	{
 		const bool required = SavestateEntries[i]->IsRequired();
-		entryIndices[i] = CheckFileExistsInState(zf.get(), SavestateEntries[i]->GetFilename(), required);
+		entryIndices[i] = CheckFileExistsInState(zfp, SavestateEntries[i]->GetFilename(), required);
 		if (entryIndices[i] < 0 && required)
 		{
 			allPresent = false;
@@ -1197,7 +1278,7 @@ bool SaveState_UnzipFromDisk(const std::string& filename, Error* error)
 
 	PreLoadPrep();
 
-	if (!LoadInternalStructuresState(zf.get(), internal_index, error))
+	if (!LoadInternalStructuresState(zfp, internal_index, error))
 	{
 		if (!error->IsValid())
 			Error::SetString(error, "Save state corruption in internal structures.");
@@ -1214,7 +1295,7 @@ bool SaveState_UnzipFromDisk(const std::string& filename, Error* error)
 			continue;
 		}
 
-		auto zff = zip_fopen_index_managed(zf.get(), entryIndices[i], 0);
+		auto zff = zip_fopen_index_managed(zfp, entryIndices[i], 0);
 		if (!zff || !SavestateEntries[i]->FreezeIn(zff.get()))
 		{
 			Error::SetString(error, fmt::format("Save state corruption in {}.", SavestateEntries[i]->GetFilename()));

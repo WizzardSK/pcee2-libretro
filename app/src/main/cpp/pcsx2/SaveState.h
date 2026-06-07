@@ -57,6 +57,11 @@ extern bool SaveState_ZipToDisk(std::unique_ptr<ArchiveEntryList> srclist, std::
 extern bool SaveState_ReadScreenshot(const std::string& filename, u32* out_width, u32* out_height, std::vector<u32>* out_pixels);
 extern bool SaveState_UnzipFromDisk(const std::string& filename, Error* error);
 
+// In-memory variants of the zip save/load paths, for frontends (e.g. libretro)
+// that keep save states in buffers rather than on disk.
+extern bool SaveState_ZipToBuffer(std::unique_ptr<ArchiveEntryList> srclist, std::vector<u8>* out_buffer, Error* error);
+extern bool SaveState_UnzipFromBuffer(const u8* data, size_t size, Error* error);
+
 // --------------------------------------------------------------------------------------
 //  SaveStateBase class
 // --------------------------------------------------------------------------------------

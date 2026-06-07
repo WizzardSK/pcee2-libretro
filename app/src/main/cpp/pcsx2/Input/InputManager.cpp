@@ -1383,8 +1383,18 @@ void InputManager::SetUSBVibrationIntensity(u32 port, float large_or_single_moto
 	SetPadVibrationIntensity(Pad::NUM_CONTROLLER_PORTS + port, large_or_single_motor_intensity, small_motor_intensity);
 }
 
+static void (*s_pad_vibration_callback)(u32, float, float) = nullptr;
+
+void InputManager::SetPadVibrationCallback(void (*callback)(u32 pad_index, float large_motor, float small_motor))
+{
+	s_pad_vibration_callback = callback;
+}
+
 void InputManager::SetPadVibrationIntensity(u32 pad_index, float large_or_single_motor_intensity, float small_motor_intensity)
 {
+	if (s_pad_vibration_callback)
+		s_pad_vibration_callback(pad_index, large_or_single_motor_intensity, small_motor_intensity);
+
 	for (PadVibrationBinding& pad : s_pad_vibration_array)
 	{
 		if (pad.pad_index != pad_index)

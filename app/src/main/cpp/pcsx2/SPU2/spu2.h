@@ -11,9 +11,15 @@
 struct Pcsx2Config;
 
 class AudioStream;
+struct AudioStreamParameters;
 
 namespace SPU2
 {
+/// Optional host-provided output stream factory. When set, it takes precedence
+/// over the configured audio backend. Used by frontends (e.g. libretro) that
+/// need to pull samples themselves rather than output to an audio device.
+extern std::unique_ptr<AudioStream> (*CustomOutputStreamFactory)(u32 sample_rate, const AudioStreamParameters& parameters);
+
 /// PS2/Native Sample Rate.
 static constexpr u32 SAMPLE_RATE = 48000;
 

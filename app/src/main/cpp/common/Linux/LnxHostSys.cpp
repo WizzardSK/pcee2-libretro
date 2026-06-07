@@ -396,7 +396,7 @@ bool PageFaultHandler::Install(Error* error)
 	sa.sa_flags = SA_SIGINFO | SA_NODEFER;
 	sa.sa_sigaction = SignalHandler;
 
-	if (sigaction(SIGSEGV, &sa, nullptr) != 0)
+	if (sigaction(SIGSEGV, &sa, &s_old_sigsegv) != 0)
 	{
 		Error::SetErrno(error, "sigaction() for SIGSEGV failed: ", errno);
 		return false;
@@ -404,7 +404,7 @@ bool PageFaultHandler::Install(Error* error)
 
 #ifdef _M_ARM64
 	// We can get SIGBUS on ARM64.
-	if (sigaction(SIGBUS, &sa, nullptr) != 0)
+	if (sigaction(SIGBUS, &sa, &s_old_sigbus) != 0)
 	{
 		Error::SetErrno(error, "sigaction() for SIGBUS failed: ", errno);
 		return false;
@@ -413,4 +413,17 @@ bool PageFaultHandler::Install(Error* error)
 
 	s_installed = true;
 	return true;
+}
+
+void PageFaultHandler::Uninstall()
+{
+	std::unique_lock lock(s_exception_handler_mutex);
+	if (!s_installed)
+		return;
+
+	sigaction(SIGSEGV, &s_old_sigsegv, nullptr);
+#ifdef _M_ARM64
+	sigaction(SIGBUS, &s_old_sigbus, nullptr);
+#endif
+	s_installed = false;
 }

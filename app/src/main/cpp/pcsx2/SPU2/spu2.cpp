@@ -30,6 +30,7 @@ static bool s_audio_capture_active = false;
 static bool s_psxmode = false;
 
 static std::unique_ptr<AudioStream> s_output_stream;
+std::unique_ptr<AudioStream> (*SPU2::CustomOutputStreamFactory)(u32 sample_rate, const AudioStreamParameters& parameters) = nullptr;
 static std::array<s16, AudioStream::CHUNK_SIZE * 2> s_current_chunk;
 static u32 s_current_chunk_pos;
 
@@ -103,8 +104,11 @@ void SPU2::CreateOutputStream()
 	s_output_stream.reset();
 
 	Error error;
-	s_output_stream = AudioStream::CreateStream(EmuConfig.SPU2.Backend, sample_rate, EmuConfig.SPU2.StreamParameters,
-		EmuConfig.SPU2.DriverName.c_str(), EmuConfig.SPU2.DeviceName.c_str(), EmuConfig.SPU2.IsTimeStretchEnabled(), &error);
+	if (CustomOutputStreamFactory)
+		s_output_stream = CustomOutputStreamFactory(sample_rate, EmuConfig.SPU2.StreamParameters);
+	else
+		s_output_stream = AudioStream::CreateStream(EmuConfig.SPU2.Backend, sample_rate, EmuConfig.SPU2.StreamParameters,
+			EmuConfig.SPU2.DriverName.c_str(), EmuConfig.SPU2.DeviceName.c_str(), EmuConfig.SPU2.IsTimeStretchEnabled(), &error);
 	if (!s_output_stream)
 	{
 		Host::ReportErrorAsync("Error",

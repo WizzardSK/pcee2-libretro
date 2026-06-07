@@ -586,7 +586,11 @@ void PageFaultHandler::SignalHandler(int sig, siginfo_t* info, void* ctx)
 bool PageFaultHandler::Install(Error* error)
 {
 	std::unique_lock lock(s_exception_handler_mutex);
-	pxAssertRel(!s_installed, "Page fault handler has already been installed.");
+
+	// The handler is process-wide and stateless; libretro frontends can cycle
+	// retro_deinit/retro_init in one process, making reinstallation a no-op.
+	if (s_installed)
+		return true;
 
 	struct sigaction sa;
 
@@ -614,4 +618,10 @@ bool PageFaultHandler::Install(Error* error)
 
 	s_installed = true;
 	return true;
+}
+
+void PageFaultHandler::Uninstall()
+{
+	// The mach exception handler thread is process-lifetime; nothing we can
+	// safely tear down here.
 }
