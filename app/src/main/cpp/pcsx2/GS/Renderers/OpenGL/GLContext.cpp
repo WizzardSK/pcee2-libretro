@@ -3,30 +3,22 @@
 
 #include "GS/Renderers/OpenGL/GLContext.h"
 
+#include "common/Console.h"
+
+#include "glad.h"
+
+#include <cstdlib>
+#include <cstring>
+
 #if defined(_WIN32)
 #include "GS/Renderers/OpenGL/GLContextWGL.h"
 #elif defined(__APPLE__)
 #include "GS/Renderers/OpenGL/GLContextAGL.h"
+#elif defined(__ANDROID__)
+#include "GS/Renderers/OpenGL/GLContextEGLAndroid.h"
 #else // Linux
 #include "GS/Renderers/OpenGL/GLContextEGL.h"
-#ifdef X11_API
-#include "GS/Renderers/OpenGL/GLContextEGLX11.h"
 #endif
-#ifdef WAYLAND_API
-#include "GS/Renderers/OpenGL/GLContextEGLWayland.h"
-#endif
-
-	// headless/offscreen rendering (e.g. the libretro frontend): the base EGL
-	// context supports surfaceless via EGL_MESA_platform_surfaceless or a
-	// pbuffer fallback
-	if (wi.type == WindowInfo::Type::Surfaceless)
-		context = GLContextEGL::Create(wi, vlist, error);
-#endif
-
-#include "common/Console.h"
-
-#include "glad.h"
-#include "GS/Renderers/OpenGL/GLContextEGLAndroid.h"
 
 static bool ShouldPreferESContext()
 {
@@ -89,8 +81,16 @@ std::unique_ptr<GLContext> GLContext::Create(const WindowInfo& wi, const Version
 	}
 
 	std::unique_ptr<GLContext> context;
-	if(wi.type == WindowInfo::Type::Android)
+#if defined(__ANDROID__)
+	if (wi.type == WindowInfo::Type::Android)
 		context = GLContextEGLAndroid::Create(wi, versions_to_try, num_versions_to_try);
+#elif !defined(_WIN32) && !defined(__APPLE__)
+	// headless/offscreen rendering (e.g. the libretro frontend): the base EGL
+	// context supports surfaceless via EGL_MESA_platform_surfaceless or a
+	// pbuffer fallback
+	if (wi.type == WindowInfo::Type::Surfaceless)
+		context = GLContextEGL::Create(wi, versions_to_try, num_versions_to_try);
+#endif
 	if (!context)
 		return nullptr;
 
