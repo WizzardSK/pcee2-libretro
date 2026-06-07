@@ -92,7 +92,6 @@ static bool ValidatePipelineCacheHeader(const VK_PIPELINE_CACHE_HEADER& header)
 	}
 
 	return true;
-#endif
 }
 
 static void FillPipelineCacheHeader(VK_PIPELINE_CACHE_HEADER* header)
