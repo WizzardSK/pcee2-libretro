@@ -7,6 +7,45 @@ on:
   workflow_dispatch:
 
 jobs:
+  build_linux_arm64:
+    name: "Linux aarch64"
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Install Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang libcurl4-openssl-dev libpcap-dev \
+            libudev-dev libx11-dev libxrandr-dev libxext-dev libxcursor-dev libxi-dev \
+            libxinerama-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
+            libwayland-dev libxkbcommon-dev libegl-dev libgl1-mesa-dev libdecor-0-dev \
+            libgbm-dev libdrm-dev libpipewire-0.3-dev libpulse-dev libasound2-dev \
+            libdbus-1-dev libfontconfig-dev
+
+      - name: Configure
+        run: |
+          cmake -S app/src/main/cpp -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+            -DENABLE_LIBRETRO=ON
+
+      - name: Build Core
+        run: cmake --build build --target pcee2-libretro --parallel
+
+      - name: Prepare Artifact
+        run: |
+          mkdir artifact
+          cp build/bin/pcee2_libretro.so app/src/main/cpp/pcee2-libretro/pcee2_libretro.info artifact/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pcee2_libretro-linux-aarch64
+          path: artifact/*
+
   build_android:
     name: "Android arm64-v8a"
     runs-on: ubuntu-24.04
