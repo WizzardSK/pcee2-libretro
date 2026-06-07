@@ -845,8 +845,10 @@ set(pcsx2DebugToolsHeaders
 set(pcsx2HostSources
 	Host/AudioStream.cpp
 	Host/CubebAudioStream.cpp
-	Host/SDLAudioStream.cpp
-	Host/OboeAudioStream.cpp)
+	Host/SDLAudioStream.cpp)
+if(ANDROID)
+	list(APPEND pcsx2HostSources Host/OboeAudioStream.cpp)
+endif()
 
 set(pcsx2HostHeaders
 	Host/AudioStream.h
