@@ -64,6 +64,8 @@ elseif (ANDROID OR ENABLE_LIBRETRO)
 			find_package(PkgConfig REQUIRED)
 			pkg_check_modules(DBUS REQUIRED dbus-1)
 		endif()
+		# FFmpeg is loaded dynamically at runtime; bundled headers are enough.
+		set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
 	endif()
 else()
 	find_package(CURL REQUIRED)
