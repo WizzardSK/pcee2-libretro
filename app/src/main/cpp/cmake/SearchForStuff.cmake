@@ -38,6 +38,12 @@ elseif (ANDROID OR ENABLE_LIBRETRO)
 	add_subdirectory(3rdparty/zstd EXCLUDE_FROM_ALL)
 	add_subdirectory(3rdparty/lz4 EXCLUDE_FROM_ALL)
 	add_subdirectory(3rdparty/libwebp EXCLUDE_FROM_ALL)
+	# Linux libretro: link SDL3 statically into the core so the .so is
+	# self-contained (no external libSDL3.so.0 needed on the target distro).
+	if(ENABLE_LIBRETRO AND NOT ANDROID)
+		set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+		set(SDL_STATIC ON CACHE BOOL "" FORCE)
+	endif()
 	add_subdirectory(3rdparty/SDL3 EXCLUDE_FROM_ALL)
 	add_subdirectory(3rdparty/harfbuzz EXCLUDE_FROM_ALL)
 	add_subdirectory(3rdparty/freetype EXCLUDE_FROM_ALL)
