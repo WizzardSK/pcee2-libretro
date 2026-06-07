@@ -1427,6 +1427,16 @@ void Host::ReportErrorAsync(const std::string_view title, const std::string_view
 		ERROR_LOG("ReportErrorAsync: {}", message);
 }
 
+bool Host::ConfirmMessage(const std::string_view title, const std::string_view message)
+{
+	// No interactive UI under libretro; log and accept.
+	if (!title.empty() && !message.empty())
+		WARNING_LOG("ConfirmMessage: {}: {}", title, message);
+	else if (!message.empty())
+		WARNING_LOG("ConfirmMessage: {}", message);
+	return true;
+}
+
 void Host::OpenURL(const std::string_view url)
 {
 }

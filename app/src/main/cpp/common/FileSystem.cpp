@@ -2685,3 +2685,11 @@ FileSystem::POSIXLock::~POSIXLock()
 }
 
 #endif
+
+#ifndef __ANDROID__
+// content:// URIs only exist on Android; this is resolved through JNI there.
+int FileSystem::OpenFDFileContent(const char* filename)
+{
+	return -1;
+}
+#endif

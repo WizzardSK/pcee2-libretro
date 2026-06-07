@@ -81,7 +81,7 @@ set(pcsx2Sources
 	GS.cpp
 	GSDumpReplayer.cpp
 	Host.cpp
-#	Hotkeys.cpp
+	Hotkeys.cpp
 	Hw.cpp
 	HwRead.cpp
 	HwWrite.cpp

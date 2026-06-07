@@ -2897,7 +2897,7 @@ void VMManager::InitializeCPUProviders()
 	recCpu.Reserve();
 	psxRec.Reserve();
 
-#ifdef PCSX2_ARM64_DYNAREC
+#if 0 // jitA64Cpu was never implemented; recCpu is the retargeted ARM64 dynarec
 	// Reserve ARM64 EE dynarec if compiled in
 	jitA64Cpu.Reserve();
 #endif
@@ -2925,7 +2925,7 @@ void VMManager::ShutdownCPUProviders()
 
 	psxRec.Shutdown();
 	recCpu.Shutdown();
-#ifdef PCSX2_ARM64_DYNAREC
+#if 0 // jitA64Cpu was never implemented; recCpu is the retargeted ARM64 dynarec
 	jitA64Cpu.Shutdown();
 #endif
 //#else
@@ -2961,7 +2961,7 @@ void VMManager::UpdateCPUImplementations()
     }
     else
     {
-#ifdef PCSX2_ARM64_DYNAREC
+#if 0 // jitA64Cpu was never implemented; recCpu is the retargeted ARM64 dynarec
         if (core_type == 2 || EmuConfig.Cpu.UseArm64Dynarec)
         {
             Console.WriteLn("CPU: Selecting ARM64 dynarec");
