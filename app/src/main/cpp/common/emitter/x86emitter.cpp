@@ -55,7 +55,7 @@
 
 thread_local XMMSSEType g_xmmtypes[iREGCNT_XMM] = {XMMT_INT};
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || (defined(_M_ARM64) && defined(PCSX2_ARM64_DYNAREC))
 
 const a64::VRegister
     xmm0=a64::QRegister(0), xmm1=a64::QRegister(1),

@@ -517,7 +517,7 @@ static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src
 		GSDisplayAlignment::Center, false, is_progressive);
 	g_gs_device->ClearRenderTarget(s_fb_readback_rt, 0);
 	g_gs_device->StretchRect(current, src_uv, s_fb_readback_rt, draw_rect, ShaderConvert::TRANSPARENCY_FILTER,
-		BilnIf(GSConfig.LinearPresent != GSPostBilinearMode::Off));
+		GSConfig.LinearPresent != GSPostBilinearMode::Off);
 
 	const GSVector4i rc(0, 0, width, height);
 	const u32 idx = s_fb_readback_slot;

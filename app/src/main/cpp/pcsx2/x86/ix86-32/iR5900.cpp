@@ -23,7 +23,7 @@
 #include "x86/microVU_Misc.h"
 
 // Only for MOVQ workaround.
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !(defined(_M_ARM64) && defined(PCSX2_ARM64_DYNAREC))
 #include "common/emitter/internal.h"
 #endif
 
@@ -40,7 +40,7 @@
 #include <zlib.h>
 #endif
 
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !(defined(_M_ARM64) && defined(PCSX2_ARM64_DYNAREC))
 using namespace x86Emitter;
 #endif
 using namespace R5900;

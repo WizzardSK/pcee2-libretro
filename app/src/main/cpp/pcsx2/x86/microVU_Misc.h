@@ -3,7 +3,7 @@
 
 #pragma once
 
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !(defined(_M_ARM64) && defined(PCSX2_ARM64_DYNAREC))
 using namespace x86Emitter;
 #endif
 

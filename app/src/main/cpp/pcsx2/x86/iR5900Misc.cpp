@@ -5,7 +5,7 @@
 #include "iR5900.h"
 #include "R5900OpcodeTables.h"
 
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !(defined(_M_ARM64) && defined(PCSX2_ARM64_DYNAREC))
 using namespace x86Emitter;
 #endif
 
