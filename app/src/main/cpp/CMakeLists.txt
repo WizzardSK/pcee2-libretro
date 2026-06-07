@@ -62,6 +62,11 @@ add_subdirectory(common)
 add_subdirectory(pcsx2)
 #add_subdirectory(pcsx2-qt)
 
+# libretro core
+if(ENABLE_LIBRETRO)
+	add_subdirectory(pcee2-libretro)
+endif()
+
 # Updater is Windows only for now.
 if (WIN32)
 	add_subdirectory(updater)

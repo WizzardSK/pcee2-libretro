@@ -1,0 +1,37 @@
+# Software Information
+display_name = "Sony - PlayStation 2 (PCEE2)"
+authors = "PCSX2 Team|WizzardSK"
+supported_extensions = "iso|chd|cso|zso|gz|bin|mdf|nrg|elf|irx"
+corename = "PCEE2"
+categories = "Emulator"
+license = "GPLv3"
+permissions = ""
+display_version = "v2.7.x"
+
+# Hardware Information
+manufacturer = "Sony"
+systemname = "PlayStation 2"
+systemid = "ps2"
+
+# Libretro Features
+database = "Sony - PlayStation 2"
+supports_no_game = "false"
+savestate = "true"
+savestate_features = "basic"
+cheats = "true"
+input_descriptors = "false"
+memory_descriptors = "true"
+libretro_saves = "false"
+core_options = "true"
+core_options_version = "2.0"
+hw_render = "false"
+needs_fullpath = "true"
+disk_control = "false"
+is_experimental = "true"
+
+# BIOS / Firmware
+firmware_count = 1
+firmware0_desc = "Any valid PS2 BIOS dump, placed in system/pcsx2/bios/ (e.g. scph39001.bin)"
+firmware0_path = "pcsx2/bios/scph39001.bin"
+firmware0_opt = "true"
+notes = "(!) Requires a PS2 BIOS in system/pcsx2/bios/ and the PCSX2 resources directory in system/pcsx2/resources/.|(!) Linux x86_64 with Vulkan only."

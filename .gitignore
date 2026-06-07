@@ -36,4 +36,5 @@ app/src/main/cpp/3rdparty/discord_social_sdk/discordpp.h
 
 # External libs
 app/libs/discord_partner_sdk.aar
-macos
+macosbuild-libretro/
+build/

@@ -1,7 +1,7 @@
 # All flags, libraries, etc, that are shared between PCSX2 compilation files
 add_library(PCSX2_FLAGS INTERFACE)
 
-if(ANDROID)
+if(ANDROID AND NOT ENABLE_LIBRETRO)
 	add_library(PCSX2 SHARED)
 	set_target_properties(PCSX2 PROPERTIES OUTPUT_NAME "emucore")
 	target_compile_definitions(PCSX2_FLAGS INTERFACE
@@ -1125,7 +1125,13 @@ target_sources(PCSX2 PRIVATE
 )
 
 # platform sources
-if(ANDROID)
+if(ANDROID AND ENABLE_LIBRETRO)
+	# the libretro frontend provides the host; no JNI activity host here
+	target_sources(PCSX2 PRIVATE
+		${pcsx2LinuxSources}
+		${pcsx2LinuxHeaders}
+	)
+elseif(ANDROID)
 	target_sources(PCSX2 PRIVATE
 		${pcsx2LinuxSources}
 		${pcsx2LinuxHeaders}
