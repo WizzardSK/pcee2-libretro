@@ -213,7 +213,7 @@ if(NOT WIN32)
 	endif()
 endif()
 
-if(ANDROID)
+if(ANDROID OR ENABLE_LIBRETRO)
 	target_link_libraries(common PRIVATE
 		${LIBC_LIBRARIES}
 		jpeg

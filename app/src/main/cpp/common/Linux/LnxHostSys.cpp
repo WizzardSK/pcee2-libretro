@@ -280,6 +280,10 @@ namespace PageFaultHandler
 	static std::recursive_mutex s_exception_handler_mutex;
 	static bool s_in_exception_handler = false;
 	static bool s_installed = false;
+	static struct sigaction s_old_sigsegv;
+#ifdef _M_ARM64
+	static struct sigaction s_old_sigbus;
+#endif
 } // namespace PageFaultHandler
 
 #ifdef _M_ARM64
