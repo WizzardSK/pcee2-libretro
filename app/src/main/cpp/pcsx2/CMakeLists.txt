@@ -624,12 +624,16 @@ if(USE_OPENGL)
 			list(APPEND pcsx2GSHeaders GS/Renderers/OpenGL/GLContextEGLAndroid.h)
 		endif()
 
-		if(X11_API)
+		# GLContextEGLX11/GLContextEGLWayland are stale upstream leftovers that
+		# don't match this tree's GLContextEGL base class. The libretro frontend
+		# renders offscreen through the surfaceless base EGL context, so the
+		# windowed platform contexts are not built.
+		if(X11_API AND NOT ENABLE_LIBRETRO)
 			list(APPEND pcsx2GSSources GS/Renderers/OpenGL/GLContextEGLX11.cpp)
 			list(APPEND pcsx2GSHeaders GS/Renderers/OpenGL/GLContextEGLX11.h)
 		endif()
 
-		if(WAYLAND_API)
+		if(WAYLAND_API AND NOT ENABLE_LIBRETRO)
 			list(APPEND pcsx2GSSources GS/Renderers/OpenGL/GLContextEGLWayland.cpp)
 			list(APPEND pcsx2GSHeaders GS/Renderers/OpenGL/GLContextEGLWayland.h)
 
