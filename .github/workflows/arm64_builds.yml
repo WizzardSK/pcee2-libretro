@@ -30,7 +30,8 @@ jobs:
           cmake -S app/src/main/cpp -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-            -DENABLE_LIBRETRO=ON
+            -DENABLE_LIBRETRO=ON \
+            -DX11_API=ON
 
       - name: Build Core
         run: cmake --build build --target pcee2-libretro --parallel
