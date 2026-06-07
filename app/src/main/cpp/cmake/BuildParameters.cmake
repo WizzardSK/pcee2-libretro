@@ -8,6 +8,12 @@ include(GNUInstallDirs)
 #-------------------------------------------------------------------------------
 option(ENABLE_TESTS "Enables building the unit tests" ON)
 option(ENABLE_LIBRETRO "Enables building the libretro core." OFF)
+
+# The AArch64 dynarec paths are guarded by __ANDROID__ or
+# (_M_ARM64 && PCSX2_ARM64_DYNAREC); enable them for non-Android ARM64 too.
+if(ENABLE_LIBRETRO AND NOT ANDROID AND ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64"))
+	add_compile_definitions(PCSX2_ARM64_DYNAREC=1)
+endif()
 option(ENABLE_GSRUNNER "Enables building the GSRunner by default.  It can still be built with `make pcsx2-gsrunner` otherwise." OFF)
 option(LTO_PCSX2_CORE "Enable LTO/IPO/LTCG on the subset of pcsx2 that benefits most from it but not anything else")
 option(USE_VTUNE "Plug VTUNE to profile GS JIT.")
