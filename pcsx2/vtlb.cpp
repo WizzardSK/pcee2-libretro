@@ -301,7 +301,27 @@ void TAKES_R128 vtlb_memWrite128(u32 mem, r128 value)
 			}
 		}
 
-		r128_store_unaligned((void*)vmv.assumePtr(mem), value);
+		const u32 page_offset = mem & VTLB_PAGE_MASK;
+		if (page_offset <= VTLB_PAGE_SIZE - sizeof(u128))
+		{
+			// This address is fully contained in the same page.
+			r128_store_unaligned((void*)vmv.assumePtr(mem), value);
+			return;
+		}
+
+		// I'm still familiarizing myself with how PS2 emulation works. Call me
+		// an AI slop user if you want, but this is the shortest path to learning
+		// how all of this works. If this works on a Pi 5, then it is good enough until
+		// I can properly learn how to do this.
+		alignas(16) const u128 r = r128_to_u128(value);
+		if (vtlb_memSafeWriteBytes(mem, &r, sizeof(r)))
+			return;
+
+		const u8* src = reinterpret_cast<const u8*>(&r);
+		for (u32 i = 0; i < sizeof(r); ++i)
+		{
+			vtlb_memWrite<mem8_t>(mem + i, src[i]);
+		}
 	}
 	else
 	{
