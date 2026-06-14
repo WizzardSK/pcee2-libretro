@@ -10,6 +10,7 @@ jobs:
   build_linux_arm64:
     name: "Linux aarch64"
     runs-on: ubuntu-24.04-arm
+    container: debian:bookworm
     timeout-minutes: 120
     steps:
       - name: Checkout Repository
@@ -17,19 +18,24 @@ jobs:
 
       - name: Install Packages
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang libcurl4-openssl-dev libpcap-dev \
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates curl gnupg lsb-release software-properties-common \
+            cmake ninja-build git pkg-config \
+            libcurl4-openssl-dev libpcap-dev \
             libudev-dev libx11-dev libxrandr-dev libxext-dev libxcursor-dev libxi-dev \
             libxinerama-dev libxfixes-dev libxrender-dev libxss-dev libxtst-dev \
             libwayland-dev libxkbcommon-dev libegl-dev libgl1-mesa-dev libdecor-0-dev \
             libgbm-dev libdrm-dev libpipewire-0.3-dev libpulse-dev libasound2-dev \
             libdbus-1-dev libfontconfig-dev libjpeg-dev libpng-dev
+          # modern clang on top of bookworm's glibc 2.36 (matches Pi 5 RetroPie)
+          curl -fsSL https://apt.llvm.org/llvm.sh | bash -s -- 19
 
       - name: Configure
         run: |
           cmake -S app/src/main/cpp -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 \
             -DENABLE_LIBRETRO=ON \
             -DX11_API=ON
 
