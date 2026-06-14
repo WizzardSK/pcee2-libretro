@@ -37,7 +37,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19 \
             -DENABLE_LIBRETRO=ON \
-            -DX11_API=ON
+            -DUSE_OPENGL=OFF
 
       - name: Build Core
         run: cmake --build build --target pcee2-libretro --parallel
