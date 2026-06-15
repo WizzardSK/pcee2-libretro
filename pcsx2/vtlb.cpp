@@ -302,12 +302,15 @@ void TAKES_R128 vtlb_memWrite128(u32 mem, r128 value)
 		}
 
 		const u32 page_offset = mem & VTLB_PAGE_MASK;
-		if (page_offset <= VTLB_PAGE_SIZE - sizeof(u128))
-		{
+		//if (page_offset <= VTLB_PAGE_SIZE - sizeof(u128))
+		//{
 			// This address is fully contained in the same page.
-			r128_store_unaligned((void*)vmv.assumePtr(mem), value);
-			return;
-		}
+			//r128_store_unaligned((void*)vmv.assumePtr(mem), value);
+			//return;
+		//}
+		// Commented out the memory fastpath for now, we'll see how this goes.
+		// Functionality on the second block is slower, but more stable.
+		// *SHOULD* act as a replacement for the first block...
 
 		// I'm still familiarizing myself with how PS2 emulation works. Call me
 		// an AI slop user if you want, but this is the shortest path to learning
