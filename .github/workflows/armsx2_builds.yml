@@ -3,7 +3,7 @@ name: 🤖 ARM64 Core Builds
 on:
   push:
     branches:
-      - arm64
+      - armsx2
   workflow_dispatch:
 
 jobs:
