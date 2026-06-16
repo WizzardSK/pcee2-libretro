@@ -47,6 +47,9 @@ jobs:
         run: |
           mkdir artifact
           cp build/bin/pcee2_libretro.so app/src/main/cpp/pcee2-libretro/pcee2_libretro.info artifact/
+          echo "Size before strip: $(du -h artifact/pcee2_libretro.so | cut -f1)"
+          strip --strip-unneeded artifact/pcee2_libretro.so
+          echo "Size after strip:  $(du -h artifact/pcee2_libretro.so | cut -f1)"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
