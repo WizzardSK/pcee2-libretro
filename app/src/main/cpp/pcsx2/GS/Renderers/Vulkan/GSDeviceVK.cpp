@@ -102,9 +102,13 @@ static constexpr VkClearValue s_present_clear_color = {{{0.0f, 0.0f, 0.0f, 1.0f}
 static std::mutex s_instance_mutex;
 
 // Device extensions that are required for PCSX2.
-static constexpr const char* s_required_device_extensions[] = {
-	VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME,
-};
+// NOTE: shaderDrawParameters (used by the TFX vertex shader via gl_BaseVertexARB) is enabled
+// below as a core Vulkan 1.1 feature instead of requiring the legacy
+// VK_KHR_shader_draw_parameters extension by name. Vulkan 1.1+ implementations such as the
+// Raspberry Pi V3D driver promoted it to core and no longer advertise the extension name, so
+// requiring it by name wrongly rejected those GPUs. All accepted devices are >= 1.1 (enforced
+// in EnumerateGPUs), so the core feature is always available to request.
+static constexpr std::array<const char*, 0> s_required_device_extensions = {};
 
 GSDeviceVK::GSDeviceVK()
 {
@@ -649,6 +653,14 @@ bool GSDeviceVK::CreateDevice(VkSurfaceKHR surface, bool enable_validation_layer
 		VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT};
 	VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT swapchain_maintenance1_feature = {
 		VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT};
+
+	// Request shaderDrawParameters as a core Vulkan 1.1 feature (replaces requiring the legacy
+	// VK_KHR_shader_draw_parameters extension by name). The TFX vertex shader uses gl_BaseVertexARB,
+	// which needs this capability enabled at device creation. All accepted devices are >= 1.1.
+	VkPhysicalDeviceShaderDrawParametersFeatures shader_draw_parameters_feature = {
+		VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES};
+	shader_draw_parameters_feature.shaderDrawParameters = VK_TRUE;
+	Vulkan::AddPointerToChain(&device_info, &shader_draw_parameters_feature);
 
 	if (m_optional_extensions.vk_ext_provoking_vertex)
 	{
