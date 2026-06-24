@@ -114,9 +114,15 @@ size_t HostSys::GetRuntimeCacheLineSize()
 
 	return static_cast<size_t>(max_line_size);
 #else
+	// musl libc doesn't define the _SC_LEVEL1_*CACHE_LINESIZE sysconf names that
+	// glibc does, so probe them only when available and fall back to /sys below.
+#if defined(_SC_LEVEL1_DCACHE_LINESIZE) && defined(_SC_LEVEL1_ICACHE_LINESIZE)
 	int l1i = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	int l1d = sysconf(_SC_LEVEL1_ICACHE_LINESIZE);
 	int res = (l1i > l1d) ? l1i : l1d;
+#else
+	int res = 0;
+#endif
 	for (int index = 0; index < 16; index++)
 	{
 		char buf[128];
@@ -131,7 +137,7 @@ size_t HostSys::GetRuntimeCacheLineSize()
 		res = (val > res) ? val : res;
 	}
 
-	return (res > 0) ? static_cast<size_t>(res) : 0;
+	return (res > 0) ? static_cast<size_t>(res) : 64;
 #endif
 }
 
