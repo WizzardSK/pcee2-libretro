@@ -281,7 +281,12 @@ int main() {
 		${detect_cache_line_size_file}
 		RUN_OUTPUT_VARIABLE detect_cache_line_size_output)
 	if(NOT detect_cache_line_size_compile_result OR NOT detect_cache_line_size_run_result EQUAL 0 OR CMAKE_CROSSCOMPILING)
-		message(FATAL_ERROR "Could not determine host cache line size.")
+		# Detection relies on sysconf cache info (which musl libc doesn't provide)
+		# or a readable /sys (absent in some CI containers). Rather than fail the
+		# configure, fall back to 64, which is correct for x86-64 and common
+		# ARM64 cores. glibc hosts still get the detected value via the else branch.
+		message(WARNING "Could not determine host cache line size; defaulting to 64.")
+		set(HOST_CACHE_LINE_SIZE 64 CACHE STRING "Reported host cache line size")
 	else()
 		message(STATUS "Host cache line size: ${detect_cache_line_size_output}")
 		set(HOST_CACHE_LINE_SIZE ${detect_cache_line_size_output} CACHE STRING "Reported host cache line size")
