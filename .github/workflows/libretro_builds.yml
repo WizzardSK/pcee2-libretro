@@ -5,6 +5,7 @@ on:
     branches:
       - libretro
       - libretro-arm64
+      - "libretro-arm64-*"
     tags:
       - "v*"
   workflow_dispatch:
