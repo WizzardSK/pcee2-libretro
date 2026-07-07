@@ -8,189 +8,18 @@
 
 ## ▶ CURRENT FOCUS
 
-**Phase 7 (VU recompilers / microVU) — 7.8 microVU1 black-screen ROOT CAUSE FOUND **AND FIXED**
-(2026-06-07). The bug was NOT the MAC flag — that was a downstream symptom. Root cause: `mVUclamp1`/
-`mVUclamp2` (`aVU_Clamp.inl`) were called with `regT1 = xEmptyReg` (the per-operand `cFt`/`cFs` clamps
-in `mVU_FMACa`). ARM64 needs a real NEON scratch to load the ±fmax clamp constants (x86 folds them as
-a memory operand and needs none); the bogus `xEmptyReg` scratch aliased the value register, so the
-clamp's `Ldr maxvals; Ldr minvals; Umin` sequence left the operand = `0xff7fffff` = -FLT_MAX. That
-poisoned `MULq vf24` (5120*0.4 → -FLT_MAX), flipping the FMAC sign → wrong MAC flag → wrong `FMAND` →
-wrong `IBNE`/`IBLEZ` → wrong vertex-loop count → garbage geometry / 17k× "GS packet size exceeded" →
-black screen / stuck BIOS animation. **Fix:** both clamp helpers now fall back to `RQSCRATCH` when
-`regT1.IsNone()` (mirrors what `mVUclampedArith` already did). Only triggers when the VU overflow/sign-
-overflow clamp is active (PS2 BIOS, some games), which is why most titles "mostly worked".
+**Host-MMU fastmem for EE load/store** — replace the per-access `vtlb_memRead/Write`
+C-call (`aR5900LoadStore.cpp`, the current path for *every* memory op) with base-relative
+(`x28`) fastmem + SIGSEGV backpatch. Full phased plan in **`arm64-port/FASTMEM_PLAN.md`**
+(ports the memory half of ARMSX2 `ee33d237`). All the shared infra — region reservation,
+RAM mapping, `vtlb_AddLoadStoreInfo`/`vtlb_BackpatchLoadStore`, mach-exception fault
+delivery — already exists and is live on ARM64/macOS; only the emit + `vtlb_DynBackpatchLoadStore`
+thunk are ours to write. **Start at F0** (confirm x28 free + fastmem base allocates).
 
-**Verified:** PS2 BIOS boot, pure microVU1 (no MVU_DIFF): "GS packet size exceeded" 13903→1, clean
-shutdown, animation no longer stuck. `MVU_DIFF` shadow-diff: 12 diverging regs → 1 (the known-benign
-`Q int=3ecccccc mvu=0` DIV-latency artifact at the program-exit snapshot); localizer finds zero
-per-instruction divergences. Reproduces with NO ISO via `-bios -nogui`. Builds arm64; unittests 2/2.
-Fix commit: see JOURNAL. See [[arm64-microvu1-clamp-scratch-bug]].
-
-**Game validation (2026-06-07, user hands-on):** FFX → menu ✅. Rayman 3 → past the black screen,
-plays the intro FMV → menu, **then crashes** with a SEPARATE bug → microVU0 + MTVU stack-guard SIGBUS
-(see below). **Confirmed: disabling MTVU (Speedhacks → MTVU off) makes Rayman playable.**
-
-**▶ NEXT STEP (resume here) — fix the microVU0 + MTVU stack crash.** A VU0 microprogram accessing the
-VU1 register window under MTVU SIGBUSes in the `mVUGenerateWaitMTVU` thunk's register restore; the
-live sp is at the CPU-thread stack **top / guard page** (`memory region $sp` = PROT_NONE). Cause not
-yet pinned — lldb can't unwind JIT frames (only live sp is trustworthy), and the static model (all
-stack helpers balanced, no `mov sp`) doesn't reconcile with "sp at the top." **Decisive next
-experiment is ready:** paste the `mVUwaitMTVU` sp probe (logs real sp + pthread stack bounds + sp
-delta across `WaitVU()`) — exact code + full diagnosis in memory [[arm64-microvu0-mtvu-stack-crash]]
-and JOURNAL. Workaround for users meanwhile: MTVU off. After that: 7.9 macro mode / Phase 8 polish.
-
-**(historical, resolved 2026-06-07) — the MAC-FLAG framing below was the symptom, not the cause:**
-
-**Phase 7 (VU recompilers / microVU) — 7.8 SELECTED; CRASHES FIXED; microVU1 black-screen ROOT CAUSE
-NOW ISOLATED to the MAC FLAG. microVU0/1 is the selected VU provider on ARM64. The black screen on
-2D games (Rayman 3, Odin Sphere) + FFX artifacts trace to a single root: microVU1 reads a WRONG MAC
-FLAG, which feeds an `FMAND` → wrong VI → wrong conditional branch → wrong vertex-loop iteration count
-→ the loop reads PAST the valid vertices into garbage (-FLT_MAX padding) → the matrix-transform FMAC
-overflows to -FLT_MAX → malformed GIF packet → black screen (this is the 17,509× `Gif Unit - GS
-packet size exceeded VU memory size!` warning storm). This unifies all earlier symptoms (the
-"-FLT_MAX overflow", the "Q lags by one DIV", the loop-counter VI divergence) — they are downstream of
-the wrong MAC flag, NOT independent bugs.**
-
-**The decisive evidence (Rayman 3, program @pc=00d8 / its transform loop):**
-- `LOCALIZE step 45 pc=0240 VI01 interp=00d0 mvu=0010` — at `FMAND vi01, MACflag, vi12` (vi12=0xd0),
-  control-flow + all VI matched through step 44, but `vi01 = MACflag & 0xd0` diverges → the MAC flag
-  itself is wrong (micro is missing sign bits 0x80/0x40, i.e. 2 lanes' sign flags).
-- `FMACDUMP @pc=01d8` (the `MADDw vf24` transform): for CLEAN vertices `Ft(vf20.w)=1.0` → result is
-  CORRECT; for the bad ones `Ft(vf20.w)=-FLT_MAX` (garbage vertex) → result -FLT_MAX. **The FMAC math
-  is correct given its inputs** — it's fed garbage vertices because the loop over-ran.
-- `DIVDUMP @pc=01f8` confirmed the DIV computes Q correctly for clean inputs (1.0/2.5=0.4); its bad
-  outputs are just `1.0 / (already-garbage vf24.w)`.
-
-**The ENTIRE flag/FMAC/Q/dispatcher path is now verified line-for-line faithful to x86** (this
-session): `mVU_FMAND`, `mVUupdateFlags` (mVUmovemask==MOVMSKPS, Fcmeq==CMPEQ.PS, AND_XYZW/SHIFT_XYZW/
-flip), the SSE arith primitives (`SSE_SUBPS` = `to-from` = correct operand order, ADD/MUL/DIV),
-`mVUshufflePS` (== SHUFPS for the self-shuffle used by sortFlag's mac/clip instance reorder),
-`mVUanalyzeMflag` (identical), `mVUallocMFLAGa/b` + `getFlagReg` (mac/clip memory-backed, status in
-gprF0-3), the dispatcher's mac/clip/status + PQ init, and the **FPCR** (`mVUemitSetHostFPCR` writes
-`VU1FPCR.bitmask` which on ARM64 is already a native u64 FPCR value — FZ=bit24 — same as the interp's
-`FPControlRegisterBackup`; so flush-to-zero/rounding match, NOT the divergence).
-
-**So with identical inputs (control-flow+VI matched through step 44) producing a different MAC flag at
-step 45, an FMAC must produce a numerically different RESULT than the C++ interpreter on certain
-inputs, flipping the sign/zero flag bits** — OR there is a MAC-flag-instance edge case (which
-instance is live for a partial-lane `.xyw` op whose unwritten lanes inherit an earlier instance).
-The VF-off localizer can't see the FMAC value divergence (its per-instruction flushAll+PQ
-backup/restore perturbs VF near DIV/WAITQ — a Heisenbug that cascades once it corrupts VU1.VF in
-memory).
-
-**NEXT STEP:** get a Heisenbug-free per-instruction comparison of the flag-setting FMAC RESULT (and
-the resulting MAC flag) between the micro shadow and the interpreter — either (a) make the localizer
-trace record the mac flag + Q + ACC and not perturb PQ (e.g. snapshot VU1.VF without flushAll, or skip
-the flush only on DIV/WAITQ/MULq steps), or (b) add a direct mac-flag compare to mvuDiffReport (micro
-`mVU.macFlag[]`/`micro_macflags` vs interp's `VU1.VI[REG_MAC_FLAG]`). That pins whether it's a numeric
-FMAC diff (chase the specific op/value, likely a NEON-vs-C++ corner like signed-zero/NaN/denormal) or
-a flag-instance bug. Then fix and re-validate the test ladder. builds arm64, unittests 2/2.**
-
-**Debug tooling now in tree (all env-gated, zero overhead unless set):**
-- `MVU_DIFF=1` — shadow differential. Interp drives VU1 (game stays renderable), microVU1 shadows;
-  `mvuDiffReport` logs ALL diverging VF/VI/ACC/Q/Mem (not just first) as `MVU_DIFF @pc=...`. Also
-  enables compile-time `WB VFnn`/`ALLOC` logs (writeBackReg/allocReg for VF17/24) and the runtime
-  `DIVDUMP`/`FMACDUMP` (DIV & vf24-MADD operand/result dumps, first ~40-60).
-- `MVU_DIFF=1 MVU_LOC=1` — also injects the per-instruction localizer (flushAll+mvuTraceMicro after
-  each op); on first program divergence it single-steps the interp and reports the first instruction
-  where control-flow/VI (and, with `MVU_VF=1`, VF) diverge, with a full upper|lower disasm dump.
-- All of this lives behind `g_mvuDiffActive`/`getenv` in aVU.cpp / aVU_IR.h / aVU_Upper.inl /
-  aVU_Lower.inl / aVU_Compile.inl — REMOVE or keep as desired once the mac-flag fix lands.
-
-**How to run:** `MVU_DIFF=1 [MVU_LOC=1] PCSX2.app/Contents/MacOS/PCSX2 -batch -fastboot <iso>`; grep
-the emulog (`~/Library/Application Support/PCSX2/logs/emulog.txt`, NOT stdout) for `MVU_DIFF`/
-`LOCALIZE`/`DIVDUMP`/`FMACDUMP`. MVU_DIFF auto-forces MTVU off so VU1 runs through the hook.
-
-**7.8 wiring (`dcbdec813`, `VMManager.cpp`):** the four ARM64 `#else` branches mirror x86 —
-`InitializeCPUProviders` reserves `CpuMicroVU0/1` (recMicroVU1::Reserve opens vu1Thread, so the old
-explicit `vu1Thread.Open()` workaround is gone); `ShutdownCPUProviders` shuts them down (recMicroVU1
-waits/closes vu1Thread); `UpdateCPUImplementations` selects micro vs int per `EnableVU0/1`;
-`ClearCPUExecutionCaches` resets `CpuMicroVU0` for macro mode when EE rec is on but VU0 micro is off.
-
-**7.8 bug #1 — XGKICK packet-size crash (`7fb86fcfa`, `Config.h`):** ARM64 had `REC_VU1`/`THREAD_VU1`
-hardcoded `false` (the pre-port stub). With microVU1 selected, that made `Gif_Unit::GetGSPacketSize`
-take its `!REC_VU1` branch and OR the EOP flag into bit31 of the returned size (e.g. `0x800000d0`);
-`mVU_XGKICK_` used the raw value so `size - diff` underflowed to ~2 GB → `CopyGSPacketData` memcpy
-SIGSEGV on the *first* kick (BIOS logo). Fix: point `REC_VU1`/`THREAD_VU1` at `EmuConfig` like x86.
-
-**7.8 bug #2 — compareState executed JIT mid-compile under W^X (`b7ae2fa7b`, `aVU.h`):** microVU runs
-its whole recursive compile inside one `BeginCodeWrite`/`EndCodeWrite` session → on Apple Silicon
-`pthread_jit_write_protect_np(0)` leaves the MAP_JIT region **writable but non-executable** for the
-duration. The block search (`search()`→`compareState`) runs mid-compile and *executed* the
-JIT-generated `compareStateF` → SIGBUS on the instruction fetch (both arg pointers were mapped &
-aligned — the tell-tale exec-permission fault). Fix: `compareState` is now a plain C++
-`__builtin_memcmp` of the 96-byte `microRegInfo` (compareStateF was just a 0-iff-equal test). This
-also fixed the identical crash on the **MTVU thread** (write-protect is per-thread), so MTVU works
-too and `THREAD_VU1` stays at full x86 parity (gated on `Speedhacks.vuThread`).
-
-**Debugging method (worked well):** boot under `lldb -b -o run -k '<cmds-on-crash>'`, re-sign the
-bundle with a `get-task-allow` entitlement first. For bug #1, a temporary `mVU_XGKICK_` size/tag log
-revealed the bit31; for bug #2, `memory region`/`p *$x0` showed the operands were valid → it was an
-exec-perm fault, not a bad pointer. Always re-run `pcsx2-postprocess-bundle` after a `pcsx2-qt` build
-before launching (else the duplicate-Qt SIGABRT masquerades as a VM crash).
-
-7.5b (`ddd15c67a`, `aVU_Lower.inl` NEW ≈1500 lines) ported all of x86 `microVU_Lower.inl`:
-VI ALU (IADD/IADDI/IADDIU/IAND/IOR/ISUB/ISUBIU), load/store (LQ/LQD/LQI, SQ/SQD/SQI, ILW/ILWR,
-ISW/ISWR), EFU (DIV/SQRT/RSQRT, EATAN*/EEXP/ELENG/ERCPR/ERLENG/ERSADD/ERSQRT/ESADD/ESIN/ESQRT/ESUM,
-WAITP/WAITQ), MFIR/MFP/MOVE/MR32/MTIR, RINIT/RGET/RNEXT/RXOR, FCxxx/FMxxx/FSxxx, XTOP/XITOP, the
-**real** XGKICK GIF path (`mVU_XGKICK_`/`_vuXGKICKTransfermVU` + `mVU_XGKICK_SYNC/DELAY`, replacing
-the aVU_Branch.inl no-op stubs), and the branch op handlers B/BAL/IBxx/JR/JALR (+ `setBranchA`,
-`condEvilBranch`, `normJumpPass2` — all moved out of aVU_Tables.inl into Lower). `mVUoptimizeConstantAddr`
-landed in `aVU_Misc.inl` returning an absolute host VU-mem pointer (std::nullopt ⇒ runtime compute).
-Tables: full `mVULOWER_OPCODE` + `mVULowerOP_OPCODE` + `T3_00/01/10/11` sub-tables + dispatchers.
-
-**7.5b-specific x86→NEON translations (in addition to 7.5a's set):**
-- `xMOVD`/`xMOVDZX` → `Fmov(W, S)` / `Fmov(S, W)`; `xMOVSS(d,s)` → `Ins(d.V4S(),0,s.V4S(),0)`.
-- `xMOVSSZX(xmm, ptr32[c])` → `Ldr(xmm.S(), [c])` (zeroes upper lanes); `xSQRT.SS` → `Fsqrt(.S)`.
-- `xMUL/xADD/xSUB.SS(r, ptr32[c])` → `mvuLdrSS(scratch, c)` + `F{mul,add,sub}(r.S(), …)`.
-- `xCMPEQ.SS(0,r)`+`xPTEST` → `Fcmeq(.S)` + `Fmov`→W + `Cmp` (testZero leaves eq==“reg!=0”).
-- SSE `xDP.PS(.,.,0x71)` (sum x²+y²+z²) → `Fmul` + zero-W lane (`Ins` from a zeroed reg) + two `Faddp`.
-- `xComplexAddress(tmp, base, idx)` → `armMoveAddressToReg(tmp, base)` + `Add(tmp, tmp, idx)`,
-  then `MemOperand(tmp, off)`. LQ/SQ get `mvuLoadRegBase`/`mvuSaveRegBase` (base-reg variants of
-  mVUloadReg/mVUsaveReg) because the VU data-mem pointer (`mVU.regs().Mem`) is NOT at a fixed offset
-  from RVUSTATE. `gprT1q`/`gprT2q` local macros = `a64::x9`/`a64::x10` (64-bit views for mVUaddrFix).
-
-**Per-block emit lifecycle (unchanged, the key ARM64 design):** x86's single global `x86Ptr` cursor
-→ one `armSetAsmPtr`+`armStartBlock`/`armEndBlock`(+icache flush) session opened by the *outer*
-entries only (`mVUexecute` wraps `mVUsearchProg`; `mVUcompileJIT` wraps its search). Recursive
-`mVUcompile`/`normBranchCompile`/`condBranch` calls append into that one open stream.
-
-**⚠ 7.8 validation watch-items (compiled but UNVERIFIED at runtime):**
-1. ✅ FIXED (`condBranch` signed-16 compare). x86 condBranch does a *16-bit signed* `xCMP(ptr16
-   [&mVU.branch], 0)`; the helper now sign-extends (`mvuLdrh16`→`mvuLdrsh16`, `Ldrsh`) so the signed
-   conditions (IBLTZ/IBGEZ/IBGTZ/IBLEZ → lt/ge/gt/le) see a bit15-set VI value as negative. eq/ne
-   (IBEQ/IBNE) unaffected. Still UNVERIFIED at runtime, but now semantically correct.
-2. The whole Lower NEON math (EFU polynomials, MIN/MAX, DIV flag logic, CLIP) — first runtime test.
-
----
-
-## (prior) task 7.4/7.5 part 1 detail — Pass-2 flag + P/Q allocators DONE.
-
-`pcsx2/arm64/aVU_Alloc.inl` is the **emit-backend allocator slice** — the allocator half of x86
-`microVU_Alloc.inl` ported to VIXL: `getFlagReg` + the Status/Mac/Clip flag normalize/denormalize
-emit helpers (`setBitSFLAG`/`setBitFSEQ`/`mVUallocSFLAGa`–`d`/`mVUallocMFLAGa`–`b`/
-`mVUallocCFLAGa`–`b`), and now the **P/Q register allocators** `getPreg`/`getQreg`/`writeQreg`.
-The latter use the NEON lane-broadcast `mVUunpack_xyzw` (added to `aVU_IR.h`: x86 `xPSHUF.D`
-constant-splat → VIXL `Dup` from the selected lane, index == case) and the PQ-latency NEON reg
-`mVU_xmmPQ` (v24) with the x86 layout (Q lanes 0/1, P lanes 2/3); `writeQreg`'s `xINSERTPS`/`xMOVSS`
-→ `Ins` lane0. It also establishes the **emit-layer register-name macros** in `aVU_IR.h`
-(`gprT1`=w9/`gprT2`=w10/`gprF0`–`gprF3`=w23–w26). Flag-helper translations: x86 GPRs (`x32`) →
-w-regs; `xTEST + xForwardJZ8 + xOR` → `Tst + B(eq) + Orr`; absolute `ptr16/ptr32[&…]` →
-`armMoveAddressToReg` + `Ldrh/Ldr/Str`. `mVUallocFlagCheck` (never called) odr-uses every helper
-so the VIXL bodies compile now.
-
-**Verified:** `pcsx2-qt` builds arm64; unittests 2/2. Pure infrastructure; microVU stays
-**unselected** on ARM64 (VMManager pins `CpuIntVU0/1`). Commits `8d312b4ce` (flags), `f47f00c3e` (P/Q).
-
-**Next:** continue the Misc emit subset — `mVUaddrFix` (VU0/VU1 address transform + the THREAD_VU1
-`waitMTVU` fast-call) + `mVUoptimizeConstantAddr`, and the clamp helpers `mVUclamp1`–`4`
-(`microVU_Clamp.inl`: operand/result clamp via `mVUglob.maxvals/minvals` + the SSE4 sign-overflow
-`sse4_min/maxvals` path → NEON `Fmin/Fmax`/`Smin/Umin`). Then stand up Flags
-(`aVU_Flags.inl`: `mVUdivSet`/`mVUsetupFlags` emit + `mVUsetFlags`/`mVUstatusFlagOp`/`findFlagInst`/
-`sortFlag`; blocked only on `_mVUflagPass`/`mVUsetFlagInfo` → `mVUopU`/`mVUopL`, 7.5) + Branch/
-program-exit (`mVUendProgram`/`normBranch`) against a NOP/B-only `mVUopU`/`mVUopL` so `mVUcompile`
-can link and emit a trivial block (own `armStartBlock`/`armEndBlock` per block + the **icache flush
-before branching into freshly-emitted code**).
+Just-ported (ARMSX2 `673135b0`, pending build verify): MMI integer MADD/MADDU/MADD1/MADDU1,
+MFHI1/MTHI1/MFLO1/MTLO1, native BC0F/BC0T (+likely) with CPCOND0 DMA-wait idle-skip, and
+the Count/PERF MFC0/MTC0 commit-then-inline (`recCop0NeedsLiveCycle`) replacing their
+single-step. Skipped that commit's EI/ERET rework — we already have `recIsForcedEventTestOp`.
 
 ---
 
@@ -224,7 +53,25 @@ still defers all real work to the interpreter. ✅ **DONE** (BIOS boot verified)
 ## Phase 2 — vtlb Fast Memory & Load/Store  *(highest priority after skeleton)*
 
 - [x] 2.1 Slow-path vtlb load/store codegen in `pcsx2/arm64/aR5900LoadStore.cpp`: `armEmitVtlbRead/Write` + `...Quad`, emitting calls to the C++ `vtlb_memRead/Write` helpers (interpreter-equivalent path). Builds, links, arm64, unittests green. *(Re-scoped from "implement `vtlb_DynBackpatchLoadStore`" — that is fastmem-only and is now Phase 2.2; see JOURNAL.)*
-- [ ] 2.2 **Fastmem fast path:** implement `vtlb_DynBackpatchLoadStore` in `pcsx2/arm64/RecStubs.cpp` (currently `pxFailRel`) + the direct `REFASTMEMBASE`-relative load/store emit + `vtlb_AddLoadStoreInfo`. Single-instruction backpatch (overwrite the faulting op with `B thunk`); thunk does the slow path then branches back. Ref `x86/ix86-32/recVTLB.cpp`.
+- [x] 2.2 **Fastmem fast path:** DONE & user-build-verified (all green), commit `2ff13e033d`. Host-MMU
+  fastmem: a single `RFASTMEMBASE`(x28)-relative `Ldr`/`Str` on the hot path + SIGSEGV backpatch to the
+  slow vtlb helper for MMIO/handler pages. Ported the memory half of ARMSX2 `ee33d237` (jpolo1224) onto our
+  EE rec — plan in `arm64-port/FASTMEM_PLAN.md` (F0–F5). All behind `CHECK_FASTMEM` + an `s_eeFastmemBackpatch`
+  toggle; the inline vmap path (`REVTLBPTR`=x21) is retained as the fallback for faulting PCs / fastmem-off.
+  - **F1** `armEmitJmpPtr` (`AsmHelpers.{cpp,h}`) — W^X-safe in-place overwrite of one instruction with a
+    `B imm26` (`BeginCodeWrite`/memcpy/`EndCodeWrite`/`FlushInstructionCache`). gtest `Arm64Emit.JmpPtrInPlacePatch`.
+  - **F2** `vtlb_DynBackpatchLoadStore` in `RecStubs.cpp` (was `pxFailRel`) — thunk redoes the access via
+    `vtlb_memRead/Write<T>` (+ `…128` quads) using the recorded addr/data reg codes, resolves addr/data
+    aliasing, sign/zero-extends loads, resumes after the fault; **no cycle reload** (memory-based cycle model).
+    `recBeginThunk`/`recEndThunk` carve a no-const-pool scratch region from the EE code buffer.
+  - **F3** emit-side fastmem in all four `recTryTranslateCached{Load,Store}{,Quad}` + `armTryEmitFastmemScalar32`;
+    threaded guest `pc` through `recTranslateOp`/`recTranslateOpOptimized`/`recEmitOp`/`recTryTranslateCachedOp`;
+    x28 pinned at both dispatcher funnels under `CHECK_FASTMEM`; `vtlb_ClearLoadStoreInfo()` in `recResetRaw`;
+    one-shot `[FASTMEM F0]` boot log. GPR cache **8→7** (dropped x28 = `RFASTMEMBASE`; x21 kept for the vmap fallback).
+  - **F5** LWC1/SWC1 (`aR5900FPU.cpp`) take `pc` + route through `armTryEmitFastmemScalar32`.
+  - Deliberately **NOT** ported from `ee33d237`: direct block chaining (we have recLUT 4.4) and the fast-tier
+    register cache (we use x20). Remaining: **F6** SMC/invalidation interaction verify + **F7** perf gate
+    (EE-fallback% and fps, fastmem on vs off) — see FASTMEM_PLAN.md.
 - [x] 2.3 EE load/store opcode generators: decode + guest-GPR access wired onto `armEmitVtlbRead/Write[Quad]`. `armEmitEffectiveAddr`/`armEmitLoadGpr`/`armEmitStoreGpr` + the 128-bit `armEmitLoadQuad`/`armEmitStoreQuad` (`~0xF` align + NEON q access). `recTranslateOp` dispatches the full aligned family: `LB/LBU/LH/LHU/LW/LWU/LD`, `SB/SH/SW/SD`, `LQ/SQ`. Unaligned `LWL/LWR/LDL/LDR`/`SWL/SWR/SDL/SDR` deferred (byte-merge codegen). Runtime-proven addr+align via 7 `Arm64EmitEE.*` gtests.
 - [x] 2.4 Test: full guest-memory round-trip through the scalar + quad generators. 6 new `Arm64EmitEE.*` gtests map a host buffer into the vtlb `vmap` (hand-built direct-pointer entry — no SysMemory/fastmem/page-fault-handler needed since default `EmuConfig` makes `vtlb_memRead/Write` a plain `*vmap[addr>>12].assumePtr(addr)`) and assert store→load, byte sign/zero-extend, doubleword, `$zero`-discard, and quad store/load + align-down all read/write the right bytes. Validates address calc + AAPCS64 marshalling + extension end-to-end.
 
@@ -238,7 +85,7 @@ still defers all real work to the interpreter. ✅ **DONE** (BIOS boot verified)
 - [x] 3.2 Reg-reg ops: `ADD/ADDU/SUB/SUBU/SLT/SLTU/AND/OR/XOR/NOR/DADD/DADDU/DSUB/DSUBU`.
 - [x] 3.3 Shifts: `SLL/SRL/SRA/SLLV/SRLV/SRAV/DSLLV/DSRLV/DSRAV/DSLL/DSRL/DSRA/DSLL32/DSRL32/DSRA32`.
 - [x] 3.4 Moves: `MOVZ/MOVN` (→ `CSEL`), `MFHI/MTHI/MFLO/MTLO`.
-- [x] 3.5 Mul/Div: `MULT/MULTU/DIV/DIVU` (+ MMI `MULT1/MULTU1/DIV1/DIVU1` → HI1/LO1). Uses `SMULL/UMULL` (32×32→64) and `SDIV/UDIV` + reload-based remainder. ARM `SDIV` reproduces the EE overflow quirk natively; only ÷0 needs a fixup. MULT/MULTU honour the R5900 3-operand `Rd=LO` write.
+- [x] 3.5 Mul/Div: `MULT/MULTU/DIV/DIVU` (+ MMI `MULT1/MULTU1/DIV1/DIVU1` → HI1/LO1). Uses `SMULL/UMULL` (32×32→64) and `SDIV/UDIV` + reload-based remainder. ARM `SDIV` reproduces the EE overflow quirk natively; only ÷0 needs a fixup. MULT/MULTU honour the R5900 3-operand `Rd=LO` write. **MMI multiply-accumulate `MADD/MADDU/MADD1/MADDU1` + pipeline-1 moves `MFHI1/MTHI1/MFLO1/MTLO1`** added (`aR5900MultDiv.cpp`, ARMSX2 `673135b0`); accumulator held in x17 across the widening multiply.
 - [ ] 3.6 Constant propagation (`EE_CONST_PROP`): track known-constant GPRs, emit immediate forms.
 
 ---
@@ -250,7 +97,11 @@ still defers all real work to the interpreter. ✅ **DONE** (BIOS boot verified)
 - [~] 4.2 Conditional branches: `BEQ/BNE/BLEZ/BGTZ/BLTZ/BGEZ/BLTZAL/BGEZAL` —
   codegen + wired (`recEmitBranch`). "Likely" variants (BEQL/BNEL/BLEZL/BGTZL/
   BLTZL/BGEZL/BLTZALL/BGEZALL — delay-slot nullification) run via interpreter
-  fallback for now; native codegen still TODO.
+  fallback for now; native codegen still TODO. **COP0 `BC0F/BC0T` (+ likely
+  `BC0FL/BC0TL`) native** via CPCOND0 (DMAC STAT/PCR) test — `armEmitBC0F/T`,
+  `emitCpcond0Test` in `aR5900Branch.cpp`; wired into `recEmitBranch`/
+  `recIsHandledBranch`/`recIsLikelyBranch`; `recBranchConditionReads`→0 so the
+  DMA-wait spin idle-skips via the wait-loop fast-forward (ARMSX2 `673135b0`).
 - [x] 4.3 **Dispatcher + delay-slot block compiler** — DONE & BIOS-boot verified.
   Multi-instruction `recCompileBlock`; branch generator + delay slot + exit; C++
   dispatcher loop in `recExecute` (pc→block→`_cpuEventTest_Shared`); per-opcode
@@ -454,8 +305,6 @@ still defers all real work to the interpreter. ✅ **DONE** (BIOS boot verified)
   - [x] Bug #2 fixed (`b7ae2fa7b`): `compareState` is C++ `memcmp`, not executed JIT — fixes the
     W^X SIGBUS (executing non-executable MAP_JIT mid-compile) on both the CPU and MTVU threads.
   - [x] **No crashes** — BIOS, Odin Sphere (2D), Rayman 3 (2D), FFX (3D) all boot without crashing.
-  - [!] **Rendering is WRONG (microVU1 correctness)** — 2D games black-screen, FFX has artifacts.
-    Attributed to microVU1 (correct with VU1 rec off). Bug #3 fixes only got rid of the *crashes*.
   - [x] Built `MVU_DIFF` shadow differential + per-instruction localizer + DIV/FMAC/writeback dumps
     (`fb00e747b` + this session's debug tooling, all env-gated).
   - [x] **ROOT CAUSE ISOLATED: wrong MAC flag.** `FMAND` (pc=0240) reads a wrong MACflag → wrong VI →
@@ -466,9 +315,80 @@ still defers all real work to the interpreter. ✅ **DONE** (BIOS boot verified)
     constant-load scratch → aliased the value reg → operands collapsed to -FLT_MAX → poisoned MULq →
     wrong FMAC sign → wrong MAC flag (the visible symptom) → wrong branch → black screen. Fix: clamp
     helpers fall back to `RQSCRATCH` when `regT1.IsNone()`. BIOS verified (warnings 13903→1).
-    [[arm64-microvu1-clamp-scratch-bug]] Still TODO: hands-on visual/soak on the failing games.
-- [ ] 7.9 **Macro mode** (lowest priority) — port `microVU_Macro.inl` so the EE rec emits COP2/VU0
-  macro ops natively instead of the Phase 5.3 inline-interp fallback. Optional perf polish.
+- [~] 7.9 **Macro mode** — port `microVU_Macro.inl` + the two COP2 analysis passes
+  (`iR5900Analysis.cpp`) so the EE rec drives precise, analysis-driven EE↔VU0 sync
+  (and eventually native COP2 emission) instead of the Phase 5.3 inline-interp blanket
+  sync. Now a **correctness/timing** item (strict-timing games), not just perf polish.
+  **Full plan: `arm64-port/MACRO_MODE_PLAN.md`** (phases M0–M6). Started 2026-06-18.
+  - [x] **M0 scaffolding** (2026-06-18): M0.1 `cop2flags()` + `EEINST`/`g_pCurInstInfo` →
+    new `pcsx2/arm64/aR5900Analysis.{h,cpp}`; M0.2 per-block `EEINST` inst-cache in
+    `recRecompile` (`recScanBlockEnd` pre-scan, `s_instCache`, per-op `g_pCurInstInfo`,
+    `s_eeEndBlock`); M0.3 non-syncing COP2 ALU entry identified
+    (`Int_COP2SPECIAL1PrintTable[code&0x3f]`). No behavior change.
+  - [x] **M1 COP2 analysis passes** (2026-06-18): faithful 1:1 port of both passes from
+    `iR5900Analysis.cpp` into `aR5900Analysis.{h,cpp}` (`AnalysisPass`/`COP2FlagHackPass`/
+    `COP2MicroFinishPass`), run in `recRecompile` after the M0.2 inst-cache build over
+    `[startpc, s_eeEndBlock)` behind a `has_cop2` gate (COP2/LQC2/SQC2 present). Call order
+    mirrors x86 (MicroFinish, then FlagHack under `vuFlagHack`). M1.1 FlagHack sets
+    `EEINST_COP2_{DENORMALIZE,NORMALIZE}_STATUS_FLAG`/`STATUS`/`MAC`/`CLIP`; M1.2 MicroFinish
+    sets `SYNC`/`FINISH`/`FLUSH_VU0_REGISTERS` (interlock pre-scan + LQC2/SQC2 finish-hoist +
+    `block_interlocked`/`CHECK_FULLVU0SYNCHACK`); M1.3 env-gated dump `eeDumpCOP2AnnotatedBlock`
+    (`EE_COP2_DUMP=1`). ⚠ no-offset inst-cache convention (vs x86's `+1`): passes called with
+    base `s_instCache`; the SPECIAL2 look-ahead re-bases to `&inst_cache[(apc+4-start)>>2]`.
+    Flags computed, **not consumed** (consumption starts M3) — no behavior change.
+  - [x] **M2 sync/interlock emit helpers** (2026-06-18): faithful VIXL ports of
+    `microVU_Macro.inl`'s `mVUFinishVU0`/`mVUSyncVU0(raw)`/`COP2_Interlock(mBitSync, raw)`
+    in `aR5900.cpp` (after `recEmitFlushCycles`) + a per-block `static bool
+    s_nBlockInterlocked` (reset in `recRecompile`). Memory-backed (no EE reg-alloc → no
+    `iFlushCall`/`_freeX86reg`); x86 `rax`→`RXVIXLSCRATCH` (x16, dead before the
+    `ExecuteBlockJIT(CpuVU0, interlocked)` args); cycle flush reuses `recScaleBlockCycles`;
+    `Tbz(VPU_STAT,0,skip)` for the idle-tests; `xLoadFarAddr(arg1,CpuVU0)`→
+    `armMoveAddressToReg(RXARG1, CpuVU0)` bakes the stable object pointer. Helpers are
+    `[[maybe_unused]]` (M3 is the first caller) — present, **not consumed**, no behavior
+    change. M3 prerequisite: set host-side `cpuRegs.code = op` at emit time (the x86
+    `_Rt_`/`_Rd_` macros + `COP2_Interlock`'s `cpuRegs.code & 1` read it).
+  - [~] **M3.1 recCFC2** (2026-06-18, code done — build pending user verify): first native
+    COP2 transfer op + first consumer of the M2 helpers (`[[maybe_unused]]` dropped). Native,
+    memory-backed in `aR5900.cpp`: `COP2_Interlock(false,0)` then the non-interlocked
+    `SYNC_VU0→mVUSyncVU0(0)` / `FINISH_VU0→mVUFinishVU0` dispatch off the M1 flags, then
+    per-`_Rd_` extend (`vi00→0`; `REG_I`/`REG_R`/`≥REG_STATUS_FLAG` → `Sxtw`, `REG_R` also
+    `& 0x7FFFFF`; else `Ldrh` zero-extend) into `cpuRegs.GPR[rt].UD[0]`. Sync helpers get
+    `raw=0` (the emit loop's `recOpNeedsCycleFlush`/`recEmitFlushCycles` already committed
+    `cpuRegs.cycle`; their `if (raw!=0)` guard then skips the redundant commit but reads the
+    current cycle). `recTranslateOp` `case 0x12` now switches on `rs` (0x02→`cpuRegs.code=op;
+    recCFC2()`; 0x08→single-step; else inline-interp). Removed CFC2 from the inline-interp
+    path; rewrote the stale "CpuVU0 is the synchronous VU0 interpreter" comment.
+  - [~] **M3.2 recCTC2 + M3.3 recQMFC2/recQMTC2** (2026-06-18, code done — build pending):
+    the rest of the COP2 transfer-register ops, native + memory-backed. **CTC2**: read-only/
+    `REG_R`/`REG_STATUS_FLAG`/`REG_CMSAR1`/`REG_FBRST`/vi00/default switch; REG_STATUS inlines
+    `mVUallocSFLAGd`'s denormalize bit-math (copied from `aVU_Alloc.inl`, microVU TU) + `Dup`
+    broadcast into `VU0.micro_statusflags`; REG_CMSAR1 → `vu1Finish`/`vu1ExecMicro`; REG_FBRST
+    reloads GPR[rt] from memory per `TEST_FBRST_RESET` → `vu0/1ResetRegs` (no callee-saved pin);
+    default VI 1-15 → 16-bit `Strh`, VI≥16 (incl. REG_I) → 32-bit `Str`. **QMFC2/QMTC2**:
+    128-bit `Ldr`/`Str RQSCRATCH` between `VU0.VF[rd]` ↔ `cpuRegs.GPR[rt]` (QMFC2 rt==0 / QMTC2
+    vf00 early-outs; QMTC2 rt==0 → `Movi` zero). `recTranslateOp` `case 0x12` now switches rs
+    (0x01 QMFC2 / 0x02 CFC2 / 0x05 QMTC2 / 0x06 CTC2 / 0x08 single-step / default inline-interp);
+    **only the SPECIAL ALU macro ops remain on inline-interp** (until M5). Faithful to
+    microVU_Macro.inl (not the interpreter).
+  - [~] **M3.4 recLQC2/recSQC2** (2026-06-19, code done — build pending user verify): the last COP2
+    transfer pair (quad load/store). Flag-driven `mVUSyncVU0(0)`/`mVUFinishVU0` off
+    `g_pCurInstInfo->info`, **no `COP2_Interlock`** (faithful to microVU_Macro.inl recLQC2/recSQC2),
+    `armEmitEffectiveAddr` + `& ~0xF` then the non-cached vtlb quad path
+    (`armEmitVtlbReadQuad`/`WriteQuad`) targeting `&VU0.VF[_Rt_]`. `OP_LQC2`/`OP_SQC2` added to
+    `recOpNeedsCycleFlush`; removed from inline-interp. **Phase M3 complete.** (Plus the 2026-06-19
+    cycle-accounting fix: dropped the unconditional pre-flush; cycles now commit inside the M2 sync
+    helpers on a real SYNC via `s_cop2RawCycles`, faithful to x86 — see JOURNAL.)
+  - [~] **M4 recBC2F/T/FL/TL** (2026-06-19, code done — build pending user verify): the COP2 branches,
+    emitted natively through the existing EE branch machinery (no longer single-stepped). `armEmitBC2F`/
+    `armEmitBC2T` in `aR5900Branch.cpp` (mirror `armEmitBC1F/T`: test `VU0.VI[REG_VPU_STAT].UL & 0x100`,
+    `eq`=branch-when-clear for F, `ne`=branch-when-set for T) + the likely forms BC2FL/BC2TL added to
+    `armEmitBranchLikelyTest` (rt 0x02/0x03 → eq/ne, native delay-slot nullification — mirrors BC1FL/
+    BC1TL; the PROGRESS-4.2 "likely branches fall back to interp" note is stale, they're native now).
+    Wired into `recEmitBranch` / `recIsHandledBranch` / `recIsLikelyBranch` (`case 0x12`, rs==0x08).
+    **Faithful to x86 `_setupBranchTest`: NO VU sync / interlock / cycle commit** (a plain bit-test
+    branch — unlike the M3 transfer ops); TrySwapDelaySlot not ported (the EE rec has no delay-slot
+    swap; a straight branch+delay-slot compile is faithful enough). `recTranslateOp` `case 0x12`
+    rs==0x08 is now an unreachable defensive fallback (recRecompile ends the block at the branch).
 
 ---
 

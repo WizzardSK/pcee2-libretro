@@ -762,6 +762,27 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 				GetVideoMode() == GSVideoMode::SDTV_480P);
 			s_last_draw_rect = draw_rect;
 
+			// MetalFX spatial upscale runs before CAS/present, and only when actually upscaling
+			// (source smaller than the on-screen draw rect). CAS can still sharpen afterward.
+			if (GSConfig.Upscaler == GSUpscaler::MetalFXSpatial)
+			{
+				static bool mfx_log_once = false;
+				if (g_gs_device->Features().metalfx_spatial)
+				{
+					const int draw_w = static_cast<int>(std::ceil(draw_rect.z - draw_rect.x));
+					const int draw_h = static_cast<int>(std::ceil(draw_rect.w - draw_rect.y));
+					if (current->GetWidth() < draw_w && current->GetHeight() < draw_h)
+						g_gs_device->MetalFXUpscale(current, src_rect, src_uv, draw_rect);
+				}
+				else if (!mfx_log_once)
+				{
+					Host::AddIconOSDMessage("MetalFXUnsupported", ICON_FA_TRIANGLE_EXCLAMATION,
+						TRANSLATE_SV("GS", "MetalFX upscaling is not available on this system (requires a Metal GPU on macOS 13 or newer)."),
+						10.0f);
+					mfx_log_once = true;
+				}
+			}
+
 			if (GSConfig.CASMode != GSCASMode::Disabled)
 			{
 				static bool cas_log_once = false;
@@ -796,7 +817,9 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 
 			EndPresentFrame();
 
-			PerformanceMetrics::OnGPUPresent(g_gs_device->GetAndResetAccumulatedGPUTime());
+			const float gpu_time = g_gs_device->GetAndResetAccumulatedGPUTime();
+			GPUPipelineStatistics gpu_stats = g_gs_device->GetAndResetAccumulatedGPUPipelineStatistics();
+			PerformanceMetrics::OnGPUPresent(gpu_time, gpu_stats.vs_invocations, gpu_stats.ps_invocations);
 		}
 
 		if (s_fb_readback_cb && current && !blank_frame)
