@@ -903,18 +903,17 @@ bool GSDeviceOGL::CheckFeatures()
 
 	// Don't use PBOs when we don't have ARB_buffer_storage, orphaning buffers probably ends up worse than just
 	// using the normal texture update routines and letting the driver take care of it.
-	// Desktop GL always has dual-source blending; on ES it is an extension. The
-	// renderer has no in-shader emulation of SRC1 blend equations here yet, so
-	// a driver without it cannot run the hardware renderer at all — say which
-	// one is missing rather than failing later in shader compilation.
-	m_dual_source_blend =
+	// Desktop GL always has dual-source blending; on ES it is an extension that ARM's
+	// Mali drivers in particular do not ship. Without it the SRC1 blend factors exist
+	// only as enums the driver rejects, so GSRendererHW blends those draws in the
+	// shader instead (see force_sw_blending) — which needs a way to read the
+	// destination. That pairing is checked below, once texture_barrier is known.
+	m_features.dual_source_blend =
 		!m_is_gles || GLAD_GL_EXT_blend_func_extended || GLAD_GL_ARB_blend_func_extended;
-	if (!m_dual_source_blend)
+	if (!m_features.dual_source_blend)
 	{
-		Host::ReportFormattedErrorAsync("GS",
-			"This GL ES driver has neither GL_EXT_blend_func_extended nor GL_ARB_blend_func_extended. "
-			"The hardware renderer needs dual-source blending; use the software renderer.");
-		return false;
+		Console.Warning("GL: No dual-source blending (neither GL_EXT_blend_func_extended nor "
+						"GL_ARB_blend_func_extended); draws that need it will be blended in the shader.");
 	}
 
 	// PBOs only pay off when buffer_storage can pin a persistently-mapped staging
@@ -963,6 +962,20 @@ bool GSDeviceOGL::CheckFeatures()
 	}
 	else
 		m_features.texture_barrier = m_features.framebuffer_fetch || GLAD_GL_ARB_texture_barrier || GLAD_GL_NV_texture_barrier;
+
+	// Software blending is the only stand-in for a missing dual-source blend unit, and it
+	// cannot composite against the destination without framebuffer fetch or a texture
+	// barrier. With neither, every SRC1 blend would come out wrong, so refuse here rather
+	// than render a broken frame — the software renderer is the honest answer on such a
+	// driver.
+	if (!m_features.dual_source_blend && !m_features.texture_barrier)
+	{
+		Host::ReportFormattedErrorAsync("GS",
+			"This GL ES driver has no dual-source blending (GL_EXT/ARB_blend_func_extended) and no "
+			"framebuffer fetch or texture barrier to emulate it with. The hardware renderer cannot "
+			"blend correctly here; use the software renderer.");
+		return false;
+	}
 
 	m_features.provoking_vertex_last = true;
 	m_features.dxt_textures = GLAD_GL_EXT_texture_compression_s3tc;
@@ -1761,7 +1774,7 @@ std::string GSDeviceOGL::GenGlslHeader(const std::string_view entry, GLenum type
 		if (GLAD_GL_ES_VERSION_3_2)
 			header += "precision highp usamplerBuffer;\n";
 
-		if (!m_dual_source_blend)
+		if (!m_features.dual_source_blend)
 			header += "#define DISABLE_DUAL_SOURCE\n";
 	}
 	else if (m_features.vs_expand && GLAD_GL_VERSION_4_3)

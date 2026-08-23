@@ -6937,7 +6937,10 @@ void GSRendererHW::EmulateBlending(int rt_alpha_min, int rt_alpha_max, DATEOptio
 	// HW blend can be done in multiple passes when there's no overlap.
 	// Blend multi pass is only useful when texture barriers aren't supported.
 	// Speed wise Texture barriers > blend multi pass > texture copies.
-	const bool blend_multi_pass_support = !features.texture_barrier && no_prim_overlap && is_basic_blend && COLCLAMP.CLAMP;
+	// The second pass of a multi-pass blend takes its factor from SRC1, so it is off the table
+	// without a dual-source blend unit (those draws go through software blending instead).
+	const bool blend_multi_pass_support = !features.texture_barrier && features.dual_source_blend &&
+										  no_prim_overlap && is_basic_blend && COLCLAMP.CLAMP;
 	const bool bmix1_multi_pass1 = blend_multi_pass_support && blend_mix1 && (alpha_c0_high_max_one || alpha_c2_high_one) && m_conf.ps.blend_d == 2;
 	const bool bmix1_multi_pass2 = blend_multi_pass_support && (blend_flag & BLEND_MIX1) && m_conf.ps.blend_b == m_conf.ps.blend_d && !m_conf.ps.dither && alpha_high_one;
 	const bool bmix3_multi_pass = blend_multi_pass_support && blend_mix3 && !m_conf.ps.dither && alpha_high_one;
@@ -7015,10 +7018,22 @@ void GSRendererHW::EmulateBlending(int rt_alpha_min, int rt_alpha_max, DATEOptio
 			break;
 	}
 
+	// A draw whose blend equation reads the second fragment output has nothing to read on a
+	// device without a dual-source blend unit (GL ES without blend_func_extended, i.e. every
+	// Mali). blend_mix and PABE reach the blend unit through SRC1 as well, even when the
+	// factors themselves do not name it.
+	const bool blend_path_requires_dual_source =
+		GSDevice::IsDualSourceBlendFactor(blend.src) || GSDevice::IsDualSourceBlendFactor(blend.dst) ||
+		blend_mix || PABE;
+
 	const bool force_sw_blending =
 		// If we have fbfetch, use software blending when we need the fb value for anything else.
 		// This saves outputting the second color when it's not needed.
 		(features.framebuffer_fetch && (one_barrier || m_conf.require_full_barrier)) ||
+
+		// No hardware dual-source blend unit: the SRC1 equations cannot run at all there, so
+		// blend those draws in the shader whatever the accuracy setting says.
+		(!features.dual_source_blend && blend_path_requires_dual_source) ||
 
 		// If we are doing depth feedback with a second RT we must use SW blending to avoid
 		// mixing dual source blending with multiple render targets.
