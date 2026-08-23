@@ -166,6 +166,9 @@ private:
 	// features this renderer otherwise assumes, so it is not a variant of the
 	// desktop path so much as a set of holes the code below works around.
 	bool m_is_gles = false;
+	// Mali, from the vendor/renderer string. Only used to pick the framebuffer fetch
+	// spelling; this port carries no wider mobile driver-workaround database.
+	bool m_is_mali = false;
 
 	GLuint m_fbo = 0; // frame buffer container
 	GLuint m_fbo_read = 0; // frame buffer container only for reading

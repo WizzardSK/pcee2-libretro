@@ -793,6 +793,15 @@ bool GSDeviceOGL::CheckFeatures()
 		//vendor_id_intel = true;
 	}
 
+	// Mali is worth knowing about for one reason: it advertises both spellings of
+	// framebuffer fetch, and only the ARM one (gl_LastFragColorARM) reads back the live
+	// tile pixel — the EXT inout path is broken on every Mali driver ARMSX2 has tested.
+	// Checked on the renderer string too, since some drivers put "ARM" only in the vendor.
+	const char* renderer = (const char*)glGetString(GL_RENDERER);
+	m_is_mali = (renderer && std::strstr(renderer, "Mali")) || std::strstr(vendor, "ARM");
+	if (m_is_mali)
+		Console.WriteLn(Color_StrongBlue, "GL: Mali GPU detected.");
+
 	GLint major_gl = 0;
 	GLint minor_gl = 0;
 	glGetIntegerv(GL_MAJOR_VERSION, &major_gl);
@@ -935,7 +944,12 @@ bool GSDeviceOGL::CheckFeatures()
 	m_features.broken_point_sampler = false;
 	m_features.primitive_id = true;
 
-	m_features.framebuffer_fetch = GLAD_GL_EXT_shader_framebuffer_fetch;
+	// ES has two spellings of framebuffer fetch. EXT gives an inout colour attachment,
+	// ARM a read-only gl_LastFragColorARM; the shader handles either. Older Mali drivers
+	// ship only the ARM one, and taking it is what keeps the destination read (and with it
+	// software blending, the stand-in for a missing dual-source unit) available there.
+	m_features.framebuffer_fetch =
+		GLAD_GL_EXT_shader_framebuffer_fetch || (m_is_gles && GLAD_GL_ARM_shader_framebuffer_fetch);
 	if (m_features.framebuffer_fetch && GSConfig.DisableFramebufferFetch)
 	{
 		Host::AddOSDMessage(
@@ -1742,6 +1756,13 @@ std::string GSDeviceOGL::GenGlslHeader(const std::string_view entry, GLenum type
 {
 	std::string header;
 
+	// Which framebuffer fetch the shaders should use. Mali is told to take the ARM
+	// spelling even when it also advertises EXT, and any driver that has only ARM takes it
+	// for want of anything else. GPU_PROFILE_MALI below has to agree with this choice: it
+	// is what makes tfx_fs.glsl reach for gl_LastFragColorARM instead of the inout path.
+	const bool use_arm_fbfetch = m_features.framebuffer_fetch && GLAD_GL_ARM_shader_framebuffer_fetch &&
+								 (m_is_mali || !GLAD_GL_EXT_shader_framebuffer_fetch);
+
 	if (m_is_gles)
 	{
 		header = GLAD_GL_ES_VERSION_3_2 ? "#version 320 es\n" : "#version 310 es\n";
@@ -1762,8 +1783,13 @@ std::string GSDeviceOGL::GenGlslHeader(const std::string_view entry, GLenum type
 		else if (GLAD_GL_ARB_blend_func_extended)
 			header += "#extension GL_ARB_blend_func_extended : require\n";
 
-		if (m_features.framebuffer_fetch && GLAD_GL_EXT_shader_framebuffer_fetch)
-			header += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
+		if (m_features.framebuffer_fetch)
+		{
+			if (use_arm_fbfetch)
+				header += "#extension GL_ARM_shader_framebuffer_fetch : require\n";
+			else if (GLAD_GL_EXT_shader_framebuffer_fetch)
+				header += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
+		}
 
 		// ES has no default precision for these, and no shader compiles without one.
 		header += "precision highp float;\n";
@@ -1800,14 +1826,14 @@ std::string GSDeviceOGL::GenGlslHeader(const std::string_view entry, GLenum type
 	else
 		header += "#define HAS_FRAMEBUFFER_FETCH 0\n";
 
-	// Which spelling of framebuffer fetch the shaders may use, and whether the
-	// Mali-specific workarounds apply. There is no Mali driver profiling here,
-	// so that one is always off and the guarded hunks compile out.
+	// Which spellings of framebuffer fetch the driver has, and which one the shaders
+	// should reach for. GPU_PROFILE_MALI is only that preference here — none of the
+	// wider Mali workarounds ARMSX2 keys off its profile are carried in this tree.
 	header += fmt::format(
 		"#define HAS_EXT_SHADER_FRAMEBUFFER_FETCH {}\n", GLAD_GL_EXT_shader_framebuffer_fetch ? 1 : 0);
 	header += fmt::format(
 		"#define HAS_ARM_SHADER_FRAMEBUFFER_FETCH {}\n", GLAD_GL_ARM_shader_framebuffer_fetch ? 1 : 0);
-	header += "#define GPU_PROFILE_MALI 0\n";
+	header += fmt::format("#define GPU_PROFILE_MALI {}\n", use_arm_fbfetch ? 1 : 0);
 
 	// Desktop GLSL substitutes 0 for a macro that appears in an #if and was
 	// never defined; GLSL ES calls that an error and refuses the shader. So
