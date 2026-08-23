@@ -229,9 +229,11 @@ target_link_libraries(common PRIVATE
 )
 
 if(TARGET WebP::libwebp)
-	target_link_libraries(common PRIVATE
-		${CMAKE_BINARY_DIR}/deps/lib/libsharpyuv.a
-	)
+	if(WEBOS)
+		target_link_libraries(common PRIVATE
+			${CMAKE_BINARY_DIR}/deps/lib/libsharpyuv.a
+		)
+	endif()
 endif()
 
 target_link_libraries(common PUBLIC

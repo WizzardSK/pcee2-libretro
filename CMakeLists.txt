@@ -19,6 +19,12 @@ set(TOP_CMAKE_WAS_SOURCED TRUE)
 # set module path
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+# detect if webOS compiler
+if(CMAKE_CXX_COMPILER MATCHES "webos" OR
+   CMAKE_CXX_COMPILER MATCHES "starfish")
+	set(WEBOS ON)
+endif()
+
 # Write binaries to the bin directory under the build directory.
 # This makes it simple to run development builds directly out of the build directory.
 if (UNIX AND NOT APPLE)
