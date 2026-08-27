@@ -48,6 +48,7 @@
 #include "pcsx2/Config.h"
 #include "pcsx2/GS.h"
 #include "pcsx2/GS/GS.h"
+#include "pcsx2/GS/GSExtra.h"
 #include "pcsx2/GS/Renderers/Common/GSRenderer.h"
 #include "pcsx2/Host/AudioStream.h"
 #include "pcsx2/SIO/Pad/PadDualshock2.h"
@@ -138,10 +139,23 @@ namespace LibretroHost
 	static bool s_run_token = false;
 	static bool s_frame_ready = false;
 
+	// Frames the GS dropped as duplicates (see GSSetDuplicateFrameCallback),
+	// counted on the GS thread and spent in retro_run(): one dropped frame buys
+	// one extra run token, so a frame the frontend would only have been told to
+	// repeat becomes emulation time instead. Free-running counter and the
+	// number of them retro_run() has spent - never reset independently.
+	static std::atomic<u64> s_duplicate_frames{0};
+	static u64 s_duplicate_frames_spent = 0;
+
 	// frame buffer handed from CPU thread to retro_run (guarded by s_frame_mutex)
 	static std::vector<u32> s_frame_pixels;
 	static u32 s_frame_width = 0;
 	static u32 s_frame_height = 0;
+	// ... and which readback retro_run() last presented, so it can tell a
+	// waiting frame from an already-shown one (the HW paths have their own
+	// serials, see VKLibretro/GLLibretro::HasFrame).
+	static u64 s_frame_serial = 0;
+	static u64 s_frame_serial_seen = 0;
 
 	// Zero-copy HW-render present paths: instead of the GPU->CPU readback above,
 	// the GS renders into something the frontend can read directly.
@@ -318,6 +332,14 @@ namespace LibretroHost
 		}
 		s_frame_width = width;
 		s_frame_height = height;
+		s_frame_serial++;
+	}
+
+	// Runs on the GS thread whenever SkipDuplicateFrames drops a vsync, i.e.
+	// whenever there will be no frame for retro_run() to present.
+	static void DuplicateFrameCallback()
+	{
+		s_duplicate_frames.fetch_add(1, std::memory_order_release);
 	}
 
 	static std::unique_ptr<AudioStream> CreateLibretroAudioStream(u32 sample_rate, const AudioStreamParameters& parameters)
@@ -2081,8 +2103,16 @@ bool retro_load_game(const struct retro_game_info* game)
 		s_frame_ready = false;
 		s_frame_width = 0;
 		s_frame_height = 0;
+		s_frame_serial = 0;
+		s_frame_serial_seen = 0;
 	}
 	s_hw_frame_seen = false;
+
+	// Wired for every present path - the readback one included, which also has
+	// nothing to hand over for a dropped frame.
+	s_duplicate_frames.store(0, std::memory_order_release);
+	s_duplicate_frames_spent = 0;
+	GSSetDuplicateFrameCallback(&DuplicateFrameCallback);
 
 	s_running.store(true, std::memory_order_release);
 	{
@@ -2162,6 +2192,7 @@ void retro_unload_game(void)
 	}
 
 	s_audio_stream = nullptr;
+	GSSetDuplicateFrameCallback(nullptr);
 	if (!HWRenderActive())
 		GSSetFramebufferReadback(nullptr, 0, 0);
 
@@ -2321,7 +2352,10 @@ static void UpdateInput()
 	}
 }
 
-static void OutputAudio()
+// pad_when_empty keeps the frontend's pipeline fed while nothing is being
+// produced yet; the pacing loop in retro_run() drains without it, since a
+// silent block there would be inserted into a stream that is running fine.
+static void OutputAudio(bool pad_when_empty = true)
 {
 	if (!s_audio_batch_cb)
 		return;
@@ -2338,6 +2372,9 @@ static void OutputAudio()
 
 	if (frames == 0)
 	{
+		if (!pad_when_empty)
+			return;
+
 		// keep the frontend's audio pipeline fed during boot
 		std::memset(s16_buffer, 0, (SAMPLE_RATE / 60) * 2 * sizeof(int16_t));
 		s_audio_batch_cb(s16_buffer, SAMPLE_RATE / 60);
@@ -2411,6 +2448,21 @@ static void UpdateAVInfoIfChanged()
 	s_environ_cb(RETRO_ENVIRONMENT_SET_SYSTEM_AV_INFO, &av_info);
 	INFO_LOG("libretro av_info: {}x{} @ {:.2f}Hz, {}Hz audio", av_info.geometry.base_width,
 		av_info.geometry.base_height, av_info.timing.fps, sample_rate);
+}
+
+// Whether a frame the frontend has not seen yet is waiting to be presented.
+// Call with s_frame_mutex held (the readback path publishes under it).
+static bool PresentFramePending()
+{
+#ifdef ENABLE_VULKAN
+	if (s_hw_render == HWRender::Vulkan)
+		return VKLibretro::HasFrame();
+#endif
+#ifdef ENABLE_OPENGL
+	if (s_hw_render == HWRender::OpenGL)
+		return GLLibretro::HasFrame();
+#endif
+	return s_frame_serial != s_frame_serial_seen;
 }
 
 // The GS present path sizes its canvas to the aspect-expanded merged frame, so
@@ -2540,13 +2592,59 @@ void retro_run(void)
 	}
 #endif
 
-	// hand the CPU thread one frame of execution, wait for the result
+	// Hand the CPU thread a frame of execution and wait for the result.
+	//
+	// When the GS drops a frame as a duplicate there is no image to hand over
+	// and the frontend is told to repeat the last one, so its frame rate stays
+	// at the VM's vertical frequency while the game's is a fraction of it -
+	// which is what frame generation and interpolation filters trip over.
+	// Spend the drop on another frame of emulation instead: retro_run() then
+	// returns once per frame that carries a new image, and the cadence the
+	// frontend sees becomes the game's internal one. Announcing the lower rate
+	// through av_info would be the other way to do it, but that reset tears the
+	// video driver down mid-run.
+	//
+	// Only drops the GS has actually reported are spent, at most as many in a
+	// row as the GS itself will drop. When it is merely a frame behind, no
+	// credit is waiting and the frontend gets the dupe it would have got
+	// before - guessing from "nothing arrived" instead would run the VM ahead
+	// every time the GPU is the slow end. A frame already waiting is presented
+	// as it is: the HW paths park the GS thread in PublishFrame until
+	// retro_run consumes, so running on past an unconsumed frame would stall
+	// this loop against its own pacing.
+	//
+	// What holds the speed to 100% is the frontend blocking on the audio it is
+	// handed, the same as it already is for this core - nothing here limits by
+	// wall clock, and SettingsOverride() turns the VM's own limiter off.
 	std::unique_lock lock(s_frame_mutex);
-	s_run_token = true;
-	s_frame_cv.notify_all();
+	bool got_frame = false;
+	for (u32 run = 0;; run++)
+	{
+		s_run_token = true;
+		s_frame_cv.notify_all();
 
-	const bool got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
-	s_frame_ready = false;
+		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
+		s_frame_ready = false;
+
+		if (!got_frame || run >= MAX_SKIPPED_DUPLICATE_FRAMES || PresentFramePending())
+			break;
+
+		const u64 dropped = s_duplicate_frames.load(std::memory_order_acquire);
+		if (dropped <= s_duplicate_frames_spent)
+			break;
+
+		s_duplicate_frames_spent++;
+
+		// Hand this frame's audio over before running the next one: the stream
+		// keeps ~50ms of ring and four frames of a 50Hz game are 80ms, so
+		// draining once at the end would overrun it. It is also what keeps the
+		// extra frames from running the VM fast - the frontend's write blocks
+		// for as long as the audio it just took needs to play. The CPU thread
+		// stays parked meanwhile; it has no run token until the next pass.
+		lock.unlock();
+		OutputAudio(false);
+		lock.lock();
+	}
 
 #ifdef ENABLE_VULKAN
 	if (s_hw_render == HWRender::Vulkan)
@@ -2663,6 +2761,7 @@ void retro_run(void)
 	{
 		if (got_frame && s_frame_width > 0 && s_frame_height > 0 && s_video_cb)
 		{
+			s_frame_serial_seen = s_frame_serial;
 			s_video_cb(s_frame_pixels.data(), s_frame_width, s_frame_height, s_frame_width * sizeof(u32));
 		}
 		else if (s_video_cb)

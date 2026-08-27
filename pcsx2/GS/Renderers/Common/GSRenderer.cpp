@@ -475,6 +475,14 @@ void GSSetFramebufferReadback(GSFramebufferReadbackCallback callback, u32 width,
 	s_fb_readback_size.store((static_cast<u64>(width) << 32) | height, std::memory_order_release);
 }
 
+// Signalled from VSync() below for every frame SkipDuplicateFrames drops.
+static GSDuplicateFrameCallback s_duplicate_frame_cb = nullptr;
+
+void GSSetDuplicateFrameCallback(GSDuplicateFrameCallback callback)
+{
+	s_duplicate_frame_cb = callback;
+}
+
 void GSReleaseFramebufferReadbackResources()
 {
 	for (u32 i = 0; i < 2; i++)
@@ -720,6 +728,8 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 		{
 			m_skipped_duplicate_frames++;
 			skip_frame = true;
+			if (s_duplicate_frame_cb)
+				s_duplicate_frame_cb();
 		}
 		else
 		{

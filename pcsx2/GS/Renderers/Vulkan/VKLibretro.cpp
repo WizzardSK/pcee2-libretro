@@ -210,6 +210,12 @@ namespace VKLibretro
 		return true;
 	}
 
+	bool HasFrame()
+	{
+		std::lock_guard<std::mutex> lock(s_frame_mutex);
+		return s_frame_serial != s_frame_consumed && s_frame.image != VK_NULL_HANDLE;
+	}
+
 	void SetPacing(bool enabled)
 	{
 		std::lock_guard<std::mutex> lock(s_frame_mutex);

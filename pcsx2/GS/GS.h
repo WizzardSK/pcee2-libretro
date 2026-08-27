@@ -118,6 +118,14 @@ using GSFramebufferReadbackCallback = void (*)(const u32* pixels, u32 pitch_px, 
 void GSSetFramebufferReadback(GSFramebufferReadbackCallback callback, u32 width, u32 height);
 void GSReleaseFramebufferReadbackResources();
 
+/// Called on the GS thread for each vsync EmuCore/GS SkipDuplicateFrames drops,
+/// i.e. every frame that produces no image at all. A frontend that paces the VM
+/// itself needs this to tell a dropped frame apart from a GS that is merely a
+/// frame behind - both look the same from the frame handoff. Pass nullptr to
+/// disable.
+using GSDuplicateFrameCallback = void (*)();
+void GSSetDuplicateFrameCallback(GSDuplicateFrameCallback callback);
+
 namespace Host
 {
 	/// Called when the GS is creating a render device.

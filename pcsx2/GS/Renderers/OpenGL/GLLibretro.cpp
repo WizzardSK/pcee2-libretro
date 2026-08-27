@@ -192,6 +192,12 @@ namespace GLLibretro
 		return true;
 	}
 
+	bool HasFrame()
+	{
+		std::lock_guard<std::mutex> lock(s_frame_mutex);
+		return s_frame_serial != s_frame_consumed && s_frame.texture != 0;
+	}
+
 	void SetPacing(bool enabled)
 	{
 		std::lock_guard<std::mutex> lock(s_frame_mutex);
