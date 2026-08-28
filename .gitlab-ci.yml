@@ -59,11 +59,13 @@ include:
 
   # macOS: same story as Linux — the Apple runners carry none of PCSX2's pinned
   # dependency versions, so the jobs below build them from source first with
-  # scripts/build-deps-macos.sh. Both slices are built, x86_64 by cross-compiling
-  # (the buildbot's Intel and Apple Silicon runners carry different tags, so the
-  # two templates pick the machine).
+  # scripts/build-deps-macos.sh. Both slices are built, but both on the Apple
+  # Silicon runner: see the Intel job for why it does not use the Intel one.
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-cmake-arm64.yml'
+  # Defines .libretro-osx-cmake-x86_64, used by the Intel job below.
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/osx-cmake-x86.yml'
 
 # The stock libretro build images are ancient Ubuntu (xenial/bionic): their
 # CMake (3.20), gcc, and system libs (PNG 1.2, zstd, webp, lz4) are far too old
@@ -240,11 +242,7 @@ libretro-build-windows-x64:
   variables:
     API_LEVEL: 24
 
-# macOS ARM 64-bit (Apple Silicon). There is no Intel counterpart on purpose:
-# the buildbot's x86_64 Mac is macOS 10.15 with Apple clang 12 and no second
-# Xcode installed, and PCSX2 wants C++20 — it stops in common/MemoryInterface.cpp
-# on std::bit_cast, which arrived in clang 14. Nothing in the core can bridge
-# that; if the runner is ever updated the job is four lines away.
+# macOS ARM 64-bit (Apple Silicon).
 libretro-build-osx-arm64:
   # Green three pipelines running now, but the runner is shared and slow to
   # rebuild deps from cold, so it stays out of the pipeline's way for a while.
@@ -258,6 +256,45 @@ libretro-build-osx-arm64:
     EXTRA_PATH: bin
   cache:
     key: "pcee2-deps-osx-arm64"
+    paths:
+      - deps/
+  before_script:
+    - *pcee2-deps-macos
+
+# macOS Intel (x86_64), cross-compiled on the Apple Silicon runner.
+#
+# The tag override is the whole point of this job. .libretro-osx-cmake-x86_64
+# inherits `macosx-packaging` from the base template, which is the buildbot's
+# Intel Mac: macOS 10.15 with Apple clang 12 and no second Xcode. PCSX2 wants
+# C++20 and stops there in common/MemoryInterface.cpp on std::bit_cast, which
+# arrived in clang 14, and nothing in the core can bridge that. Pointing the job
+# at mac-apple-silicon instead builds the same x86_64 slice with a current clang
+# and leaves the old machine out of it. lrps2 does the same thing.
+#
+# ARCH stays x86_64 because *pcee2-deps-macos passes it to the deps script as
+# OSX_ARCH: the static libraries have to be the same slice as the core, or the
+# link fails on mismatched architectures.
+libretro-build-osx-x64:
+  # New job on a shared runner that rebuilds deps from cold; like osx-arm64 it
+  # stays out of the pipeline's way until it has proven itself.
+  allow_failure: true
+  extends:
+    - .libretro-osx-cmake-x86_64
+    - .core-defs
+  tags:
+    - mac-apple-silicon
+  variables:
+    EXTRA_PATH: bin
+    # The template leaves this at 10.9, which predates the libc++ the C++20 in
+    # PCSX2 needs; 10.15 is what the arm64 job builds against.
+    MACOSX_DEPLOYMENT_TARGET: "10.15"
+    CC: clang
+    CXX: clang++
+    # The base template passes no CMAKE_OSX_EXTRA, so without this the build
+    # follows the host and produces an arm64 core from the x86_64 job.
+    CMAKE_OSX_EXTRA: -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64
+  cache:
+    key: "pcee2-deps-osx-x64"
     paths:
       - deps/
   before_script:
