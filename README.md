@@ -105,6 +105,7 @@ the exact steps on all three platforms.
 |---|---|---|
 | BIOS | auto / discovered images | restart required |
 | Fast Boot | enabled / disabled | restart required |
+| Memory Cards | Slot 1/2 enabled / disabled + discovered `.ps2` cards | applies immediately; scanned from `<system>/pcsx2/memcards` |
 | Renderer | Vulkan / OpenGL / Software | applies on the fly |
 | Internal Resolution | 1x–4x | applies on the fly, scales output too |
 | Blending Accuracy | Minimum–Maximum | default Basic |
@@ -126,6 +127,15 @@ the exact steps on all three platforms.
 | Rumble | enabled / disabled | DS2 vibration via frontend rumble |
 | Analog Axis Scale | 100–150% | default 133% (DualShock 2 response) |
 | Analog Deadzone | 0–30% | inside the emulated pad |
+
+The Memory Cards category exposes the two standard PS2 slots and lists only
+existing `.ps2` files found when the core options are registered. If the
+directory is empty, the Card selectors are omitted for that run; PCSX2 keeps
+its normal `Mcd001.ps2` / `Mcd002.ps2` defaults and creates missing cards
+through its existing memory-card path. Changing Enabled or Card selection while
+content is running is applied immediately through PCSX2's native memory-card
+configuration path; no core or content restart is required. The candidate list
+is still captured when the core options are registered.
 
 All graphics options map directly onto the corresponding standalone PCSX2
 settings; anything not exposed yet runs at the standalone default (including

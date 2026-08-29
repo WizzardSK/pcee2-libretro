@@ -228,6 +228,7 @@ namespace LibretroHost
 
 	// core option state
 	static std::vector<std::string> s_bios_names; // backing storage for option values
+	static std::vector<std::string> s_memcard_names; // backing storage for option values
 	static u32 s_opt_upscale = 1;
 
 	// libretro port -> PCSX2 pad index (see sioConvertPadToPortAndSlot: 0=1A,
@@ -606,8 +607,31 @@ void LibretroHost::RegisterCoreOptions()
 		}
 	}
 
+	// Scan only real .ps2 files. This happens before InitializeConfig(), so the
+	// existing FileMcd_GetAvailableCards() helper cannot be used here: it reads
+	// EmuFolders::MemoryCards, which is populated during startup configuration.
+	s_memcard_names.clear();
+	{
+		const char* system_dir = nullptr;
+		if (s_environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
+		{
+			FileSystem::FindResultsArray files;
+			const std::string memcards_dir = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
+			FileSystem::FindFiles(memcards_dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+			for (const FILESYSTEM_FIND_DATA& fd : files)
+			{
+				const std::string filename(Path::GetFileName(fd.FileName));
+				if (filename.ends_with(".ps2"))
+					s_memcard_names.push_back(filename);
+			}
+		}
+	}
+	std::sort(s_memcard_names.begin(), s_memcard_names.end());
+	s_memcard_names.erase(std::unique(s_memcard_names.begin(), s_memcard_names.end()), s_memcard_names.end());
+
 	static retro_core_option_v2_category categories[] = {
 		{"system", "System", "BIOS and boot behaviour."},
+		{"memory_cards", "Memory Cards", "PS2 memory card slot settings."},
 		{"graphics", "Graphics", "Renderer, resolution and image quality."},
 		{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing)."},
 		{"performance", "Performance", "Speed hacks. May break games."},
@@ -785,8 +809,50 @@ void LibretroHost::RegisterCoreOptions()
 			nullptr, "performance",
 			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
 			"enabled"},
+		// memory cards
+		{"pcsx2_memcard_slot1_enable", "Slot 1 Enabled", nullptr,
+			"Enable the Slot 1 PS2 memory card. Changes apply immediately while content is running.",
+			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
+		{"pcsx2_memcard_slot2_enable", "Slot 2 Enabled", nullptr,
+			"Enable the Slot 2 PS2 memory card. Changes apply immediately while content is running.",
+			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
+		{"pcsx2_memcard_slot1_file", "Slot 1 Card", nullptr,
+			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd001.ps2"},
+		{"pcsx2_memcard_slot2_file", "Slot 2 Card", nullptr,
+			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd002.ps2"},
 		{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, {{nullptr, nullptr}}, nullptr},
 	};
+
+	// Do not invent Mcd001.ps2/Mcd002.ps2 entries when the directory is empty.
+	// The final two definitions are deliberately last so a null key here only
+	// omits the Card selectors while retaining the Enabled options above them.
+	//
+	// definitions[] is static, so a key cleared on one call is still cleared on
+	// the next - and cannot be found by key any more either. Note where the two
+	// selectors are while their keys are intact, and put the keys back before
+	// deciding again, or a first run with an empty memcards directory would
+	// hide the selectors for the rest of the process.
+	static constexpr const char* SLOT_FILE_KEYS[2] = {"pcsx2_memcard_slot1_file", "pcsx2_memcard_slot2_file"};
+	static size_t slot_file_defs[2] = {std::size(definitions), std::size(definitions)};
+	for (size_t k = 0; k < std::size(SLOT_FILE_KEYS); k++)
+	{
+		if (slot_file_defs[k] == std::size(definitions))
+		{
+			for (size_t i = 0; i < std::size(definitions); i++)
+			{
+				if (definitions[i].key && std::strcmp(definitions[i].key, SLOT_FILE_KEYS[k]) == 0)
+				{
+					slot_file_defs[k] = i;
+					break;
+				}
+			}
+		}
+
+		if (slot_file_defs[k] != std::size(definitions))
+			definitions[slot_file_defs[k]].key = s_memcard_names.empty() ? nullptr : SLOT_FILE_KEYS[k];
+	}
 
 	// fill in the discovered BIOS list (bounded by the option value array size)
 	for (retro_core_option_v2_definition& def : definitions)
@@ -798,6 +864,37 @@ void LibretroHost::RegisterCoreOptions()
 			def.values[i] = {s_bios_names[i].c_str(), nullptr};
 		def.values[max_bios] = {nullptr, nullptr};
 		break;
+	}
+
+	// fill in the discovered memory card list (bounded by the option value array size)
+	bool warned_about_memcard_limit = false;
+	for (retro_core_option_v2_definition& def : definitions)
+	{
+		if (!def.key)
+			break;
+		if (std::strcmp(def.key, "pcsx2_memcard_slot1_file") != 0 &&
+			std::strcmp(def.key, "pcsx2_memcard_slot2_file") != 0)
+			continue;
+
+		const size_t max_cards = std::min(s_memcard_names.size(), std::size(def.values) - 1);
+		for (size_t i = 0; i < max_cards; i++)
+			def.values[i] = {s_memcard_names[i].c_str(), nullptr};
+		def.values[max_cards] = {nullptr, nullptr};
+
+		// The declared default (Mcd001.ps2) only exists if the user happens to
+		// have that card; naming a value that is not in the list leaves the
+		// frontend to pick for us. Fall back to the first card we found.
+		bool default_present = false;
+		for (size_t i = 0; i < max_cards && !default_present; i++)
+			default_present = (std::strcmp(def.default_value, def.values[i].value) == 0);
+		if (!default_present && max_cards > 0)
+			def.default_value = def.values[0].value;
+		if (!warned_about_memcard_limit && s_memcard_names.size() > max_cards)
+		{
+			Console.WarningFmt("{} memory cards found, but only {} can be exposed as a core option.",
+				s_memcard_names.size(), max_cards);
+			warned_about_memcard_limit = true;
+		}
 	}
 
 	unsigned version = 0;
@@ -1101,6 +1198,37 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		if (!(ee && iop && vu0 && vu1))
 			Console.WriteLnFmt("Recompiler state via core options: EE={} IOP={} VU0={} VU1={} (off = interpreter).",
 				ee, iop, vu0, vu1);
+	}
+
+	// Memory Card options are read at startup and whenever RetroArch reports a
+	// Core Option change. Keep all four values in the same settings layer before
+	// the caller's single VMManager::ApplySettings() so PCSX2 can perform its
+	// native change detection and eject/reopen path.
+	s_settings_interface.SetBoolValue("MemoryCards", "Slot1_Enable",
+		std::strcmp(get_option("pcsx2_memcard_slot1_enable", "enabled"), "enabled") == 0);
+	s_settings_interface.SetBoolValue("MemoryCards", "Slot2_Enable",
+		std::strcmp(get_option("pcsx2_memcard_slot2_enable", "enabled"), "enabled") == 0);
+	if (startup)
+	{
+		// The discovered list controls which selectors are registered, not
+		// whether RetroArch has a current value for those selectors.
+		if (!s_memcard_names.empty())
+		{
+			s_settings_interface.SetStringValue("MemoryCards", "Slot1_Filename",
+				get_option("pcsx2_memcard_slot1_file", "Mcd001.ps2"));
+			s_settings_interface.SetStringValue("MemoryCards", "Slot2_Filename",
+				get_option("pcsx2_memcard_slot2_file", "Mcd002.ps2"));
+		}
+	}
+	else
+	{
+		// Runtime reads must not be gated by the registration-time candidate
+		// list. Query both keys every time and leave the existing setting alone
+		// if the frontend does not expose one of them.
+		if (const char* filename = get_option("pcsx2_memcard_slot1_file", nullptr))
+			s_settings_interface.SetStringValue("MemoryCards", "Slot1_Filename", filename);
+		if (const char* filename = get_option("pcsx2_memcard_slot2_file", nullptr))
+			s_settings_interface.SetStringValue("MemoryCards", "Slot2_Filename", filename);
 	}
 }
 
