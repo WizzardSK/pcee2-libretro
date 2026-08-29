@@ -828,14 +828,30 @@ void LibretroHost::RegisterCoreOptions()
 	// Do not invent Mcd001.ps2/Mcd002.ps2 entries when the directory is empty.
 	// The final two definitions are deliberately last so a null key here only
 	// omits the Card selectors while retaining the Enabled options above them.
-	if (s_memcard_names.empty())
+	//
+	// definitions[] is static, so a key cleared on one call is still cleared on
+	// the next - and cannot be found by key any more either. Note where the two
+	// selectors are while their keys are intact, and put the keys back before
+	// deciding again, or a first run with an empty memcards directory would
+	// hide the selectors for the rest of the process.
+	static constexpr const char* SLOT_FILE_KEYS[2] = {"pcsx2_memcard_slot1_file", "pcsx2_memcard_slot2_file"};
+	static size_t slot_file_defs[2] = {std::size(definitions), std::size(definitions)};
+	for (size_t k = 0; k < std::size(SLOT_FILE_KEYS); k++)
 	{
-		for (retro_core_option_v2_definition& def : definitions)
+		if (slot_file_defs[k] == std::size(definitions))
 		{
-			if (def.key && (std::strcmp(def.key, "pcsx2_memcard_slot1_file") == 0 ||
-						std::strcmp(def.key, "pcsx2_memcard_slot2_file") == 0))
-				def.key = nullptr;
+			for (size_t i = 0; i < std::size(definitions); i++)
+			{
+				if (definitions[i].key && std::strcmp(definitions[i].key, SLOT_FILE_KEYS[k]) == 0)
+				{
+					slot_file_defs[k] = i;
+					break;
+				}
+			}
 		}
+
+		if (slot_file_defs[k] != std::size(definitions))
+			definitions[slot_file_defs[k]].key = s_memcard_names.empty() ? nullptr : SLOT_FILE_KEYS[k];
 	}
 
 	// fill in the discovered BIOS list (bounded by the option value array size)
@@ -864,6 +880,15 @@ void LibretroHost::RegisterCoreOptions()
 		for (size_t i = 0; i < max_cards; i++)
 			def.values[i] = {s_memcard_names[i].c_str(), nullptr};
 		def.values[max_cards] = {nullptr, nullptr};
+
+		// The declared default (Mcd001.ps2) only exists if the user happens to
+		// have that card; naming a value that is not in the list leaves the
+		// frontend to pick for us. Fall back to the first card we found.
+		bool default_present = false;
+		for (size_t i = 0; i < max_cards && !default_present; i++)
+			default_present = (std::strcmp(def.default_value, def.values[i].value) == 0);
+		if (!default_present && max_cards > 0)
+			def.default_value = def.values[0].value;
 		if (!warned_about_memcard_limit && s_memcard_names.size() > max_cards)
 		{
 			Console.WarningFmt("{} memory cards found, but only {} can be exposed as a core option.",
