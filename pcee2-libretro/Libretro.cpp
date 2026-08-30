@@ -1551,7 +1551,7 @@ void retro_set_environment(retro_environment_t cb)
 {
 	s_environ_cb = cb;
 
-	bool no_game = false;
+	bool no_game = true;
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_game);
 
 	retro_log_callback log_cb{};
@@ -1667,8 +1667,7 @@ void retro_deinit(void)
 	// DLL_PROCESS_DETACH inside FreeLibrary() - under the loader lock. That is
 	// exactly the deadlock class this function was already patched to avoid
 	// for the CPU thread (see the pacing-handshake break above): a frontend
-	// that calls retro_deinit() and then unloads the module (which this one
-	// does, since we report SET_SUPPORT_NO_GAME false) joins the VU1 thread
+	// that calls retro_deinit() and then unloads the module joins the VU1 thread
 	// from within DllMain, and the VU1 thread's own exit can need that same
 	// lock to come back. Close it here instead, while we're still safely
 	// outside FreeLibrary().
@@ -1993,13 +1992,20 @@ static void RegisterDiskControl()
 	s_environ_cb(RETRO_ENVIRONMENT_SET_DISK_CONTROL_INTERFACE, (void*)&legacy);
 }
 
-// Fills the disc list from whatever the frontend loaded and returns the image
-// to boot, or an empty string if there is nothing bootable in it.
-static std::string BuildDiscList(const char* content_path)
+// Clears only the libretro-facing disc list state. PCSX2's CDVD/NoDisc state
+// remains owned by VMManager and is intentionally not touched here.
+static void ResetDiscList()
 {
 	s_discs.clear();
 	s_disc_index = 0;
 	s_disc_ejected = false;
+}
+
+// Fills the disc list from whatever the frontend loaded and returns the image
+// to boot, or an empty string if there is nothing bootable in it.
+static std::string BuildDiscList(const char* content_path)
+{
+	ResetDiscList();
 
 	if (StringUtil::compareNoCase(Path::GetExtension(content_path), "m3u"))
 	{
@@ -2044,7 +2050,8 @@ static std::string BuildDiscList(const char* content_path)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	if (!game || !game->path)
+	const bool no_content = (game == nullptr);
+	if (!no_content && (!game->path || game->path[0] == '\0'))
 		return false;
 
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
@@ -2219,9 +2226,16 @@ bool retro_load_game(const struct retro_game_info* game)
 	s_environ_cb(RETRO_ENVIRONMENT_GET_RUMBLE_INTERFACE, &s_rumble_interface);
 
 	s_boot_params = VMBootParameters();
-	s_boot_params.filename = BuildDiscList(game->path);
-	if (s_boot_params.filename.empty())
-		return false;
+	if (no_content)
+	{
+		ResetDiscList();
+	}
+	else
+	{
+		s_boot_params.filename = BuildDiscList(game->path);
+		if (s_boot_params.filename.empty())
+			return false;
+	}
 
 	RegisterDiskControl();
 
