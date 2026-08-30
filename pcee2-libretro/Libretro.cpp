@@ -147,6 +147,9 @@ namespace LibretroHost
 	static std::atomic<u64> s_duplicate_frames{0};
 	static u64 s_duplicate_frames_spent = 0;
 
+	// Whether the VM paces itself (see the frame limiter core option).
+	static std::atomic<bool> s_internal_limiter{false};
+
 	// frame buffer handed from CPU thread to retro_run (guarded by s_frame_mutex)
 	static std::vector<u32> s_frame_pixels;
 	static u32 s_frame_width = 0;
@@ -537,8 +540,15 @@ bool LibretroHost::InitializeConfig()
 
 void LibretroHost::SettingsOverride()
 {
-	// the frontend paces us; never block on the limiter or host vsync
-	s_settings_interface.SetBoolValue("EmuCore/GS", "FrameLimitEnable", false);
+	// Host vsync is never ours to wait on - the frontend owns the window. The
+	// frame limiter is a choice: normally the frontend paces us by blocking on
+	// the audio we hand it, and a second limiter underneath that would only
+	// fight it. Where that blocking does not happen - an audio driver that
+	// underruns instead of waiting, which is what an Android device with no
+	// headroom does - nothing paces the VM at all and its own speed variation
+	// reaches the screen as jitter. The option puts PCSX2's limiter back for
+	// that case.
+	s_settings_interface.SetBoolValue("EmuCore/GS", "FrameLimitEnable", s_internal_limiter.load(std::memory_order_acquire));
 	s_settings_interface.SetIntValue("EmuCore/GS", "VsyncEnable", false);
 
 	// Renderer comes from the core options (Vulkan or SW-on-Vulkan); Vulkan is
@@ -708,6 +718,14 @@ void LibretroHost::RegisterCoreOptions()
 			{{"disabled", nullptr}, {"enabled", nullptr}, {nullptr, nullptr}}, "disabled"},
 		{"pcsx2_cas_mode", "Contrast Adaptive Sharpening", nullptr, nullptr, nullptr, "graphics",
 			{{"disabled", "Disabled"}, {"sharpen", "Sharpen Only"}, {nullptr, nullptr}}, "disabled"},
+		{"pcsx2_frame_limiter", "Frame Limiter", nullptr,
+			"What holds the emulator to full speed. Frontend leaves the pacing to RetroArch, which "
+			"throttles by making the core wait on the audio it hands over. Internal uses PCSX2's own "
+			"limiter instead - for a device where that wait never happens, because the audio driver "
+			"underruns rather than blocking, and the emulator's own speed variation then reaches the "
+			"screen as uneven frame pacing.",
+			nullptr, "system",
+			{{"frontend", "Frontend (RetroArch)"}, {"internal", "Internal (PCSX2)"}, {nullptr, nullptr}}, "frontend"},
 		{"pcsx2_skip_duplicate_frames", "Skip Presenting Duplicate Frames", nullptr,
 			"Don't hand the frontend a frame the GS never redrew - a 30fps game then delivers 30 "
 			"unique frames instead of 60 with every second one repeated. Turn this off if a frame "
@@ -1067,6 +1085,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	s_settings_interface.SetIntValue("EmuCore/GS", "CASSharpness", get_int_option("pcsx2_cas_sharpness", "50"));
 	s_settings_interface.SetBoolValue("EmuCore/GS", "SkipDuplicateFrames",
 		std::strcmp(get_option("pcsx2_skip_duplicate_frames", "enabled"), "enabled") == 0);
+	s_internal_limiter.store(std::strcmp(get_option("pcsx2_frame_limiter", "frontend"), "internal") == 0,
+		std::memory_order_release);
 
 	// patches
 	const bool widescreen = std::strcmp(get_option("pcsx2_widescreen_patches", "disabled"), "enabled") == 0;
@@ -1267,8 +1287,10 @@ void LibretroHost::CPUThreadMain()
 			if (VMManager::Initialize(s_boot_params) == VMBootResult::StartupSuccess)
 			{
 				VMManager::SetState(VMState::Running);
-				// the frontend paces us through retro_run(); never wall-clock throttle
-				VMManager::SetLimiterMode(LimiterModeType::Unlimited);
+				// Nominal means the VM throttles itself to the console's rate;
+				// Unlimited leaves the pacing to the frontend, which is the default.
+				VMManager::SetLimiterMode(s_internal_limiter.load(std::memory_order_acquire) ?
+					LimiterModeType::Nominal : LimiterModeType::Unlimited);
 				while (s_running.load(std::memory_order_acquire))
 				{
 					const VMState state = VMManager::GetState();
@@ -2638,7 +2660,11 @@ void retro_run(void)
 		s_running.load(std::memory_order_acquire))
 	{
 		ReadCoreOptions(false);
-		Host::RunOnCPUThread([]() { VMManager::ApplySettings(); });
+		Host::RunOnCPUThread([]() {
+			VMManager::SetLimiterMode(s_internal_limiter.load(std::memory_order_acquire) ?
+				LimiterModeType::Nominal : LimiterModeType::Unlimited);
+			VMManager::ApplySettings();
+		});
 	}
 
 	UpdateAVInfoIfChanged();
