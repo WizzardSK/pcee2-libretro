@@ -645,6 +645,7 @@ void LibretroHost::RegisterCoreOptions()
 		{"graphics", "Graphics", "Renderer, resolution and image quality."},
 		{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing)."},
 		{"performance", "Performance", "Speed hacks. May break games."},
+		{"audio", "Audio", "Sound output and buffering."},
 		{nullptr, nullptr, nullptr},
 	};
 
@@ -718,6 +719,14 @@ void LibretroHost::RegisterCoreOptions()
 			{{"disabled", nullptr}, {"enabled", nullptr}, {nullptr, nullptr}}, "disabled"},
 		{"pcsx2_cas_mode", "Contrast Adaptive Sharpening", nullptr, nullptr, nullptr, "graphics",
 			{{"disabled", "Disabled"}, {"sharpen", "Sharpen Only"}, {nullptr, nullptr}}, "disabled"},
+		{"pcsx2_audio_buffer_ms", "Audio Buffer", nullptr,
+			"How much audio the emulator keeps ahead of the frontend. More of it rides out a "
+			"stall that would otherwise be heard as a break in the sound, at the cost of that "
+			"much delay before you hear anything. PCSX2's own default is 50 ms, which assumes it "
+			"is feeding an audio device directly rather than a frontend that pulls once a frame.",
+			nullptr, "audio",
+			{{"50", "50 ms"}, {"75", "75 ms"}, {"100", "100 ms"}, {"150", "150 ms"}, {"200", "200 ms"},
+				{nullptr, nullptr}}, "100"},
 		{"pcsx2_frame_limiter", "Frame Limiter", nullptr,
 			"What holds the emulator to full speed. Frontend leaves the pacing to RetroArch, which "
 			"throttles by making the core wait on the audio it hands over. Internal uses PCSX2's own "
@@ -1087,6 +1096,14 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		std::strcmp(get_option("pcsx2_skip_duplicate_frames", "enabled"), "enabled") == 0);
 	s_internal_limiter.store(std::strcmp(get_option("pcsx2_frame_limiter", "frontend"), "internal") == 0,
 		std::memory_order_release);
+
+	// How much audio the emulator keeps buffered before the frontend takes it.
+	// PCSX2's own default is 50ms, chosen for a native backend it hands samples
+	// to directly; a core sits behind a frontend that adds its own latency and
+	// pulls once per retro_run, so the same 50ms empties on any hitch. Changing
+	// it recreates the output stream (SPU2::CheckForConfigChanges), so it
+	// applies without a restart.
+	s_settings_interface.SetIntValue("SPU2/Output", "BufferMS", get_int_option("pcsx2_audio_buffer_ms", "100"));
 
 	// patches
 	const bool widescreen = std::strcmp(get_option("pcsx2_widescreen_patches", "disabled"), "enabled") == 0;
