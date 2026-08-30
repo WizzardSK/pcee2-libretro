@@ -2050,9 +2050,11 @@ static std::string BuildDiscList(const char* content_path)
 
 bool retro_load_game(const struct retro_game_info* game)
 {
-	const bool no_content = (game == nullptr);
-	if (!no_content && (!game->path || game->path[0] == '\0'))
-		return false;
+	// No content means boot the BIOS. A frontend signals that with a null
+	// info pointer, but not every one of them does: some hand over a zeroed
+	// retro_game_info instead, and an empty path there means the same thing,
+	// not a load to refuse.
+	const bool no_content = (game == nullptr) || !game->path || game->path[0] == '\0';
 
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
 	if (!s_environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
