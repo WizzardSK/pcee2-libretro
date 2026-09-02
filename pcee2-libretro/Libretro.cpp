@@ -2664,8 +2664,15 @@ static void SyncHWRenderGeometry(u32 width, u32 height)
 	geometry.base_height = height;
 	geometry.max_width = GSLibretro::kMaxCanvasWidth;
 	geometry.max_height = GSLibretro::kMaxCanvasHeight;
-	// The canvas is already aspect-corrected; display it 1:1.
-	geometry.aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
+	// The canvas is the merged frame at the size the GS drew it, so the display
+	// aspect has to come from the emulator rather than from the pixel counts -
+	// and from the GS's own number, not this file's reading of the option, so
+	// the two cannot disagree about 480p or a widescreen patch.
+	const float gs_aspect = GSLibretro::DisplayAspect.load(std::memory_order_acquire);
+	const u32 aspect_bits = s_aspect_bits.load(std::memory_order_acquire);
+	geometry.aspect_ratio = gs_aspect > 0.0f ?
+		gs_aspect :
+		(aspect_bits ? std::bit_cast<float>(aspect_bits) : (4.0f / 3.0f));
 	s_environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
 }
 

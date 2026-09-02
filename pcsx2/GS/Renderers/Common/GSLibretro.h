@@ -12,11 +12,19 @@
 
 #include "common/Pcsx2Types.h"
 
+#include <atomic>
+
 namespace GSLibretro
 {
 	// True when a libretro frontend owns presentation. Set by the core before
 	// the GS opens, cleared when the session ends.
 	extern bool Active;
+
+	// The display aspect ratio the GS would have corrected the frame to, had it
+	// been drawing into a window. The canvas handed over is the merged frame at
+	// the size the GS drew it, so the correction is the frontend's to make and
+	// this is the number it needs. Zero until the first frame is presented.
+	extern std::atomic<float> DisplayAspect;
 
 	// Largest output canvas the core will produce: 4x-upscaled PAL expanded to
 	// 4:3. Advertised to the frontend as retro_game_geometry max_width/height

@@ -6,4 +6,5 @@
 namespace GSLibretro
 {
 	bool Active = false;
+	std::atomic<float> DisplayAspect{0.0f};
 } // namespace GSLibretro

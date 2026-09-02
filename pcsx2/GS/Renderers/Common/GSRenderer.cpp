@@ -774,13 +774,17 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 			// below is computed so the whole frame stays consistent.
 			if (GSLibretro::Active)
 			{
-				const float aspect = GetCurrentAspectRatioFloat(GetVideoMode() == GSVideoMode::SDTV_480P);
+				GSLibretro::DisplayAspect.store(
+					GetCurrentAspectRatioFloat(GetVideoMode() == GSVideoMode::SDTV_480P),
+					std::memory_order_release);
+				// Hand the merged frame over at the size the GS drew it, not
+				// expanded to the display aspect: the frontend corrects the
+				// aspect itself from the ratio the core reports, so expanding
+				// here only costs a resample - 1920x1344 stretched to 1920x1440
+				// for a 3x 640x448 game - before the frontend resamples again
+				// on the way to the screen.
 				float fwidth = static_cast<float>(current->GetWidth());
 				float fheight = static_cast<float>(current->GetHeight());
-				if (fwidth / fheight >= aspect)
-					fheight = fwidth / aspect;
-				else
-					fwidth = fheight * aspect;
 				const float clamp_scale = std::min({1.0f,
 					static_cast<float>(GSLibretro::kMaxCanvasWidth) / fwidth,
 					static_cast<float>(GSLibretro::kMaxCanvasHeight) / fheight});
@@ -796,9 +800,19 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 
 			src_rect = CalculateDrawSrcRect(current, m_real_size);
 			src_uv = GSVector4(src_rect) / GSVector4(current->GetSize()).xyxy();
-			draw_rect = CalculateDrawDstRect(g_gs_device->GetWindowWidth(), g_gs_device->GetWindowHeight(),
-				src_rect, current->GetSize(), s_display_alignment, g_gs_device->UsesLowerLeftOrigin(),
-				GetVideoMode() == GSVideoMode::SDTV_480P);
+			if (GSLibretro::Active)
+			{
+				// The canvas is the frame, so the frame fills it - no letterbox
+				// and no scale on this side.
+				draw_rect = GSVector4(0.0f, 0.0f, static_cast<float>(g_gs_device->GetWindowWidth()),
+					static_cast<float>(g_gs_device->GetWindowHeight()));
+			}
+			else
+			{
+				draw_rect = CalculateDrawDstRect(g_gs_device->GetWindowWidth(), g_gs_device->GetWindowHeight(),
+					src_rect, current->GetSize(), s_display_alignment, g_gs_device->UsesLowerLeftOrigin(),
+					GetVideoMode() == GSVideoMode::SDTV_480P);
+			}
 			s_last_draw_rect = draw_rect;
 
 			// MetalFX spatial upscale runs before CAS/present, and only when actually upscaling
