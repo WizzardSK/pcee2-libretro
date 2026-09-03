@@ -56,7 +56,24 @@ mkdir -p deps-build
 cd deps-build
 
 clone() {
-	[ -d "$2" ] || git clone --depth 1 --branch "$3" --recursive "$1" "$2"
+	[ -d "$2" ] && return 0
+	# GitHub answers a rate-limited anonymous fetch with something that is not a
+	# git response, and git then falls back to asking for a username - on a
+	# runner that is "could not read Username ... No such device or address" and
+	# the build stops before it has fetched anything (buildbot, 2 Sep 2026).
+	# Never prompt, and give it a couple of tries before calling it a failure.
+	local attempt
+	for attempt in 1 2 3; do
+		if GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true \
+			git clone --depth 1 --branch "$3" --recursive "$1" "$2"; then
+			return 0
+		fi
+		rm -rf "$2"
+		echo "clone of $1 failed (attempt $attempt), retrying in $((attempt * 15))s" >&2
+		sleep $((attempt * 15))
+	done
+	echo "FATAL: could not clone $1" >&2
+	return 1
 }
 
 build() {

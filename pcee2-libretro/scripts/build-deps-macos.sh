@@ -33,7 +33,21 @@ mkdir -p deps-build
 cd deps-build
 
 clone() {
-	[ -d "$2" ] || git clone --depth 1 -b "$3" $4 "https://github.com/$1" "$2"
+	[ -d "$2" ] && return 0
+	# See build-deps-linux.sh: a rate-limited anonymous fetch makes git ask for
+	# a username, which on a runner is an immediate hard failure.
+	local attempt
+	for attempt in 1 2 3; do
+		if GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true \
+			git clone --depth 1 -b "$3" $4 "https://github.com/$1" "$2"; then
+			return 0
+		fi
+		rm -rf "$2"
+		echo "clone of $1 failed (attempt $attempt), retrying in $((attempt * 15))s" >&2
+		sleep $((attempt * 15))
+	done
+	echo "FATAL: could not clone $1" >&2
+	return 1
 }
 
 build() {
