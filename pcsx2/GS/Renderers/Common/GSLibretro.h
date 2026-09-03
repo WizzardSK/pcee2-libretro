@@ -26,6 +26,15 @@ namespace GSLibretro
 	// this is the number it needs. Zero until the first frame is presented.
 	extern std::atomic<float> DisplayAspect;
 
+	// The native, un-upscaled display resolution the GS is drawing, packed as
+	// (width << 32) | height so a reader cannot catch one half of a video mode
+	// change. The canvas handed over is the upscaled merged frame, and its size
+	// moves with the internal-resolution setting and with every field/frame
+	// merge; this does not, which is what the geometry reported to the frontend
+	// needs, since that is what the frontend's integer scaling is computed
+	// from. Zero until the first frame is presented.
+	extern std::atomic<u64> NativeSize;
+
 	// Largest output canvas the core will produce: 4x-upscaled PAL expanded to
 	// 4:3. Advertised to the frontend as retro_game_geometry max_width/height
 	// and enforced when the present path sizes the canvas to the merged frame.

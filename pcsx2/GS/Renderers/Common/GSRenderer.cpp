@@ -777,6 +777,15 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 				GSLibretro::DisplayAspect.store(
 					GetCurrentAspectRatioFloat(GetVideoMode() == GSVideoMode::SDTV_480P),
 					std::memory_order_release);
+				// The size the frontend should scale by is the native one, not
+				// the canvas: the canvas moves with the upscale multiplier and
+				// with each field/frame merge, and a frontend that scales by
+				// integers redraws its viewport every time it moves.
+				const GSVector2i native_size = PCRTCDisplays.GetResolution();
+				GSLibretro::NativeSize.store(
+					(static_cast<u64>(std::max(native_size.x, 1)) << 32) |
+						static_cast<u32>(std::max(native_size.y, 1)),
+					std::memory_order_release);
 				// Hand the merged frame over at the size the GS drew it, not
 				// expanded to the display aspect: the frontend corrects the
 				// aspect itself from the ratio the core reports, so expanding

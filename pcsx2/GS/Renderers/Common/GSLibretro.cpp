@@ -7,4 +7,5 @@ namespace GSLibretro
 {
 	bool Active = false;
 	std::atomic<float> DisplayAspect{0.0f};
+	std::atomic<u64> NativeSize{0};
 } // namespace GSLibretro

@@ -204,9 +204,19 @@ namespace LibretroHost
 	static std::atomic<bool> s_gl_needs_reopen{false};
 #endif
 
-	// Last geometry announced to the frontend on a HW-render path.
+	// Last geometry announced to the frontend on a HW-render path. The aspect is
+	// part of it: a widescreen patch or a 480p switch can change the shape of
+	// the picture without moving the native resolution at all.
 	static u32 s_hw_geom_width = 0;
 	static u32 s_hw_geom_height = 0;
+	static float s_hw_geom_aspect = 0.0f;
+
+	// Size the last real HW frame was handed over at. A duplicate frame has to
+	// repeat it: the frontend reads the size from the video callback on every
+	// frame, and a number that disagrees with the frame before it is a resize
+	// as far as it is concerned.
+	static u32 s_hw_last_width = 0;
+	static u32 s_hw_last_height = 0;
 
 	// HW-render counterpart of "s_frame_width != 0": the readback callback that
 	// used to set s_frame_width isn't wired in HW mode, so UpdateInput's
@@ -1632,8 +1642,14 @@ void retro_get_system_av_info(struct retro_system_av_info* info)
 	const float fps = fps_bits ? std::bit_cast<float>(fps_bits) : 59.94f;
 
 	std::memset(info, 0, sizeof(*info));
-	info->geometry.base_width = s_out_width.load(std::memory_order_acquire);
-	info->geometry.base_height = s_out_height.load(std::memory_order_acquire);
+	// On a HW-render path the geometry is the native resolution rather than the
+	// canvas, for the reasons in SyncHWRenderGeometry; before the first frame
+	// there is no native size to report yet and the configured output stands in.
+	const u64 native = HWRenderActive() ? GSLibretro::NativeSize.load(std::memory_order_acquire) : 0;
+	info->geometry.base_width = native ? static_cast<u32>(native >> 32) :
+										 s_out_width.load(std::memory_order_acquire);
+	info->geometry.base_height = native ? static_cast<u32>(native & 0xffffffffu) :
+										  s_out_height.load(std::memory_order_acquire);
 	// The HW-render canvas is aspect-expanded and can exceed the plain upscale
 	// rectangle, so advertise the frontend the larger backbuffer bound.
 	info->geometry.max_width = HWRenderActive() ? GSLibretro::kMaxCanvasWidth : MAX_WIDTH;
@@ -2648,31 +2664,46 @@ static bool PresentFramePending()
 	return s_frame_serial != s_frame_serial_seen;
 }
 
-// The GS present path sizes its canvas to the aspect-expanded merged frame, so
-// the canvas tracks the internal resolution rather than a fixed output size.
-// Keep the frontend's geometry in step with it so scaling stays correct.
-static void SyncHWRenderGeometry(u32 width, u32 height)
+// What the frontend is told about the picture, as opposed to what it is handed.
+//
+// The canvas handed over is the merged frame at the size the GS drew it, so it
+// moves with the internal-resolution setting and with every field/frame merge -
+// 640x448 one frame and 640x224 the next is ordinary for an interlaced game.
+// Geometry is not the place for that. A frontend recomputes its viewport from
+// the geometry, and one that is scaling by integers has to pick a different
+// multiple every time the base moves, which is a picture that grows and shrinks
+// by a whole step several times a second (issue #33).
+//
+// So the geometry carries the native resolution, which is stable across both,
+// and the per-frame canvas size goes where it belongs: in the video callback,
+// which is what tells the frontend how much of the render target to sample.
+static void SyncHWRenderGeometry(u32 canvas_width, u32 canvas_height)
 {
-	if (width == s_hw_geom_width && height == s_hw_geom_height)
+	const u64 native = GSLibretro::NativeSize.load(std::memory_order_acquire);
+	const u32 width = native ? static_cast<u32>(native >> 32) : canvas_width;
+	const u32 height = native ? static_cast<u32>(native & 0xffffffffu) : canvas_height;
+
+	// The GS's aspect, not this file's reading of the option, so the two cannot
+	// disagree about 480p or a widescreen patch.
+	const float gs_aspect = GSLibretro::DisplayAspect.load(std::memory_order_acquire);
+	const u32 aspect_bits = s_aspect_bits.load(std::memory_order_acquire);
+	const float aspect = gs_aspect > 0.0f ?
+		gs_aspect :
+		(aspect_bits ? std::bit_cast<float>(aspect_bits) : (4.0f / 3.0f));
+
+	if (width == s_hw_geom_width && height == s_hw_geom_height && aspect == s_hw_geom_aspect)
 		return;
 
 	s_hw_geom_width = width;
 	s_hw_geom_height = height;
+	s_hw_geom_aspect = aspect;
 
 	retro_game_geometry geometry = {};
 	geometry.base_width = width;
 	geometry.base_height = height;
 	geometry.max_width = GSLibretro::kMaxCanvasWidth;
 	geometry.max_height = GSLibretro::kMaxCanvasHeight;
-	// The canvas is the merged frame at the size the GS drew it, so the display
-	// aspect has to come from the emulator rather than from the pixel counts -
-	// and from the GS's own number, not this file's reading of the option, so
-	// the two cannot disagree about 480p or a widescreen patch.
-	const float gs_aspect = GSLibretro::DisplayAspect.load(std::memory_order_acquire);
-	const u32 aspect_bits = s_aspect_bits.load(std::memory_order_acquire);
-	geometry.aspect_ratio = gs_aspect > 0.0f ?
-		gs_aspect :
-		(aspect_bits ? std::bit_cast<float>(aspect_bits) : (4.0f / 3.0f));
+	geometry.aspect_ratio = aspect;
 	s_environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
 }
 
@@ -2871,6 +2902,8 @@ void retro_run(void)
 		if (vulkan && vulkan->set_image && VKLibretro::ConsumeFrame(&frame))
 		{
 			s_hw_frame_seen = true;
+			s_hw_last_width = frame.width;
+			s_hw_last_height = frame.height;
 			SyncHWRenderGeometry(frame.width, frame.height);
 			static retro_vulkan_image vkimage;
 			vkimage = {};
@@ -2887,9 +2920,15 @@ void retro_run(void)
 		}
 		else if (s_video_cb)
 		{
-			// nothing new (still booting, or a duplicate frame) — dupe
-			s_video_cb(nullptr, s_frame_width ? s_frame_width : DEFAULT_WIDTH,
-				s_frame_height ? s_frame_height : DEFAULT_HEIGHT, 0);
+			// Nothing new (still booting, or a duplicate frame) - dupe, at the
+			// size the last real frame was handed over at. s_frame_width belongs
+			// to the readback path and is never set here, so the old fallback
+			// announced 640x480 in between upscaled frames, and a frontend that
+			// scales by integers recomputed its viewport on every one of them:
+			// a picture that grows and shrinks by a whole step several times a
+			// second (issue #33).
+			s_video_cb(nullptr, s_hw_last_width ? s_hw_last_width : DEFAULT_WIDTH,
+				s_hw_last_height ? s_hw_last_height : DEFAULT_HEIGHT, 0);
 		}
 	}
 #endif
@@ -2904,6 +2943,8 @@ void retro_run(void)
 		if (s_gl_hw_render.get_current_framebuffer && GLLibretro::ConsumeFrame(&frame))
 		{
 			s_hw_frame_seen = true;
+			s_hw_last_width = frame.width;
+			s_hw_last_height = frame.height;
 			SyncHWRenderGeometry(frame.width, frame.height);
 
 			// Sharing objects does not share ordering: the fence is what says
@@ -2943,9 +2984,15 @@ void retro_run(void)
 		}
 		else if (s_video_cb)
 		{
-			// nothing new (still booting, or a duplicate frame) — dupe
-			s_video_cb(nullptr, s_frame_width ? s_frame_width : DEFAULT_WIDTH,
-				s_frame_height ? s_frame_height : DEFAULT_HEIGHT, 0);
+			// Nothing new (still booting, or a duplicate frame) - dupe, at the
+			// size the last real frame was handed over at. s_frame_width belongs
+			// to the readback path and is never set here, so the old fallback
+			// announced 640x480 in between upscaled frames, and a frontend that
+			// scales by integers recomputed its viewport on every one of them:
+			// a picture that grows and shrinks by a whole step several times a
+			// second (issue #33).
+			s_video_cb(nullptr, s_hw_last_width ? s_hw_last_width : DEFAULT_WIDTH,
+				s_hw_last_height ? s_hw_last_height : DEFAULT_HEIGHT, 0);
 		}
 	}
 #endif
