@@ -638,7 +638,7 @@ jobs:
           done
 
       - name: Attach to Release
-        uses: softprops/action-gh-release@v3.0.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           prerelease: false
           make_latest: true
