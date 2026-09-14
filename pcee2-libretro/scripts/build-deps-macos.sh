@@ -47,8 +47,15 @@ PLATFORM_ARGS=()
 # whatever CMAKE_FIND_ROOT_PATH it is given rather than replacing it, so
 # naming the prefix here searches both, and the modes stay at ONLY - which is
 # what keeps a macOS library from /opt/homebrew out of an iOS build.
+#
+# CMAKE_MACOSX_BUNDLE is the third. Platform/Darwin.cmake turns it on by
+# default for the embedded systems, which makes every executable a bundle -
+# and an install(TARGETS) that does not name a BUNDLE DESTINATION is then a
+# hard error. Nothing here is an application; shaderc's spirv-as and glslang's
+# tools are build-time programs we do not even install, so the bundle default
+# is only a way for the dependency tree to stop on its own tools.
 EMBEDDED_ARGS=(-DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
-	"-DCMAKE_FIND_ROOT_PATH=$PREFIX")
+	"-DCMAKE_FIND_ROOT_PATH=$PREFIX" -DCMAKE_MACOSX_BUNDLE=OFF)
 case "$APPLE_PLATFORM" in
 	macos)
 		export MACOSX_DEPLOYMENT_TARGET=11.0

@@ -356,6 +356,7 @@ libretro-build-ios-arm64:
       -DCMAKE_PREFIX_PATH=$CI_PROJECT_DIR/deps
       -DSHADERC_LIBRARY=$CI_PROJECT_DIR/deps/lib/libshaderc_combined.a
       -DCMAKE_FIND_ROOT_PATH=$CI_PROJECT_DIR/deps
+      -DCMAKE_MACOSX_BUNDLE=OFF
   cache:
     key: "pcee2-deps-ios-arm64"
     paths:
@@ -384,6 +385,7 @@ libretro-build-tvos-arm64:
       -DCMAKE_PREFIX_PATH=$CI_PROJECT_DIR/deps
       -DSHADERC_LIBRARY=$CI_PROJECT_DIR/deps/lib/libshaderc_combined.a
       -DCMAKE_FIND_ROOT_PATH=$CI_PROJECT_DIR/deps
+      -DCMAKE_MACOSX_BUNDLE=OFF
   cache:
     key: "pcee2-deps-tvos-arm64"
     paths:

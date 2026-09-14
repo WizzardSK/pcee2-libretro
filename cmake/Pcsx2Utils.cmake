@@ -11,6 +11,15 @@ function(detect_operating_system)
 
 	if(WIN32)
 		message(STATUS "Building for Windows.")
+	# Named before the macOS case rather than folded into it, because upstream
+	# writes that one as "APPLE AND NOT IOS" and means it: the libretro iOS and
+	# tvOS templates both pass -DIOS=ON, so an Apple embedded build falls
+	# through every branch here and stops on "Unsupported platform" before
+	# anything else has a chance to say why.
+	elseif(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		message(STATUS "Building for iOS.")
+	elseif(APPLE AND CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+		message(STATUS "Building for tvOS.")
 	elseif(APPLE AND NOT IOS)
 		message(STATUS "Building for MacOS.")
 	elseif(ANDROID)
