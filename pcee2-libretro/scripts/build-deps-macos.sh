@@ -30,17 +30,24 @@ APPLE_PLATFORM="${APPLE_PLATFORM:-macos}"
 # the system name and sysroot spelled out or CMake quietly produces macOS
 # libraries that link but will not load on a device.
 PLATFORM_ARGS=()
+# CMAKE_SYSTEM_PROCESSOR has to be spelled out for the embedded platforms.
+# Naming CMAKE_SYSTEM_NAME is what puts CMake into cross-compiling mode, and in
+# that mode it stops detecting the processor and leaves the variable empty
+# unless told - which is not a warning but a hard failure several dependencies
+# down: libjpeg-turbo does string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} ...) and
+# gets "string no output variable specified" when the expansion is empty.
+EMBEDDED_ARGS=(-DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
 case "$APPLE_PLATFORM" in
 	macos)
 		export MACOSX_DEPLOYMENT_TARGET=11.0
 		;;
 	ios)
 		OSX_ARCH=arm64
-		PLATFORM_ARGS=(-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
+		PLATFORM_ARGS=("${EMBEDDED_ARGS[@]}" -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos)
 		;;
 	tvos)
 		OSX_ARCH=arm64
-		PLATFORM_ARGS=(-DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
+		PLATFORM_ARGS=("${EMBEDDED_ARGS[@]}" -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos)
 		;;
 	*)
 		echo "unknown APPLE_PLATFORM '$APPLE_PLATFORM' (expected macos, ios or tvos)" >&2

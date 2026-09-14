@@ -39,7 +39,17 @@ target_link_libraries(pcee2_libretro PRIVATE
 )
 
 # undefined symbols in a core otherwise surface only when the frontend loads
-# it ("symbol lookup error" at runtime) - fail the link instead
+# it ("symbol lookup error" at runtime) - fail the link instead.
+#
+# -Bsymbolic and the version script keep the core self-contained inside the
+# frontend's process: the core binds its own definitions rather than whatever
+# the frontend already has under the same name, and exports nothing but the
+# libretro entry points. See libretro.map for what went wrong without them.
 if(UNIX AND NOT APPLE)
-	target_link_options(pcee2_libretro PRIVATE "-Wl,--no-undefined")
+	target_link_options(pcee2_libretro PRIVATE
+		"-Wl,--no-undefined"
+		"-Wl,-Bsymbolic"
+		"-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libretro.map")
+	set_property(TARGET pcee2_libretro APPEND PROPERTY
+		LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/libretro.map")
 endif()
