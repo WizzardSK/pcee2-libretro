@@ -24,10 +24,21 @@ if(WIN32)
 		src/connection_win.cpp
 		src/discord_register_win.cpp
 	)
-elseif(APPLE)
+elseif(APPLE AND NOT APPLE_EMBEDDED)
 	target_sources(discord-rpc PRIVATE
 		src/connection_unix.cpp
 		src/discord_register_osx.m
+	)
+elseif(APPLE_EMBEDDED)
+	# discord_register_osx.m registers the discord:// handler through
+	# NSWorkspace, and AppKit does not exist on iOS or tvOS - nor does a
+	# Discord client to register with. The POSIX variant keeps the same two
+	# symbols defined and writes a .desktop file nothing will ever read, which
+	# is the honest shape of "not available here": the connection half is plain
+	# unix sockets and builds anywhere.
+	target_sources(discord-rpc PRIVATE
+		src/connection_unix.cpp
+		src/discord_register_linux.cpp
 	)
 elseif(UNIX)
 	target_sources(discord-rpc PRIVATE
