@@ -161,8 +161,15 @@ elseif(APPLE)
 	target_link_options(common PRIVATE -fobjc-link-runtime)
 	target_link_libraries(common PRIVATE
 		"-framework Foundation"
-		"-framework IOKit"
 	)
+	# IOKit is macOS only. What used it here - the power assertion that keeps
+	# the display awake - is compiled out on iOS and tvOS, where holding the
+	# idle timer open is the frontend's business rather than a library's.
+	if(NOT APPLE_EMBEDDED)
+		target_link_libraries(common PRIVATE
+			"-framework IOKit"
+		)
+	endif()
 else()
 	target_sources(common PRIVATE
 		Linux/LnxHostSys.cpp

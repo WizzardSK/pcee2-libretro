@@ -25,8 +25,16 @@
 #include <mach/task.h>
 #include <mach/thread_state.h>
 #include <mutex>
+#include <TargetConditionals.h>
+#if TARGET_OS_OSX
+// ApplicationServices carries the CoreGraphics event and cursor APIs, and IOKit
+// the power assertions. Neither is available on iOS or tvOS - there is no
+// pointer to warp, no event tap to install, and sleep is the system's business
+// rather than an application's - so the four functions that use them answer
+// "not available" there instead.
 #include <ApplicationServices/ApplicationServices.h>
 #include <IOKit/pwr_mgt/IOPMLib.h>
+#endif
 
 // Darwin (OSX) is a bit different from Linux when requesting properties of
 // the OS because of its BSD/Mach heritage. Helpfully, most of this code
@@ -136,6 +144,8 @@ std::string GetOSVersionString()
 	return type + " " + release + " " + arch;
 }
 
+#if TARGET_OS_OSX
+
 static IOPMAssertionID s_pm_assertion;
 
 bool Common::InhibitScreensaver(bool inhibit)
@@ -214,6 +224,34 @@ void Common::DetachMousePositionCb()
 	mouseRunLoopSource = nullptr;
 	mouseEventTap = nullptr;
 }
+
+#else // !TARGET_OS_OSX
+
+bool Common::InhibitScreensaver(bool inhibit)
+{
+	// The frontend asks the system not to sleep on iOS and tvOS; an idle timer
+	// is not something a loaded library gets to hold open.
+	(void)inhibit;
+	return false;
+}
+
+void Common::SetMousePosition(int x, int y)
+{
+	(void)x;
+	(void)y;
+}
+
+bool Common::AttachMousePositionCb(std::function<void(int, int)> cb)
+{
+	(void)cb;
+	return false;
+}
+
+void Common::DetachMousePositionCb()
+{
+}
+
+#endif // TARGET_OS_OSX
 
 void Threading::Sleep(int ms)
 {

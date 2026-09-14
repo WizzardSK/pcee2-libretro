@@ -953,6 +953,13 @@ set(pcsx2OSXSources
 	CDVD/Darwin/IOCtlSrc.cpp
 	)
 
+# The physical drive, for platforms that have none and no interface to reach one
+# with. IOKit's storage headers are macOS only.
+set(pcsx2NullDriveSources
+	CDVD/Null/DriveUtility.cpp
+	CDVD/Null/IOCtlSrc.cpp
+	)
+
 set(pcsx2FreeBSDSources
 	CDVD/Darwin/DriveUtility.cpp
 	CDVD/Darwin/IOCtlSrc.cpp
@@ -1244,7 +1251,10 @@ endif()
 target_sources(PCSX2 PRIVATE ${pcsx2USBSources} ${pcsx2USBHeaders})
 
 if(APPLE OR BSD)
-	if(APPLE)
+	if(APPLE_EMBEDDED)
+		target_sources(PCSX2 PRIVATE
+			${pcsx2NullDriveSources})
+	elseif(APPLE)
 		target_sources(PCSX2 PRIVATE
 			${pcsx2OSXSources})
 	else()

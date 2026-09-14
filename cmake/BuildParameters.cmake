@@ -17,6 +17,15 @@ option(PACKAGE_MODE "Use this option to ease packaging of PCSX2 (developer/distr
 option(BUNDLE_EMOJI_FONT "Bundles Noto Color Emoji for systems whose system emoji font isn't usable by freetype" ON)
 option(POSITION_INDEPENDENT_CODE "Generate position-independent code. It is recommended that you leave this on." ON)
 
+# iOS and tvOS are Apple but not macOS, and the difference decides quite a lot
+# below: no AppKit, no IOKit, no optical drive, no desktop session. CMake tells
+# them apart by system name - APPLE is true for all of them.
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	set(APPLE_EMBEDDED TRUE)
+else()
+	set(APPLE_EMBEDDED FALSE)
+endif()
+
 #-------------------------------------------------------------------------------
 # Graphical option
 #-------------------------------------------------------------------------------

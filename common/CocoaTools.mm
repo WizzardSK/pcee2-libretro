@@ -12,8 +12,21 @@
 #include <dlfcn.h>
 #include <mutex>
 #include <vector>
-#include <Cocoa/Cocoa.h>
-#include <QuartzCore/QuartzCore.h>
+#include <TargetConditionals.h>
+
+// AppKit is macOS only. On iOS and tvOS the parts of this file that drive
+// windows, menus, the Finder and NSTask have nothing to talk to - a libretro
+// core owns none of those, the frontend does - so they are compiled out and
+// answer "not available". What is left is Foundation, which is the same on
+// every Apple platform, and it covers the four functions the core actually
+// calls: the bundle path, the non-translocated bundle path, the resource path
+// and the view refresh rate.
+#if TARGET_OS_OSX
+	#include <Cocoa/Cocoa.h>
+	#include <QuartzCore/QuartzCore.h>
+#else
+	#include <Foundation/Foundation.h>
+#endif
 
 // MARK: - Metal Layers
 
@@ -21,6 +34,32 @@ static NSString*_Nonnull NSStringFromStringView(std::string_view sv)
 {
 	return [[NSString alloc] initWithBytes:sv.data() length:sv.size() encoding:NSUTF8StringEncoding];
 }
+
+#if !TARGET_OS_OSX
+
+// The frontend owns the view and the layer on iOS and tvOS; this core is handed
+// a surface rather than making one. Vulkan is off there as well (MoltenVK ships
+// as a dylib, which is not something either system will load beside a core), so
+// nothing reaches these in practice.
+bool CocoaTools::CreateMetalLayer(WindowInfo*)
+{
+	Console.Error("CreateMetalLayer is not available on this platform.");
+	return false;
+}
+
+void CocoaTools::DestroyMetalLayer(WindowInfo*)
+{
+}
+
+std::optional<float> CocoaTools::GetViewRefreshRate(const WindowInfo&)
+{
+	// UIScreen could answer this, but the view belongs to the frontend and
+	// asking about a view we were handed is not the same question. The caller
+	// treats an empty answer as "use the default", which is the honest one.
+	return std::nullopt;
+}
+
+#else
 
 bool CocoaTools::CreateMetalLayer(WindowInfo* wi)
 {
@@ -85,20 +124,33 @@ std::optional<float> CocoaTools::GetViewRefreshRate(const WindowInfo& wi)
 	return ret;
 }
 
+#endif // TARGET_OS_OSX
+
 // MARK: - Help menu
 
 void CocoaTools::MarkHelpMenu(void* menu)
 {
+#if TARGET_OS_OSX
 	[NSApp setHelpMenu:(__bridge NSMenu*)menu];
+#else
+	(void)menu; // no menu bar to mark
+#endif
 }
 
 // MARK: - Sound playback
 
 bool Common::PlaySoundAsync(const char* path)
 {
+#if TARGET_OS_OSX
 	NSString* nspath = [[NSString alloc] initWithUTF8String:path];
 	NSSound* sound = [[NSSound alloc] initWithContentsOfFile:nspath byReference:YES];
 	return [sound play];
+#else
+	// NSSound is AppKit. AVFoundation could do it, but nothing in a core plays
+	// a system sound - this exists for the desktop UI.
+	(void)path;
+	return false;
+#endif
 }
 
 // MARK: - Updater
@@ -122,6 +174,9 @@ std::optional<std::string> CocoaTools::GetNonTranslocatedBundlePath()
 	if (!url)
 		return std::nullopt;
 
+#if TARGET_OS_OSX
+	// Translocation is Gatekeeper's doing and exists only on macOS; elsewhere
+	// the bundle path is already the real one.
 	if (void* handle = dlopen("/System/Library/Frameworks/Security.framework/Security", RTLD_LAZY))
 	{
 		auto IsTranslocatedURL = reinterpret_cast<Boolean(*)(CFURLRef path, bool* isTranslocated, CFErrorRef*__nullable error)>(dlsym(handle, "SecTranslocateIsTranslocatedURL"));
@@ -136,6 +191,7 @@ std::optional<std::string> CocoaTools::GetNonTranslocatedBundlePath()
 		}
 		dlclose(handle);
 	}
+#endif
 
 	return std::string([url fileSystemRepresentation]);
 }
@@ -151,6 +207,12 @@ std::optional<std::string> CocoaTools::MoveToTrash(std::string_view file)
 
 bool CocoaTools::DelayedLaunch(std::string_view file)
 {
+#if !TARGET_OS_OSX
+	// NSTask, /bin/sh and `open` are all desktop. Nothing relaunches an app
+	// here anyway; this is the updater's path.
+	(void)file;
+	return false;
+#else
 	@autoreleasepool {
 		NSTask* task = [NSTask new];
 		[task setExecutableURL:[NSURL fileURLWithPath:@"/bin/sh"]];
@@ -161,14 +223,21 @@ bool CocoaTools::DelayedLaunch(std::string_view file)
 		[task setArguments:@[@"-c", @"while /bin/ps -p $WAITPID > /dev/null; do /bin/sleep 0.1; done; exec /usr/bin/open \"$LAUNCHAPP\";"]];
 		return [task launchAndReturnError:nil];
 	}
+#endif
 }
 
 // MARK: - Directory Services
 
 bool CocoaTools::ShowInFinder(std::string_view file)
 {
+#if TARGET_OS_OSX
 	return [[NSWorkspace sharedWorkspace] selectFile:NSStringFromStringView(file)
 	                        inFileViewerRootedAtPath:@""];
+#else
+	// There is no Finder to open.
+	(void)file;
+	return false;
+#endif
 }
 
 std::optional<std::string> CocoaTools::GetResourcePath()
@@ -185,6 +254,23 @@ std::optional<std::string> CocoaTools::GetResourcePath()
 }}
 
 // MARK: - GSRunner
+
+#if !TARGET_OS_OSX
+
+// The GSRunner's own window and event loop. Desktop-only by construction: a
+// core does not create windows, and there is no AppKit here to create one with.
+void* CocoaTools::CreateWindow(std::string_view, u32, u32) { return nullptr; }
+void CocoaTools::DestroyWindow(void*) {}
+
+void CocoaTools::GetWindowInfoFromWindow(WindowInfo* wi, void*)
+{
+	wi->type = WindowInfo::Type::Surfaceless;
+}
+
+void CocoaTools::RunCocoaEventLoop(bool) {}
+void CocoaTools::StopMainThreadEventLoop() {}
+
+#else
 
 void* CocoaTools::CreateWindow(std::string_view title, u32 width, u32 height)
 {
@@ -268,3 +354,5 @@ void CocoaTools::StopMainThreadEventLoop()
 	                                    data2:0];
 	[NSApp postEvent:ev atStart:NO];
 }}
+
+#endif // TARGET_OS_OSX
