@@ -67,6 +67,14 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-cmake-x86.yml'
 
+  # iOS and tvOS. Both run on the same Apple Silicon runner as the macOS jobs
+  # and are arm64 like it, but they are cross-builds: different SDK, different
+  # system name, and no MoltenVK, so they render through Metal.
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/ios-cmake.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/tvos-cmake.yml'
+
 # The stock libretro build images are ancient Ubuntu (xenial/bionic): their
 # CMake (3.20), gcc, and system libs (PNG 1.2, zstd, webp, lz4) are far too old
 # for PCSX2's pinned versions (PNG 1.6.40, zstd 1.5.5, ...). Override the image
@@ -115,6 +123,16 @@ include:
   # stock macOS runner (this one has no Homebrew either).
   - export NUMPROC=$(($(sysctl -n hw.ncpu)/5))
   - OSX_ARCH=$ARCH bash pcee2-libretro/scripts/build-deps-macos.sh "$CI_PROJECT_DIR/deps"
+
+# iOS and tvOS. Same recipe as macOS with the platform switched; the Vulkan
+# renderer is left out because MoltenVK ships as a dylib and a loose dylib
+# beside a core is not something either system will load. Metal covers it.
+#
+# NUMPROC again: these templates set it from `nproc`, which is a coreutils
+# binary the stock runner does not have, and this before_script replaces theirs.
+.pcee2-deps-apple-embedded: &pcee2-deps-apple-embedded
+  - export NUMPROC=$(($(sysctl -n hw.ncpu)/5))
+  - APPLE_PLATFORM=$PCEE2_APPLE_PLATFORM OSX_ARCH=arm64 bash pcee2-libretro/scripts/build-deps-macos.sh "$CI_PROJECT_DIR/deps"
 
 .pcee2-setup-android: &pcee2-setup-android
   - export DEBIAN_FRONTEND=noninteractive
@@ -299,6 +317,79 @@ libretro-build-osx-x64:
       - deps/
   before_script:
     - *pcee2-deps-macos
+
+# iOS (arm64).
+#
+# Worth being plain about what this is and is not. The ARM64 recompilers in this
+# fork are complete - EE, VU and IOP, with fastmem backpatching - and the Apple
+# JIT plumbing is already here for macOS arm64: MAP_JIT, the
+# pthread_jit_write_protect_np pair, the entitlement. On iOS that same plumbing
+# needs the dynamic-codesigning entitlement, which Apple grants to WebKit and to
+# debugger-attached processes. So this core will run where JIT has been enabled -
+# a sideload with a debugger attached, TrollStore, a jailbreak - and will fail at
+# the first code-buffer allocation on a stock App Store install. That is a
+# property of the platform, not something the core can work around, and it is the
+# same bargain every JIT-based iOS core makes.
+#
+# Vulkan is off: MoltenVK ships as a dylib and a loose dylib beside a core is not
+# something iOS will load. The Metal renderer is the one here.
+#
+# allow_failure while it settles, like the two macOS jobs - this has never been
+# compiled for an Apple embedded SDK before and the first pipelines are discovery.
+libretro-build-ios-arm64:
+  allow_failure: true
+  extends:
+    - .libretro-ios-cmake-arm64
+    - .core-defs
+  variables:
+    EXTRA_PATH: bin
+    PCEE2_APPLE_PLATFORM: ios
+    # Restated rather than appended: a variable cannot refer to itself, and the
+    # only difference from .core-defs is the renderer.
+    CORE_ARGS: >-
+      -DENABLE_LIBRETRO=ON
+      -DENABLE_QT_UI=OFF
+      -DENABLE_TESTS=OFF
+      -DDISABLE_ADVANCE_SIMD=ON
+      -DSHADERC_STATIC=ON
+      -DUSE_VULKAN=OFF
+      -DCMAKE_PREFIX_PATH=$CI_PROJECT_DIR/deps
+      -DSHADERC_LIBRARY=$CI_PROJECT_DIR/deps/lib/libshaderc_combined.a
+      -DCMAKE_FIND_ROOT_PATH=$CI_PROJECT_DIR/deps
+  cache:
+    key: "pcee2-deps-ios-arm64"
+    paths:
+      - deps/
+  before_script:
+    - *pcee2-deps-apple-embedded
+
+# tvOS (arm64). Same core, same bargain on JIT, and the Apple TV is the one
+# device in this family where a PS2 emulator has a screen and a controller and
+# no battery to worry about.
+libretro-build-tvos-arm64:
+  allow_failure: true
+  extends:
+    - .libretro-tvos-cmake-arm64
+    - .core-defs
+  variables:
+    EXTRA_PATH: bin
+    PCEE2_APPLE_PLATFORM: tvos
+    CORE_ARGS: >-
+      -DENABLE_LIBRETRO=ON
+      -DENABLE_QT_UI=OFF
+      -DENABLE_TESTS=OFF
+      -DDISABLE_ADVANCE_SIMD=ON
+      -DSHADERC_STATIC=ON
+      -DUSE_VULKAN=OFF
+      -DCMAKE_PREFIX_PATH=$CI_PROJECT_DIR/deps
+      -DSHADERC_LIBRARY=$CI_PROJECT_DIR/deps/lib/libshaderc_combined.a
+      -DCMAKE_FIND_ROOT_PATH=$CI_PROJECT_DIR/deps
+  cache:
+    key: "pcee2-deps-tvos-arm64"
+    paths:
+      - deps/
+  before_script:
+    - *pcee2-deps-apple-embedded
 
 libretro-build-android-arm64-v8a:
   extends:

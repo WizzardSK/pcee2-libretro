@@ -7,6 +7,11 @@
 # The architecture follows $OSX_ARCH (default x86_64), which has to match the
 # CMAKE_OSX_ARCHITECTURES the core is configured with: a static library of the
 # wrong slice fails at link, not at configure.
+#
+# $APPLE_PLATFORM picks which Apple platform to build for: macos (default), ios
+# or tvos. The recipes are identical - it is the same sources and the same CMake
+# options - so the only difference is the SDK and system name handed to every
+# sub-build, which is why this is a switch here rather than a script of its own.
 set -e
 
 if [ "$#" -ne 1 ]; then
@@ -18,8 +23,31 @@ PREFIX=$(python3 -c "import os,sys;print(os.path.realpath(sys.argv[1]))" "$1")
 mkdir -p "$PREFIX"
 NPROCS="$(getconf _NPROCESSORS_ONLN)"
 OSX_ARCH="${OSX_ARCH:-x86_64}"
-export MACOSX_DEPLOYMENT_TARGET=11.0
-echo "Building dependencies for $OSX_ARCH into $PREFIX"
+APPLE_PLATFORM="${APPLE_PLATFORM:-macos}"
+
+# Per-platform flags added to every sub-build. iOS and tvOS are cross-builds even
+# on an Apple Silicon host - same instruction set, different SDK - so they need
+# the system name and sysroot spelled out or CMake quietly produces macOS
+# libraries that link but will not load on a device.
+PLATFORM_ARGS=()
+case "$APPLE_PLATFORM" in
+	macos)
+		export MACOSX_DEPLOYMENT_TARGET=11.0
+		;;
+	ios)
+		OSX_ARCH=arm64
+		PLATFORM_ARGS=(-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
+		;;
+	tvos)
+		OSX_ARCH=arm64
+		PLATFORM_ARGS=(-DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
+		;;
+	*)
+		echo "unknown APPLE_PLATFORM '$APPLE_PLATFORM' (expected macos, ios or tvos)" >&2
+		exit 1
+		;;
+esac
+echo "Building dependencies for $APPLE_PLATFORM/$OSX_ARCH into $PREFIX"
 
 
 # Revisions live in deps.versions, shared with the other platform scripts and
@@ -27,7 +55,8 @@ echo "Building dependencies for $OSX_ARCH into $PREFIX"
 . "$(cd "$(dirname "$0")" && pwd)/deps.versions"
 
 COMMON=(-DCMAKE_BUILD_TYPE=Release "-DCMAKE_INSTALL_PREFIX=$PREFIX" "-DCMAKE_PREFIX_PATH=$PREFIX"
-	-DBUILD_SHARED_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 "-DCMAKE_OSX_ARCHITECTURES=$OSX_ARCH" -G Ninja)
+	-DBUILD_SHARED_LIBS=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 "-DCMAKE_OSX_ARCHITECTURES=$OSX_ARCH"
+	"${PLATFORM_ARGS[@]}" -G Ninja)
 
 mkdir -p deps-build
 cd deps-build
@@ -105,16 +134,21 @@ if [ "$(git -C shaderc/third_party/glslang rev-parse HEAD)" != "$GLSLANG" ]; the
 	git -C shaderc/third_party/glslang checkout --detach FETCH_HEAD
 fi
 cmake -S shaderc -B shaderc/b -DCMAKE_BUILD_TYPE=Release "-DCMAKE_INSTALL_PREFIX=$PREFIX" \
-	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 "-DCMAKE_OSX_ARCHITECTURES=$OSX_ARCH" -G Ninja \
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 "-DCMAKE_OSX_ARCHITECTURES=$OSX_ARCH" "${PLATFORM_ARGS[@]}" -G Ninja \
 	-DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON -DSHADERC_SKIP_COPYRIGHT_CHECK=ON
 cmake --build shaderc/b --parallel "$NPROCS" --target shaderc_combined
 mkdir -p "$PREFIX/lib" "$PREFIX/include"
 cp shaderc/b/libshaderc/libshaderc_combined.a "$PREFIX/lib/"
 cp -r shaderc/libshaderc/include/shaderc "$PREFIX/include/"
 
-# MoltenVK: prebuilt release (dlopen'd Vulkan implementation)
-curl -L -o moltenvk.tar "https://github.com/KhronosGroup/MoltenVK/releases/download/$MOLTENVK/MoltenVK-macos.tar"
-tar xf moltenvk.tar
-cp MoltenVK/MoltenVK/dylib/macOS/libMoltenVK.dylib "$PREFIX/lib/"
+# MoltenVK: prebuilt release (dlopen'd Vulkan implementation). macOS only - on
+# iOS and tvOS a loose dylib beside the core is not something the system will
+# load, so those builds use the Metal renderer and configure with
+# -DUSE_VULKAN=OFF rather than carrying a Vulkan driver they cannot open.
+if [ "$APPLE_PLATFORM" = "macos" ]; then
+	curl -L -o moltenvk.tar "https://github.com/KhronosGroup/MoltenVK/releases/download/$MOLTENVK/MoltenVK-macos.tar"
+	tar xf moltenvk.tar
+	cp MoltenVK/MoltenVK/dylib/macOS/libMoltenVK.dylib "$PREFIX/lib/"
+fi
 
 echo "Dependencies installed to $PREFIX"
