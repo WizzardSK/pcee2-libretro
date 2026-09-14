@@ -213,11 +213,11 @@ if (USE_GCC AND CMAKE_INTERPROCEDURAL_OPTIMIZATION)
 	set_source_files_properties(FastJmp.cpp PROPERTIES COMPILE_FLAGS -fno-lto)
 endif()
 
-if(NOT WIN32 AND NOT ANDROID)
-	# libcurl-based HTTPDownloader. Android has no libcurl to link against, and
-	# a libretro core has nothing to download - HTTPDownloader::Create() there
-	# returns nothing and the callers (achievements, cover downloads) treat it
-	# as unavailable.
+if(NOT WIN32 AND NOT ANDROID AND NOT APPLE_EMBEDDED)
+	# libcurl-based HTTPDownloader. Neither Android nor iOS and tvOS have a
+	# libcurl to link against, and a libretro core has nothing to download -
+	# HTTPDownloader::Create() there returns nothing and the callers
+	# (achievements, cover downloads) treat it as unavailable.
 	target_sources(common PRIVATE
 		HTTPDownloaderCurl.cpp
 		HTTPDownloaderCurl.h

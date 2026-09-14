@@ -151,6 +151,16 @@ clone biojppm/rapidyaml rapidyaml "$RAPIDYAML" --recursive
 build rapidyaml
 
 # shaderc: static combined, linked straight into the core
+# libpcap headers only, and only where the SDK has none: DEV9 compiles against
+# them but loads the library at runtime, which is why the headers are enough.
+# The macOS SDK carries them; the iPhoneOS and AppleTVOS ones do not.
+if [ "$APPLE_PLATFORM" != "macos" ]; then
+	clone the-tcpdump-group/libpcap libpcap libpcap-1.10.5
+	mkdir -p "$PREFIX/include/pcap"
+	cp libpcap/pcap.h libpcap/pcap-bpf.h libpcap/pcap-namedb.h "$PREFIX/include/"
+	cp libpcap/pcap/*.h "$PREFIX/include/pcap/"
+fi
+
 clone google/shaderc shaderc "$SHADERC"
 (cd shaderc && python3 utils/git-sync-deps)
 # git-sync-deps has just put DEPS' revision in place; move it forward. The

@@ -76,13 +76,16 @@ if (WIN32)
 	add_subdirectory(3rdparty/winwil EXCLUDE_FROM_ALL)
 	set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
 	find_package(Vtune)
-elseif(ANDROID)
+elseif(ANDROID OR APPLE_EMBEDDED)
 	# Everything above comes from the prefix built by
-	# pcee2-libretro/scripts/build-deps-android.sh. What is missing here is
-	# missing from the platform: no libcurl (the downloader is compiled out),
-	# no libpcap (DEV9's network adapters use the headers in-tree and load the
-	# library at runtime, which no Android device has), no fontconfig, X11,
-	# Wayland, dbus or udev, and no VTune.
+	# pcee2-libretro/scripts/build-deps-android.sh, or build-deps-macos.sh with
+	# APPLE_PLATFORM set to ios or tvos. What is missing here is missing from
+	# the platform, and the two have the same list: no libcurl (the downloader
+	# is compiled out), no libpcap (DEV9's network adapters use the headers
+	# in-tree and load the library at runtime, which neither an Android device
+	# nor an iPhone has), no fontconfig, X11, Wayland, dbus or udev, and no
+	# VTune. macOS is not in here - its SDK carries curl and pcap, so it goes
+	# through the branch below with everything else.
 	#
 	# FFmpeg is loaded at runtime everywhere but Windows, so only its headers
 	# are needed to build; use the bundled ones.
