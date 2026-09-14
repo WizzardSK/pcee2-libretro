@@ -26,6 +26,10 @@
 #include <mach/thread_state.h>
 #include <mutex>
 #include <TargetConditionals.h>
+// usleep. It used to arrive through ApplicationServices, which is included
+// only on macOS now - so on iOS and tvOS the first thing to use it was the
+// first thing to fail.
+#include <unistd.h>
 #if TARGET_OS_OSX
 // ApplicationServices carries the CoreGraphics event and cursor APIs, and IOKit
 // the power assertions. Neither is available on iOS or tvOS - there is no
@@ -358,6 +362,14 @@ size_t HostSys::GetRuntimeCacheLineSize()
 
 #ifdef ARCH_ARM64
 
+// pthread_jit_write_protect_np is the toggle that makes a MAP_JIT page
+// writable, and the iOS and tvOS SDKs mark it unavailable outright rather than
+// merely failing at runtime: those platforms do not hand out the JIT
+// entitlement, so there is no MAP_JIT page to unprotect in the first place.
+// The recompilers are off there for the same reason, which leaves these two as
+// the only callers and nothing for them to do.
+#if TARGET_OS_OSX
+
 static thread_local int s_code_write_depth = 0;
 
 void HostSys::BeginCodeWrite()
@@ -372,6 +384,18 @@ void HostSys::EndCodeWrite()
 	if ((--s_code_write_depth) == 0)
 		pthread_jit_write_protect_np(1);
 }
+
+#else
+
+void HostSys::BeginCodeWrite()
+{
+}
+
+void HostSys::EndCodeWrite()
+{
+}
+
+#endif // TARGET_OS_OSX
 
 [[maybe_unused]] static bool IsStoreInstruction(const void* ptr)
 {
