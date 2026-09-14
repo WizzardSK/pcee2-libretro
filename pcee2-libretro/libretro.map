@@ -1,0 +1,16 @@
+# A libretro core is dlopen()ed into a frontend that has already loaded its own
+# libraries, and the dynamic linker resolves a symbol from the global scope
+# (the frontend and its dependencies) before the core's own definition. Both
+# RetroArch and the core use SDL, so `SDL_InitSubSystem` and friends bound to
+# RetroArch's libSDL2 (sdl2-compat) instead of the SDL3 built into the core:
+# SDL3 flags reached SDL2 code ("SDL_InitSubSystem(...) failed", no controller
+# input), and on a second retro_load_game() SDL's error path recursed until the
+# stack ran out. Keeping everything but the libretro entry points local settles
+# it: nothing outside retro_* can be interposed, and nothing inside the core can
+# reach out for a definition the frontend happens to export.
+{
+	global:
+		retro_*;
+	local:
+		*;
+};
