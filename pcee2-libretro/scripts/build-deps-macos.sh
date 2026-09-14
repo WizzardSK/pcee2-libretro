@@ -36,7 +36,19 @@ PLATFORM_ARGS=()
 # unless told - which is not a warning but a hard failure several dependencies
 # down: libjpeg-turbo does string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} ...) and
 # gets "string no output variable specified" when the expansion is empty.
-EMBEDDED_ARGS=(-DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0)
+#
+# CMAKE_FIND_ROOT_PATH is the other one. Naming an Apple embedded system makes
+# Platform/Darwin.cmake set the find-root-path modes for libraries, includes
+# and packages to ONLY, which means CMAKE_PREFIX_PATH is re-rooted under the
+# find roots rather than searched as it stands - so a dependency looking for
+# one we have already installed misses it and looks only inside the SDK. That
+# is FreeType failing with "Could NOT find PNG" three libraries after libpng
+# was installed into this very prefix. The same file appends the sysroot to
+# whatever CMAKE_FIND_ROOT_PATH it is given rather than replacing it, so
+# naming the prefix here searches both, and the modes stay at ONLY - which is
+# what keeps a macOS library from /opt/homebrew out of an iOS build.
+EMBEDDED_ARGS=(-DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
+	"-DCMAKE_FIND_ROOT_PATH=$PREFIX")
 case "$APPLE_PLATFORM" in
 	macos)
 		export MACOSX_DEPLOYMENT_TARGET=11.0
