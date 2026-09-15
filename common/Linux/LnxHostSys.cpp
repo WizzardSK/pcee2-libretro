@@ -14,6 +14,9 @@
 #include <fcntl.h>
 #include <mutex>
 #include <sys/mman.h>
+#ifdef __APPLE__
+#include <libkern/OSCacheControl.h>
+#endif
 #include <unistd.h>
 #ifndef __APPLE__
 #include <ucontext.h>
@@ -264,7 +267,15 @@ bool SharedMemoryMappingArea::Unmap(void* map_base, size_t map_size, bool is_fil
 
 void HostSys::FlushInstructionCache(void* address, u32 size)
 {
+#ifdef __APPLE__
+	// __builtin___clear_cache lowers to a call into compiler-rt, which is in
+	// the macOS link and not in the iOS or tvOS one - the core got all the way
+	// to the linker and stopped on ___clear_cache. Darwin has its own, in every
+	// SDK of the family.
+	sys_icache_invalidate(address, size);
+#else
 	__builtin___clear_cache(reinterpret_cast<char*>(address), reinterpret_cast<char*>(address) + size);
+#endif
 }
 
 #endif
