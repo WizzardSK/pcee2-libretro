@@ -747,7 +747,7 @@ elseif(LINUX)
 	list(APPEND pcsx2USBHeaders
 		USB/usb-eyetoy/cam-linux.h
 	)
-elseif(APPLE)
+elseif(APPLE AND NOT APPLE_EMBEDDED)
 	list(APPEND pcsx2USBSources
 		USB/usb-eyetoy/cam-macos.mm
 	)
@@ -910,7 +910,12 @@ set(pcsx2InputHeaders
 	Input/SDLInputSource.h
 )
 
-if(APPLE)
+# The Metal backend is macOS only here. It attaches its CAMetalLayer to an
+# NSView, shows GPU traces through NSWorkspace and allocates managed-storage
+# textures - AppKit and a storage mode that iOS and tvOS do not have - and
+# nothing on those platforms would use it anyway: the core is handed a Vulkan
+# surface by the frontend, through MoltenVK. Left out rather than ported.
+if(APPLE AND NOT APPLE_EMBEDDED)
 	list(APPEND pcsx2GSSources
 		GS/Renderers/Metal/GSDeviceMTL.mm
 		GS/Renderers/Metal/GSMTLDeviceInfo.mm
@@ -1393,7 +1398,22 @@ fixup_file_properties(PCSX2)
 # To ensure the dependency build script's headers are preferred, push any directories that look like */local/include to the end.
 force_include_last(PCSX2_FLAGS "/(usr|local)/include/?$")
 
-if (APPLE)
+if (APPLE_EMBEDDED)
+	# AppKit and IOKit are macOS only, and the Metal backend above is not built
+	# here, so neither Metal nor MetalFX is linked either. What is left is what
+	# iOS and tvOS actually have.
+	find_library(QUARTZCORE_LIBRARY QuartzCore)
+	find_library(AVFOUNDATION_LIBRARY AVFoundation)
+	find_library(COREMEDIA_LIBRARY CoreMedia)
+	target_link_libraries(PCSX2_FLAGS INTERFACE
+		${QUARTZCORE_LIBRARY}
+		${AVFOUNDATION_LIBRARY}
+		${COREMEDIA_LIBRARY}
+	)
+	# Guards the four places that name the Metal device, the same way
+	# PCSX2_DISABLE_D3D guards the Direct3D ones on a MinGW build.
+	target_compile_definitions(PCSX2_FLAGS INTERFACE PCSX2_DISABLE_METAL)
+elseif (APPLE)
 	find_library(APPKIT_LIBRARY AppKit)
 	find_library(IOKIT_LIBRARY IOKit)
 	find_library(METAL_LIBRARY Metal)

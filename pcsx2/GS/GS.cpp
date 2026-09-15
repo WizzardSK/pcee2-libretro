@@ -26,7 +26,7 @@
 #include "GS/Renderers/OpenGL/GSDeviceOGL.h"
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
 #include "GS/Renderers/Metal/GSMetalCPPAccessible.h"
 #endif
 
@@ -96,7 +96,7 @@ static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 			return RenderAPI::D3D12;
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
 		case GSRendererType::Metal:
 			return RenderAPI::Metal;
 #endif
@@ -121,7 +121,7 @@ static bool OpenGSDevice(GSRendererType renderer, bool clear_state_on_fail, bool
 			g_gs_device = std::make_unique<GSDevice12>();
 			break;
 #endif
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
 		case RenderAPI::Metal:
 			g_gs_device = std::unique_ptr<GSDevice>(MakeGSDeviceMTL());
 			break;
@@ -623,7 +623,7 @@ std::vector<GSAdapterInfo> GSGetAdapterInfo(GSRendererType renderer)
 		break;
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
 		case GSRendererType::Metal:
 		{
 			ret = GetMetalAdapterList();

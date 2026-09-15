@@ -281,9 +281,13 @@ GSRendererType GSUtil::GetPreferredRenderer()
 	static GSRendererType preferred_renderer = GSRendererType::Auto;
 	if (preferred_renderer == GSRendererType::Auto)
 	{
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
 		// Mac: Prefer Metal hardware.
 		preferred_renderer = GSRendererType::Metal;
+#elif defined(__APPLE__)
+		// iOS and tvOS: no Metal backend is built, and Vulkan through MoltenVK
+		// is the only hardware renderer there.
+		preferred_renderer = GSRendererType::VK;
 #elif defined(_WIN32) && defined(ARCH_ARM64) && !defined(PCSX2_DISABLE_D3D)
 		// Default to DX12 on Windows-on-ARM.
 		preferred_renderer = GSRendererType::DX12;

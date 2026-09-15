@@ -198,11 +198,20 @@ std::optional<std::string> CocoaTools::GetNonTranslocatedBundlePath()
 
 std::optional<std::string> CocoaTools::MoveToTrash(std::string_view file)
 {
+#if TARGET_OS_TV
+	// tvOS has no trash. trashItemAtURL is marked unavailable there rather than
+	// merely failing at runtime, so this cannot be left to the SDK to refuse -
+	// and there is nowhere on that platform to put a file the user could get
+	// back from. The caller already handles being told no.
+	(void)file;
+	return std::nullopt;
+#else
 	NSURL* url = [NSURL fileURLWithPath:NSStringFromStringView(file)];
 	NSURL* new_url;
 	if (![[NSFileManager defaultManager] trashItemAtURL:url resultingItemURL:&new_url error:nil])
 		return std::nullopt;
 	return std::string([new_url fileSystemRepresentation]);
+#endif
 }
 
 bool CocoaTools::DelayedLaunch(std::string_view file)
