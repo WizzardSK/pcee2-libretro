@@ -645,6 +645,11 @@ bool PageFaultHandler::InstallSecondaryThread()
 
 #else
 
+static struct sigaction s_old_sigbus = {};
+#ifdef ARCH_ARM64
+static struct sigaction s_old_sigsegv = {};
+#endif
+
 void PageFaultHandler::SignalHandler(int sig, siginfo_t* info, void* ctx)
 {
 #if defined(ARCH_X86)
@@ -699,14 +704,15 @@ bool PageFaultHandler::Install(Error* error)
 	sa.sa_sigaction = SignalHandler;
 
 	// MacOS uses SIGBUS for memory permission violations, as well as SIGSEGV on ARM64.
-	if (sigaction(SIGBUS, &sa, nullptr) != 0)
+	// The old handlers are kept so Uninstall can put them back.
+	if (sigaction(SIGBUS, &sa, &s_old_sigbus) != 0)
 	{
 		Error::SetErrno(error, "sigaction() for SIGBUS failed: ", errno);
 		return false;
 	}
 
 #ifdef ARCH_ARM64
-	if (sigaction(SIGSEGV, &sa, nullptr) != 0)
+	if (sigaction(SIGSEGV, &sa, &s_old_sigsegv) != 0)
 	{
 		Error::SetErrno(error, "sigaction() for SIGSEGV failed: ", errno);
 		return false;
@@ -721,6 +727,22 @@ bool PageFaultHandler::Install(Error* error)
 
 	s_installed = true;
 	return true;
+}
+
+void PageFaultHandler::Uninstall()
+{
+	std::unique_lock lock(s_exception_handler_mutex);
+	if (!s_installed)
+		return;
+
+	// Put back whatever was there before rather than the default: on this path
+	// the core is a library in someone else's process, and a frontend or a
+	// runtime may well have a handler of its own that it still wants.
+	sigaction(SIGBUS, &s_old_sigbus, nullptr);
+#ifdef ARCH_ARM64
+	sigaction(SIGSEGV, &s_old_sigsegv, nullptr);
+#endif
+	s_installed = false;
 }
 
 bool PageFaultHandler::InstallSecondaryThread() { return true; }
