@@ -9,7 +9,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#if defined(__FreeBSD__) || (__APPLE__)
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+// See AdapterUtils.cpp: no routing table on iOS or tvOS.
+#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #include <sys/socket.h>

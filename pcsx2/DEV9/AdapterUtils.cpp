@@ -21,7 +21,14 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-#if defined(__FreeBSD__) || (__APPLE__)
+// Routing tables are a desktop API. iOS and tvOS have no <net/route.h> and no
+// PF_ROUTE sysctl, so they take the same path as every other system without
+// one: GetGateways says it cannot find a gateway and DEV9 carries on.
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
 #include <sys/types.h>
 #include <net/if_dl.h>
 #include <sys/param.h>
@@ -436,7 +443,7 @@ std::vector<IP_Address> AdapterUtils::GetGateways(const Adapter* adapter)
 	}
 	return collection;
 }
-#elif defined(__FreeBSD__) || defined(__APPLE__)
+#elif defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
 std::vector<IP_Address> AdapterUtils::GetGateways(const Adapter* adapter)
 {
 	if (adapter == nullptr)
