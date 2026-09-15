@@ -125,7 +125,18 @@ if(USE_SNDIO)
   target_compile_definitions(cubeb PRIVATE USE_SNDIO)
 endif()
 
-if(APPLE)
+# The AudioUnit backend in this copy is macOS-only. Its device globals - the
+# default input and output devices, the device list, the data sources - are
+# AudioObjectPropertyAddress constants from CoreAudio's AudioHardware API, and
+# they sit outside the TARGET_OS_IPHONE guards the rest of the file uses. The
+# iOS and tvOS SDKs have no AudioHardware.h, so the header is not included and
+# those six globals do not compile.
+#
+# Nothing in the core plays through cubeb - it is linked for the USB microphone
+# and nothing else, and a USB microphone is not a device on these platforms. So
+# the backend is left out rather than guarded: cubeb still builds and links,
+# with no backend, and cubeb_init tells the microphone code so.
+if(APPLE AND NOT APPLE_EMBEDDED)
 check_include_files(AudioUnit/AudioUnit.h USE_AUDIOUNIT)
 if(USE_AUDIOUNIT)
   target_sources(cubeb PRIVATE
