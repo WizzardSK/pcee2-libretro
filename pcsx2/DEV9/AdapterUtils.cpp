@@ -21,19 +21,23 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-// Routing tables are a desktop API. iOS and tvOS have no <net/route.h> and no
-// PF_ROUTE sysctl, so they take the same path as every other system without
-// one: GetGateways says it cannot find a gateway and DEV9 carries on.
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #endif
 
-#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
+#if defined(__FreeBSD__) || defined(__APPLE__)
 #include <sys/types.h>
 #include <net/if_dl.h>
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #include <sys/sockio.h>
+#endif
+
+// The routing table is the desktop-only part: iOS and tvOS have neither of
+// these headers nor the PF_ROUTE sysctl that walks it, so GetGateways there
+// takes the same branch as every other system without one - it says it cannot
+// find a gateway and DEV9 carries on. Everything above is on iOS as well.
+#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
 #include <net/route.h>
 #include <net/if_var.h>
 #endif
@@ -525,7 +529,7 @@ std::vector<IP_Address> AdapterUtils::GetGateways(const Adapter* adapter)
 	return collection;
 }
 #else
-std::vector<IP_Address> AdapterUtils::GetGateways(Adapter* adapter)
+std::vector<IP_Address> AdapterUtils::GetGateways(const Adapter* adapter)
 {
 	Console.Error("DEV9: Unsupported OS, can't find Gateway");
 	return {};

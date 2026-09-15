@@ -13,12 +13,15 @@
 #include <TargetConditionals.h>
 #endif
 
-// See AdapterUtils.cpp: no routing table on iOS or tvOS.
-#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
+#if defined(__FreeBSD__) || defined(__APPLE__)
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#endif
+
+// See AdapterUtils.cpp: no routing table on iOS or tvOS.
+#if defined(__FreeBSD__) || (defined(__APPLE__) && TARGET_OS_OSX)
 #include <net/route.h>
 #endif
 #endif
