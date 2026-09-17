@@ -78,6 +78,12 @@ std::string GetDefaultAdapter()
 	return "(Default)";
 }
 
+#ifdef ENABLE_LIBRETRO
+// Defined by the libretro glue. The API the frontend's context was negotiated
+// for, or None when this core has no frontend context to answer for.
+RenderAPI LibretroGetRenderAPI();
+#endif
+
 static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 {
 	switch (renderer)
@@ -103,6 +109,26 @@ static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 
 			// We could end up here if we ever removed a renderer.
 		default:
+#ifdef ENABLE_LIBRETRO
+		{
+			// The software renderer has no API of its own - it draws into
+			// memory and presents through whatever device is open - so this is
+			// where it lands. Asking the platform which renderer it prefers is
+			// the wrong question in a core: the API is whatever the frontend
+			// negotiated when the content loaded, and it cannot change under a
+			// running session.
+			//
+			// Answering it with the platform's preference is what made
+			// switching the renderer to Software crash on macOS: preferred
+			// there is Metal, so a live Vulkan session went to rebuild the
+			// device as Metal, with no window behind it, and a failed reopen
+			// ends in pxFailRel. The same trap is set on Windows, where
+			// preferred is Direct3D.
+			const RenderAPI frontendApi = LibretroGetRenderAPI();
+			if (frontendApi != RenderAPI::None)
+				return frontendApi;
+		}
+#endif
 			return GetAPIForRenderer(GSUtil::GetPreferredRenderer());
 	}
 }

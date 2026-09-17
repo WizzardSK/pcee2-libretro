@@ -395,6 +395,43 @@ namespace LibretroHost
 
 using namespace LibretroHost;
 
+// Which API the GS is allowed to build a device on. Called by GS.cpp for any
+// renderer that does not name one itself - which is the software renderer, the
+// only one that draws into memory and presents through whatever device happens
+// to be open.
+//
+// In a core that is not the platform's choice. The frontend negotiates the
+// context once, when the content loads, and nothing can change it under a
+// running session, so the answer is the API of that context. Without this the
+// GS asks GSUtil::GetPreferredRenderer() instead, and selecting Software on
+// macOS tore down a live Vulkan device to build a Metal one with no window
+// behind it; the reopen fails, the restore of the old config fails with it, and
+// pxFailRel takes the process down. See issue #42.
+RenderAPI LibretroGetRenderAPI()
+{
+	switch (s_hw_render)
+	{
+		case HWRender::Vulkan:
+			return RenderAPI::Vulkan;
+		case HWRender::OpenGL:
+			return RenderAPI::OpenGL;
+		default:
+			break;
+	}
+	// No frontend context: this is the readback path, which still opens a
+	// device to present and run ImGui through. It has to be one this core was
+	// built with rather than whatever the host would pick for a desktop
+	// application - on macOS that is Metal, which is not built here at all when
+	// the target is iOS or tvOS.
+#if defined(ENABLE_VULKAN)
+	return RenderAPI::Vulkan;
+#elif defined(ENABLE_OPENGL)
+	return RenderAPI::OpenGL;
+#else
+	return RenderAPI::None;
+#endif
+}
+
 // Tears the core down when the process exits or the library is unloaded:
 // stops the persistent CPU thread (running VMManager's CPU-thread shutdown on
 // it), and removes the process-wide page fault handler. Registered via
