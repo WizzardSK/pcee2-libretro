@@ -176,17 +176,17 @@ else()
 		Linux/LnxThreads.cpp
 		Linux/LnxMisc.cpp
 	)
-	# Android is close enough to Linux for the sources above, but has none of
-	# the desktop session pieces below it.
-	if(NOT ANDROID)
+	# Android and webOS are close enough to Linux for the sources above, but
+	# have none of the desktop session pieces below it.
+	if(ANDROID)
+		target_link_libraries(common PRIVATE log)
+	elseif(NOT WEBOS)
 		target_include_directories(common PRIVATE
 			${DBUS_INCLUDE_DIRS}
 		)
 		target_link_libraries(common PRIVATE
 			${DBUS_LINK_LIBRARIES}
 		)
-	else()
-		target_link_libraries(common PRIVATE log)
 	endif()
 
 	if(X11_API)

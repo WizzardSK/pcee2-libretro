@@ -46,15 +46,20 @@ option(USE_VULKAN "Enable Vulkan GS renderer" ON)
 #-------------------------------------------------------------------------------
 # Path and lib option
 #-------------------------------------------------------------------------------
-if(ANDROID)
-	# None of the desktop display or diagnostic stacks exist here. The core
-	# renders through the frontend's Vulkan context, so the GL renderer - which
-	# would want an EGL surface of its own - is off as well.
+if(ANDROID OR WEBOS)
+	# None of the desktop display or diagnostic stacks exist on either: no X
+	# server, no Wayland compositor, no session bus, no libbacktrace.
 	set(ENABLE_SETCAP OFF)
 	set(X11_API OFF)
 	set(WAYLAND_API OFF)
 	set(USE_BACKTRACE OFF)
-	set(USE_OPENGL OFF)
+	if(ANDROID)
+		# The core renders through the frontend's Vulkan context, so the GL
+		# renderer - which would want an EGL surface of its own - is off as
+		# well. webOS keeps it: there is no Vulkan loader on the device, and
+		# GLES arrives through the frontend the same way.
+		set(USE_OPENGL OFF)
+	endif()
 elseif(UNIX AND NOT APPLE)
 	option(ENABLE_SETCAP "Enable networking capability for DEV9" OFF)
 	option(X11_API "Enable X11 support" ON)
@@ -326,6 +331,10 @@ endif()
 
 if(USE_VULKAN)
 	list(APPEND PCSX2_DEFS ENABLE_VULKAN)
+endif()
+
+if(WEBOS)
+	list(APPEND PCSX2_DEFS WEBOS)
 endif()
 
 if(X11_API)

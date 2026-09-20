@@ -1233,17 +1233,27 @@ if(ANDROID)
 endif()
 
 if(LINUX OR ANDROID)
-	target_sources(PCSX2 PRIVATE
-		${pcsx2LinuxSources}
-		${pcsx2LinuxHeaders}
-		)
+	# A television has no optical drive and no udev to find one with, so webOS
+	# takes the same empty implementation as iOS and tvOS.
+	if(WEBOS)
+		target_sources(PCSX2 PRIVATE
+			${pcsx2NullDriveSources}
+			${pcsx2LinuxHeaders}
+			)
+	else()
+		target_sources(PCSX2 PRIVATE
+			${pcsx2LinuxSources}
+			${pcsx2LinuxHeaders}
+			)
 
-	# udev is a desktop Linux thing; on Android the drive enumeration it feeds
-	# has nothing to enumerate anyway (see CDVD/Linux/DriveUtility.cpp).
-	if(LINUX)
-		target_link_libraries(PCSX2_FLAGS INTERFACE
-			PkgConfig::LIBUDEV
-		)
+		# udev is a desktop Linux thing; on Android the drive enumeration it
+		# feeds has nothing to enumerate anyway (see
+		# CDVD/Linux/DriveUtility.cpp).
+		if(LINUX)
+			target_link_libraries(PCSX2_FLAGS INTERFACE
+				PkgConfig::LIBUDEV
+			)
+		endif()
 	endif()
 endif()
 

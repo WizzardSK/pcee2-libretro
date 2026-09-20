@@ -18,7 +18,14 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#ifndef __ANDROID__
+// Android and webOS are Linux with no desktop session behind them: no session
+// bus to ask about the screensaver, no X server to warp a pointer on. Both take
+// the stubs at the bottom of this file.
+#if defined(__ANDROID__) || defined(WEBOS)
+#define NO_DESKTOP_SESSION 1
+#endif
+
+#ifndef NO_DESKTOP_SESSION
 #include <dbus/dbus.h>
 #ifdef X11_API
 #include <X11/Xlib.h>
@@ -144,7 +151,7 @@ std::string GetOSVersionString()
 #endif
 }
 
-#ifndef __ANDROID__
+#ifndef NO_DESKTOP_SESSION
 
 static bool SetScreensaverInhibitDBus(const bool inhibit_requested, const char* program_name, const char* reason)
 {
@@ -337,12 +344,12 @@ void Common::DetachMousePositionCb()
 }
 #endif
 
-#else // __ANDROID__
+#else // NO_DESKTOP_SESSION
 
 // The session bus and the X server that the implementations above talk to do
-// not exist here, and a touchscreen has no pointer to warp: the platform keeps
-// the screen awake for whoever holds the wake lock, and mouse position belongs
-// to whatever is hosting the emulator.
+// not exist here, and neither a touchscreen nor a remote control has a pointer
+// to warp: the platform keeps the screen awake for whoever holds the wake lock,
+// and mouse position belongs to whatever is hosting the emulator.
 
 bool Common::InhibitScreensaver(bool inhibit)
 {
@@ -362,13 +369,13 @@ void Common::DetachMousePositionCb()
 {
 }
 
-#endif // __ANDROID__
+#endif // NO_DESKTOP_SESSION
 
 bool Common::PlaySoundAsync(const char* path)
 {
-	// Android has no posix_spawn before API 28, and none of the players this
-	// shells out to in the first place.
-#if defined(__linux__) && !defined(__ANDROID__)
+	// Android has no posix_spawn before API 28, and neither it nor webOS ships
+	// the players this shells out to in the first place.
+#if defined(__linux__) && !defined(NO_DESKTOP_SESSION)
 	// This is... pretty awful. But I can't think of a better way without linking to e.g. gstreamer.
 	const char* cmdname = "aplay";
 	const char* argv[] = {cmdname, path, nullptr};
