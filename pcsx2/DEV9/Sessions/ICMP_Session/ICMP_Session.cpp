@@ -7,16 +7,33 @@
 #include <icmpapi.h>
 
 #ifdef __MINGW32__
-// mingw-w64's icmpapi.h stops at IcmpSendEcho2, but iphlpapi.dll exports the Ex
-// variant (Vista and later) and mingw's own import library has it, so only the
-// prototype is missing.
-// ApcRoutine is PIO_APC_ROUTINE in the SDK; mingw-w64 does not declare that type
-// here, and this call passes null for it, so a plain pointer keeps the ABI.
-extern "C" DWORD WINAPI IcmpSendEcho2Ex(HANDLE IcmpHandle, HANDLE Event,
-	PVOID ApcRoutine, PVOID ApcContext, IPAddr SourceAddress,
-	IPAddr DestinationAddress, LPVOID RequestData, WORD RequestSize,
-	PIP_OPTION_INFORMATION RequestOptions, LPVOID ReplyBuffer, DWORD ReplySize,
-	DWORD Timeout);
+// IcmpSendEcho2Ex is the one call here that mingw-w64 cannot be relied on to
+// declare the same way twice. Older headers stop at IcmpSendEcho2 and a local
+// prototype is the only way to reach the Ex variant, which iphlpapi.dll has
+// exported since Vista and mingw's own import library lists; newer ones declare
+// it themselves, with FARPROC where the SDK has PIO_APC_ROUTINE, and then a
+// local prototype is a conflicting declaration and the build stops. The
+// buildbot's image moved from the first to the second, which is what broke it.
+//
+// So the address is taken from the DLL at the call site instead. That needs no
+// prototype at all, agrees with every version of the header, and costs one
+// GetProcAddress on a path that is already making a system call. The signature
+// below is the SDK's, with the APC routine as a plain pointer because this call
+// passes null for it.
+using IcmpSendEcho2Ex_t = DWORD(WINAPI*)(HANDLE, HANDLE, PVOID, PVOID, IPAddr,
+	IPAddr, LPVOID, WORD, PIP_OPTION_INFORMATION, LPVOID, DWORD, DWORD);
+
+static IcmpSendEcho2Ex_t GetIcmpSendEcho2Ex()
+{
+	static const IcmpSendEcho2Ex_t fn = []() -> IcmpSendEcho2Ex_t {
+		const HMODULE iphlpapi = GetModuleHandleW(L"iphlpapi.dll");
+		if (!iphlpapi)
+			return nullptr;
+		return reinterpret_cast<IcmpSendEcho2Ex_t>(
+			reinterpret_cast<void*>(GetProcAddress(iphlpapi, "IcmpSendEcho2Ex")));
+	}();
+	return fn;
+}
 #endif
 #elif defined(__POSIX__)
 
@@ -520,9 +537,18 @@ namespace Sessions
 		IP_OPTION_INFORMATION ipInfo{};
 		ipInfo.Ttl = parTimeToLive;
 		DWORD ret;
+#ifdef __MINGW32__
+		// Null only if iphlpapi.dll is loaded without the export, which no
+		// supported Windows does; the source-address path is skipped then.
+		const IcmpSendEcho2Ex_t sendEcho2Ex = GetIcmpSendEcho2Ex();
+		if (parAdapterIP.integer != 0 && sendEcho2Ex)
+			ret = sendEcho2Ex(icmpFile, icmpEvent, nullptr, nullptr, parAdapterIP.integer, parDestIP.integer, const_cast<u8*>(parPayload->data), parPayload->GetLength(), &ipInfo, icmpResponseBuffer.get(), icmpResponseBufferLen,
+				static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(ICMP_TIMEOUT).count()));
+#else
 		if (parAdapterIP.integer != 0)
 			ret = IcmpSendEcho2Ex(icmpFile, icmpEvent, nullptr, nullptr, parAdapterIP.integer, parDestIP.integer, const_cast<u8*>(parPayload->data), parPayload->GetLength(), &ipInfo, icmpResponseBuffer.get(), icmpResponseBufferLen,
 				static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(ICMP_TIMEOUT).count()));
+#endif
 		else
 			ret = IcmpSendEcho2(icmpFile, icmpEvent, nullptr, nullptr, parDestIP.integer, const_cast<u8*>(parPayload->data), parPayload->GetLength(), &ipInfo, icmpResponseBuffer.get(), icmpResponseBufferLen,
 				static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(ICMP_TIMEOUT).count()));
