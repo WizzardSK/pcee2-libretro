@@ -460,7 +460,25 @@ libretro-build-webos-aarch64:
     - |
       # build-deps-linux.sh takes a single cmake executable, so the toolchain
       # file travels in a wrapper rather than in the variable.
-      printf '#!/bin/sh\nexec /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE="%s" "$@"\n' \
-        "$CMAKE_TOOLCHAIN_FILE" > /tmp/webos-cmake
+      #
+      # Only on a configure, though. cmake decides which mode it is in from its
+      # first argument, so putting -D in front of --build leaves it in configure
+      # mode, where it reads "--build sdl3/build --parallel 32" as an unknown
+      # option and a stray path - which is exactly how the first attempt at this
+      # job died. The build and install calls get the plain cmake; they have the
+      # toolchain in the build directory already.
+      cat > /tmp/webos-cmake <<'WRAPPER'
+      #!/bin/sh
+      case "$1" in
+        --build|--install|--open|-E|--find-package|--system-information)
+          exec /usr/bin/cmake "$@" ;;
+      esac
+      exec /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE="@TOOLCHAIN@" "$@"
+      WRAPPER
+      # The heredoc is quoted so $1 and $@ survive to the wrapper; the toolchain
+      # path is baked in here instead of read from the environment, so the
+      # wrapper does not depend on the SDK variables reaching every child.
+      sed -i -e 's/^      //' -e "s|@TOOLCHAIN@|$CMAKE_TOOLCHAIN_FILE|" /tmp/webos-cmake
       chmod +x /tmp/webos-cmake
+      cat /tmp/webos-cmake
     - CMAKE=/tmp/webos-cmake HOST=aarch64-webos-linux-gnu PCEE2_SDL_STATIC=1 bash pcee2-libretro/scripts/build-deps-linux.sh "$CI_PROJECT_DIR/deps"
