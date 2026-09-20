@@ -15,9 +15,9 @@
 #include <mutex>
 
 #ifdef __MINGW32__
-// The three Windows 10 1803 memory APIs the emulator uses have no import
-// library in MXE's mingw-w64, so they are looked up in kernelbase.dll on first
-// use. RedtapeWindows.h points every caller at these wrappers.
+// The Windows 10 memory APIs this file reaches for have no import library in
+// MXE's mingw-w64, so they are looked up in kernelbase.dll on first use.
+// RedtapeWindows.h points every caller at these wrappers.
 namespace
 {
 	template <typename T>
@@ -52,6 +52,29 @@ extern "C" BOOL WINAPI pcsx2_UnmapViewOfFile2(HANDLE Process, PVOID BaseAddress,
 	using Fn = BOOL(WINAPI*)(HANDLE, PVOID, ULONG);
 	static const Fn fn = LoadKernelBaseFunction<Fn>("UnmapViewOfFile2");
 	return fn ? fn(Process, BaseAddress, UnmapFlags) : FALSE;
+}
+
+// memoryapi.h defines MapViewOfFile2() as an inline wrapper over
+// MapViewOfFileNuma2(), which the NTDDI level in RedtapeWindows.h switches on.
+// Nothing in the emulator calls it, but the compiler emits the wrapper into
+// every translation unit that sees the header, so the link asks for an import
+// MXE's mingw-w64 has no library for. Give the import a home of its own: it
+// resolves the same way the three calls above do, so the wrapper links and
+// would work if anything ever did call it.
+extern "C" PVOID WINAPI pcsx2_MapViewOfFileNuma2(HANDLE FileMappingHandle, HANDLE ProcessHandle, ULONG64 Offset,
+	PVOID BaseAddress, SIZE_T ViewSize, ULONG AllocationType, ULONG PageProtection, ULONG PreferredNode)
+{
+	using Fn = PVOID(WINAPI*)(HANDLE, HANDLE, ULONG64, PVOID, SIZE_T, ULONG, ULONG, ULONG);
+	static const Fn fn = LoadKernelBaseFunction<Fn>("MapViewOfFileNuma2");
+	return fn ? fn(FileMappingHandle, ProcessHandle, Offset, BaseAddress, ViewSize, AllocationType, PageProtection,
+					   PreferredNode) :
+				nullptr;
+}
+
+extern "C"
+{
+	PVOID(WINAPI* __imp_MapViewOfFileNuma2)
+	(HANDLE, HANDLE, ULONG64, PVOID, SIZE_T, ULONG, ULONG, ULONG) = pcsx2_MapViewOfFileNuma2;
 }
 #endif
 
