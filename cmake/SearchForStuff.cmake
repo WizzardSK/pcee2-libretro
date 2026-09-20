@@ -76,10 +76,11 @@ if (WIN32)
 	add_subdirectory(3rdparty/winwil EXCLUDE_FROM_ALL)
 	set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
 	find_package(Vtune)
-elseif(ANDROID OR APPLE_EMBEDDED)
+elseif(ANDROID OR APPLE_EMBEDDED OR WEBOS)
 	# Everything above comes from the prefix built by
 	# pcee2-libretro/scripts/build-deps-android.sh, or build-deps-macos.sh with
-	# APPLE_PLATFORM set to ios or tvos. What is missing here is missing from
+	# APPLE_PLATFORM set to ios or tvos, or build-deps-linux.sh driven through
+	# the webOS SDK's cross toolchain. What is missing here is missing from
 	# the platform, and the two have the same list: no libcurl (the downloader
 	# is compiled out), no libpcap (DEV9's network adapters use the headers
 	# in-tree and load the library at runtime, which neither an Android device

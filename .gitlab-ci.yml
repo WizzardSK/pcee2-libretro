@@ -75,6 +75,13 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/tvos-cmake.yml'
 
+  # webOS. aarch64 only - see the job at the end for why - and another platform
+  # whose buildroot has EGL and GLES and nothing else, so the dependency prefix
+  # is built from source with the SDK's cross toolchain the way the Windows and
+  # Android jobs build theirs.
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/webos-cmake.yml'
+
 # The stock libretro build images are ancient Ubuntu (xenial/bionic): their
 # CMake (3.20), gcc, and system libs (PNG 1.2, zstd, webp, lz4) are far too old
 # for PCSX2's pinned versions (PNG 1.6.40, zstd 1.5.5, ...). Override the image
@@ -402,3 +409,58 @@ libretro-build-android-x86_64:
   extends:
     - .libretro-android-cmake-x86_64
     - .pcee2-android
+
+##################################### WEBOS ##################################
+# aarch64 only. The other half of the platform is armv7a, and the recompilers
+# this core has are x86-64 and arm64 - there is nothing for a 32-bit ARM device
+# to run the EE and IOP on, so that half is not offered rather than offered and
+# broken.
+#
+# The renderer is GLES, from the frontend, the same as Android and the Apple
+# embedded systems: this tree links no desktop GL anywhere, so the only thing
+# webOS needs from the build system is to be counted among the bare platforms
+# in SearchForStuff. Vulkan is off - the buildroot ships no loader.
+#
+# The template's before_script is replaced here, so everything it sets is set
+# again: NUMPROC, BUILD_DIR, and the SDK environment, which is what puts the
+# cross compiler and CMAKE_TOOLCHAIN_FILE in scope. The dependency prefix is
+# then built with a cmake wrapper that carries that toolchain file, which is
+# the same trick the Windows job plays with the MXE wrapper.
+#
+# allow_failure while it is new: the SDK exists only on the buildbot, so the
+# first pipeline is the first time this toolchain has seen the tree.
+libretro-build-webos-aarch64:
+  allow_failure: true
+  extends:
+    - .libretro-webos-aarch64-cmake
+    - .core-defs
+  variables:
+    EXTRA_PATH: bin
+    CORE_ARGS: >-
+      -DENABLE_LIBRETRO=ON
+      -DENABLE_QT_UI=OFF
+      -DENABLE_TESTS=OFF
+      -DDISABLE_ADVANCE_SIMD=ON
+      -DUSE_VULKAN=OFF
+      -DWEBOS=ON
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.18
+      -DCMAKE_PREFIX_PATH=$CI_PROJECT_DIR/deps
+      -DCMAKE_FIND_ROOT_PATH=$CI_PROJECT_DIR/deps
+  cache:
+    key:
+      files:
+        - pcee2-libretro/scripts/build-deps-linux.sh
+      prefix: webos-aarch64
+    paths:
+      - deps/
+  before_script:
+    - export NUMPROC=$(($(nproc)/5))
+    - export BUILD_DIR=build/webos-${WEBOS_ARCH}
+    - . "$SDK_ENV"
+    - |
+      # build-deps-linux.sh takes a single cmake executable, so the toolchain
+      # file travels in a wrapper rather than in the variable.
+      printf '#!/bin/sh\nexec /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE="%s" "$@"\n' \
+        "$CMAKE_TOOLCHAIN_FILE" > /tmp/webos-cmake
+      chmod +x /tmp/webos-cmake
+    - CMAKE=/tmp/webos-cmake HOST=aarch64-webos-linux-gnu PCEE2_SDL_STATIC=1 bash pcee2-libretro/scripts/build-deps-linux.sh "$CI_PROJECT_DIR/deps"

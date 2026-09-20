@@ -26,6 +26,15 @@ else()
 	set(APPLE_EMBEDDED FALSE)
 endif()
 
+# webOS is a Linux and CMAKE_SYSTEM_NAME says so, but its buildroot is as bare
+# as Android's: EGL and GLES, no desktop GL, and none of the desktop session
+# libraries. What gives it away is the SDK's compiler triple
+# (aarch64-webos-linux-gnu); -DWEBOS=ON also works for anyone driving the build
+# by hand.
+if(NOT WEBOS AND CMAKE_CXX_COMPILER MATCHES "webos")
+	set(WEBOS TRUE)
+endif()
+
 #-------------------------------------------------------------------------------
 # Graphical option
 #-------------------------------------------------------------------------------
