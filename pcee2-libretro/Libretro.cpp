@@ -422,6 +422,71 @@ static void ShutdownCoreAtExit()
 // Config / boot
 //////////////////////////////////////////////////////////////////////////
 
+// Where the memory cards live. A memory card is a save, and the frontend has a
+// directory for those which the user can have it sort per core - which is what
+// "Sort Saves into Folders by Core Name" does, and which this core used to
+// ignore because it never asked for it: every folder hung off the system
+// directory, so both slots landed in <system>/pcsx2/memcards wherever the
+// frontend had been told to put saves.
+//
+// Decided once and remembered, because the option list is built before
+// InitializeConfig() runs and the two must not disagree about where a card is.
+static const std::string& LibretroResolveMemcardsDir()
+{
+	if (!s_memcards_dir.empty())
+		return s_memcards_dir;
+
+	const auto has_cards = [](const std::string& dir) {
+		FileSystem::FindResultsArray files;
+		FileSystem::FindFiles(dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+		for (const FILESYSTEM_FIND_DATA& fd : files)
+		{
+			if (Path::GetFileName(fd.FileName).ends_with(".ps2"))
+				return true;
+		}
+		return false;
+	};
+
+	std::string legacy;
+	const char* system_dir = nullptr;
+	if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
+		legacy = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
+
+	const char* save_dir = nullptr;
+	if (!s_environ_cb || !s_environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir) || !save_dir || !*save_dir)
+	{
+		// No save directory to move to. Nothing changes.
+		s_memcards_dir = legacy.empty() ? std::string("memcards") : legacy;
+		Console.WriteLnFmt("Memory cards: {} (the frontend offers no save directory)", s_memcards_dir);
+		return s_memcards_dir;
+	}
+
+	// The frontend already names the folder after this core when it is set to
+	// sort saves that way, so adding our own would make PCEE2/PCEE2.
+	std::string base(save_dir);
+	if (Path::GetFileName(base) != "PCEE2")
+		base = Path::Combine(base, "PCEE2");
+	std::string preferred = Path::Combine(base, "memcards");
+
+	// A card someone has been playing on for months is not something to leave
+	// behind quietly: moving it is the frontend's call, not ours, and creating
+	// an empty Mcd001.ps2 next to it would look like the save was lost. So the
+	// old directory keeps being used while it holds cards and the new one does
+	// not, and the log says which one won and why.
+	if (!legacy.empty() && !has_cards(preferred) && has_cards(legacy))
+	{
+		s_memcards_dir = legacy;
+		Console.WriteLnFmt("Memory cards: {} - staying with the old directory because it has cards and '{}' "
+						   "has none. Move the .ps2 files there to follow the frontend's save directory.",
+			legacy, preferred);
+		return s_memcards_dir;
+	}
+
+	s_memcards_dir = std::move(preferred);
+	Console.WriteLnFmt("Memory cards: {}", s_memcards_dir);
+	return s_memcards_dir;
+}
+
 bool LibretroHost::InitializeConfig()
 {
 	// Map PCSX2's folder layout into <retro_system_directory>/pcsx2/.
@@ -613,71 +678,6 @@ void LibretroHost::SettingsOverride()
 			}
 		}
 	}
-}
-
-// Where the memory cards live. A memory card is a save, and the frontend has a
-// directory for those which the user can have it sort per core - which is what
-// "Sort Saves into Folders by Core Name" does, and which this core used to
-// ignore because it never asked for it: every folder hung off the system
-// directory, so both slots landed in <system>/pcsx2/memcards wherever the
-// frontend had been told to put saves.
-//
-// Decided once and remembered, because the option list is built before
-// InitializeConfig() runs and the two must not disagree about where a card is.
-static const std::string& LibretroResolveMemcardsDir()
-{
-	if (!s_memcards_dir.empty())
-		return s_memcards_dir;
-
-	const auto has_cards = [](const std::string& dir) {
-		FileSystem::FindResultsArray files;
-		FileSystem::FindFiles(dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
-		for (const FILESYSTEM_FIND_DATA& fd : files)
-		{
-			if (Path::GetFileName(fd.FileName).ends_with(".ps2"))
-				return true;
-		}
-		return false;
-	};
-
-	std::string legacy;
-	const char* system_dir = nullptr;
-	if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
-		legacy = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
-
-	const char* save_dir = nullptr;
-	if (!s_environ_cb || !s_environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir) || !save_dir || !*save_dir)
-	{
-		// No save directory to move to. Nothing changes.
-		s_memcards_dir = legacy.empty() ? std::string("memcards") : legacy;
-		Console.WriteLnFmt("Memory cards: {} (the frontend offers no save directory)", s_memcards_dir);
-		return s_memcards_dir;
-	}
-
-	// The frontend already names the folder after this core when it is set to
-	// sort saves that way, so adding our own would make PCEE2/PCEE2.
-	std::string base(save_dir);
-	if (Path::GetFileName(base) != "PCEE2")
-		base = Path::Combine(base, "PCEE2");
-	std::string preferred = Path::Combine(base, "memcards");
-
-	// A card someone has been playing on for months is not something to leave
-	// behind quietly: moving it is the frontend's call, not ours, and creating
-	// an empty Mcd001.ps2 next to it would look like the save was lost. So the
-	// old directory keeps being used while it holds cards and the new one does
-	// not, and the log says which one won and why.
-	if (!legacy.empty() && !has_cards(preferred) && has_cards(legacy))
-	{
-		s_memcards_dir = legacy;
-		Console.WriteLnFmt("Memory cards: {} - staying with the old directory because it has cards and '{}' "
-						   "has none. Move the .ps2 files there to follow the frontend's save directory.",
-			legacy, preferred);
-		return s_memcards_dir;
-	}
-
-	s_memcards_dir = std::move(preferred);
-	Console.WriteLnFmt("Memory cards: {}", s_memcards_dir);
-	return s_memcards_dir;
 }
 
 void LibretroHost::RegisterCoreOptions()
