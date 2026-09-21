@@ -13,7 +13,7 @@ minimal set of hooks, so rebasing onto new upstream releases stays cheap.
 
 The core reports the upstream PCSX2 version it is built from, so the version
 RetroArch shows names the standalone PCSX2 the emulation code corresponds to —
-currently **v2.7.523**. See [Upstream sync and versioning](#upstream-sync-and-versioning).
+currently **v2.9.78**. See [Upstream sync and versioning](#upstream-sync-and-versioning).
 
 This project is not affiliated with or endorsed by the PCSX2 team.
 
@@ -42,6 +42,8 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | Content reload / Close Content | ✅ core survives RetroArch's deinit/init cycles |
 | Windows x64 build (MSVC, via CI) | ✅ community-tested (WRC 4, GTA SA, Killzone on Vulkan) |
 | macOS x86_64 build (via CI) | ⚠️ compiles + links, untested — feedback welcome |
+| webOS aarch64 build (via CI) | ⚠️ builds on the buildbot, never run on a TV — no Vulkan loader there, so it is the GLES path |
+| iOS / tvOS builds (via CI) | ⚠️ build, never run — JIT needs an entitlement a stock install does not grant |
 
 On the Vulkan renderer the core shares the frontend's `VkDevice` through
 libretro context negotiation and hands over the rendered image directly, with
@@ -54,8 +56,9 @@ which is double-buffered on the GS thread and costs one frame of latency;
 
 Through RetroArch: **Online Updater → Core Downloader → PCEE2**. The libretro
 buildbot builds this branch nightly for Windows x64, Linux x64 and aarch64,
-macOS x64 and arm64, and Android arm64-v8a and x86_64, so what it hands out is
-always the current tree. There are no releases here on purpose: another place
+macOS x64 and arm64, Android arm64-v8a and x86_64, and webOS aarch64, so what
+it hands out is always the current tree. iOS and tvOS build there too, but as
+jobs that are allowed to fail - see the table above for what that means. There are no releases here on purpose: another place
 to download from is another place to be out of date.
 
 macOS needs the quarantine flag cleared once:
