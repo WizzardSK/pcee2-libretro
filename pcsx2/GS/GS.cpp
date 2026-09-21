@@ -87,6 +87,20 @@ RenderAPI LibretroGetRenderAPI();
 
 static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 {
+#ifdef ENABLE_LIBRETRO
+	// In a core the graphics API is not ours to choose: the frontend negotiated
+	// one when the content loaded and nothing can change it under a running
+	// session. That holds for every renderer, not just the software one - a
+	// game settings INI copied from a desktop PCSX2 carries that machine's
+	// Renderer, so a Mac's Metal walks in here and a Metal device gets built
+	// against a frontend that handed us a Vulkan context.
+	{
+		const RenderAPI frontendApi = LibretroGetRenderAPI();
+		if (frontendApi != RenderAPI::None)
+			return frontendApi;
+	}
+#endif
+
 	switch (renderer)
 	{
 		case GSRendererType::OGL:
@@ -108,31 +122,37 @@ static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 			return RenderAPI::Metal;
 #endif
 
-			// We could end up here if we ever removed a renderer.
+			// We could end up here if we ever removed a renderer, and it is
+			// also where the software renderer lands: it has no API of its own,
+			// it draws into memory and presents through whatever device is
+			// open. In a core the block above has already answered; everywhere
+			// else, ask the platform.
 		default:
-#ifdef ENABLE_LIBRETRO
-		{
-			// The software renderer has no API of its own - it draws into
-			// memory and presents through whatever device is open - so this is
-			// where it lands. Asking the platform which renderer it prefers is
-			// the wrong question in a core: the API is whatever the frontend
-			// negotiated when the content loaded, and it cannot change under a
-			// running session.
-			//
-			// Answering it with the platform's preference is what made
-			// switching the renderer to Software crash on macOS: preferred
-			// there is Metal, so a live Vulkan session went to rebuild the
-			// device as Metal, with no window behind it, and a failed reopen
-			// ends in pxFailRel. The same trap is set on Windows, where
-			// preferred is Direct3D.
-			const RenderAPI frontendApi = LibretroGetRenderAPI();
-			if (frontendApi != RenderAPI::None)
-				return frontendApi;
-		}
-#endif
 			return GetAPIForRenderer(GSUtil::GetPreferredRenderer());
 	}
 }
+
+#ifdef ENABLE_LIBRETRO
+// The renderer a config or a game settings INI asks for is not always one this
+// session can build: the frontend's context type is fixed when the content
+// loads. Software is left alone - it presents through whatever device is open -
+// and anything else is pulled onto the API we actually have.
+static GSRendererType LibretroClampRenderer(GSRendererType renderer)
+{
+	if (renderer == GSRendererType::SW)
+		return renderer;
+
+	switch (LibretroGetRenderAPI())
+	{
+		case RenderAPI::Vulkan:
+			return GSRendererType::VK;
+		case RenderAPI::OpenGL:
+			return GSRendererType::OGL;
+		default:
+			return renderer;
+	}
+}
+#endif
 
 static bool OpenGSDevice(GSRendererType renderer, bool clear_state_on_fail, bool recreate_window,
 	GSVSyncMode vsync_mode, bool allow_present_throttle)
@@ -275,6 +295,15 @@ bool GSreopen(bool recreate_device, bool recreate_renderer, GSRendererType new_r
 {
 	Console.WriteLn("Reopening GS with %s device", recreate_device ? "new" : "existing");
 
+#ifdef ENABLE_LIBRETRO
+	// Switching back out of software passes Auto in, which resolves to the
+	// machine's preference - Metal here, Direct3D there - and that is not what
+	// the frontend gave us.
+	if (new_renderer == GSRendererType::Auto)
+		new_renderer = GSUtil::GetPreferredRenderer();
+	new_renderer = LibretroClampRenderer(new_renderer);
+#endif
+
 	g_gs_renderer->Flush(GSState::GSFlushReason::GSREOPEN);
 
 	if (recreate_device && !recreate_renderer)
@@ -378,6 +407,15 @@ bool GSopen(const Pcsx2Config::GSOptions& config, GSRendererType renderer, u8* b
 
 	if (renderer == GSRendererType::Auto)
 		renderer = GSUtil::GetPreferredRenderer();
+
+#ifdef ENABLE_LIBRETRO
+	// GetPreferredRenderer() answers for the machine, not for the frontend -
+	// Metal on a Mac, Direct3D on Windows - and a game settings INI copied from
+	// a desktop PCSX2 carries the same answer. Either one opens a device the
+	// frontend never negotiated.
+	renderer = LibretroClampRenderer(renderer);
+	GSConfig.Renderer = renderer;
+#endif
 
 	bool res = OpenGSDevice(renderer, true, false, vsync_mode, allow_present_throttle);
 	if (res)
