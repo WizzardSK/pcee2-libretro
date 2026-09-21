@@ -269,6 +269,7 @@ public:
 		u64 draw;
 		GSVector4i rect;
 		EEGS_TransferType transfer_type;
+		bool was_hardware_only;
 	};
 
 	enum NoGapsType
@@ -318,9 +319,11 @@ public:
 	static u64 s_last_transfer_draw_n;
 	static u64 s_transfer_n;
 
-	GSPerfMon m_perfmon_frame; // Track stat across a frame.
-	GSPerfMon m_perfmon_draw;  // Track stat across a draw.
-
+	GSPerfMon m_perfmon_frame; // Track stats across a frame.
+	GSPerfMon m_perfmon_draw;  // Track stats across a draw.
+	
+	void IncDraw();
+	
 	static constexpr u32 STATE_VERSION = 9;
 
 	#define PRIM_REG_MASK 0x7FF
@@ -541,6 +544,9 @@ public:
 	bool SpriteDrawWithoutGaps();
 	void CalculatePrimitiveCoversWithoutGaps();
 	GIFRegTEX0 GetTex0Layer(u32 lod);
+	template <u32 primclass>
+	void RewriteVerticesIfLargeSTImpl(const GSVector4& large_val, bool check_clamp_mode);
+	void RewriteVerticesIfLargeST(const GSVector4& large_val, bool check_clamp_mode);
 };
 
 // We put this in the header because of Multi-ISA.

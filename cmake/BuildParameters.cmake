@@ -38,10 +38,12 @@ endif()
 #-------------------------------------------------------------------------------
 # Graphical option
 #-------------------------------------------------------------------------------
-if(NOT APPLE)
-	option(USE_OPENGL "Enable OpenGL GS renderer" ON)
+if(NOT (WIN32 AND ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "ARM64" OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")))
+	if(NOT APPLE)
+		option(USE_OPENGL "Enable OpenGL GS renderer" ON)
+	endif()
+	option(USE_VULKAN "Enable Vulkan GS renderer" ON)
 endif()
-option(USE_VULKAN "Enable Vulkan GS renderer" ON)
 
 #-------------------------------------------------------------------------------
 # Path and lib option
@@ -150,7 +152,7 @@ if("${PCSX2_TARGET_PROCESSOR}" STREQUAL "x86_64" OR "${PCSX2_TARGET_PROCESSOR}" 
 			add_compile_options("-msse" "-msse2" "-msse4.1" "-mfxsr")
 		else()
 			# Can't use march=native on Apple Silicon.
-			if(NOT APPLE OR "${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+			if(NOT APPLE OR "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
 				add_compile_options("-march=native")
 			endif()
 		endif()
@@ -169,7 +171,7 @@ elseif("${PCSX2_TARGET_PROCESSOR}" STREQUAL "arm64" OR "${PCSX2_TARGET_PROCESSOR
 		add_compile_options("-march=armv8-a+crc")
 	else()
 		# Require atomic rmw instructions
-		add_compile_options("-march=armv8.1-a")
+		add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-march=armv8.1-a>")
 	endif()
 
 	# If we're running on Linux, we need to detect the page/cache line size.
@@ -303,7 +305,10 @@ endif()
 if(MSVC)
 	# Enable PDB generation in release builds
 	add_compile_options(
-		$<${CONFIG_REL_NO_DEB}:/Zi>
+		$<$<AND:${CONFIG_REL_NO_DEB},$<COMPILE_LANGUAGE:C,CXX,ASM_MASM>>:/Zi>
+	)
+	add_compile_options(
+		$<$<AND:${CONFIG_REL_NO_DEB},$<COMPILE_LANGUAGE:ASM_MARMASM>>:-g>
 	)
 	add_link_options(
 		$<${CONFIG_REL_NO_DEB}:/DEBUG>

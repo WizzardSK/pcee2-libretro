@@ -128,12 +128,6 @@ if(ARCH_X86)
 endif()
 
 if(WIN32)
-	# FastJmp.asm is MASM and needs ml, which MinGW does not have; there the
-	# equivalent routines are compiled from FastJmp.cpp as inline asm instead.
-	if(MSVC)
-		enable_language(ASM_MASM)
-		target_sources(common PRIVATE FastJmp.asm)
-	endif()
 	target_sources(common PRIVATE
 		HTTPDownloaderWinHTTP.cpp
 		HTTPDownloaderWinHTTP.h
@@ -143,6 +137,21 @@ if(WIN32)
 		Windows/WinHostSys.cpp
 		Windows/WinMisc.cpp
 	)
+
+	# Both assemblers are Microsoft's - ml for x86, armasm for ARM64 - and MinGW
+	# has neither. The Windows cross build gets the same routines from
+	# FastJmp.cpp as inline asm, so the assembly files are MSVC's alone.
+	if (MSVC)
+		if (ARCH_X86)
+			enable_language(ASM_MASM)
+			target_sources(common PRIVATE FastJmp.asm)
+		elseif (ARCH_ARM64)
+			enable_language(ASM_MARMASM)
+			target_sources(common PRIVATE FastJmp_arm64.asm)
+			set_property(SOURCE FastJmp_arm64.asm PROPERTY VS_SETTINGS "PreprocessWithCl=false")
+		endif()
+	endif()
+
 	target_link_libraries(common PUBLIC
 		WIL::WIL
 		winmm

@@ -4706,6 +4706,7 @@ SCES-50000:
     gpuPaletteConversion: 2 # Lots of CLUTs in large textures.
     cpuSpriteRenderBW: 1 # Fixes car textures.
     cpuSpriteRenderLevel: 1 # Needed for above.
+    rewriteLargeSTCoords: 1 # Fix reflections on cars.
 SCES-50001:
   name: "Tekken Tag Tournament"
   region: "PAL-M5"
@@ -5997,6 +5998,7 @@ SCES-53247:
   gsHWFixes:
     roundSprite: 1 # Fixes misaligned text.
     autoFlush: 2 # Fixes sun luminosity.
+    nativeScaling: 2 # Helps align sun occasional.
   patches:
     CBBC2E7F:
       content: |-
@@ -7336,6 +7338,44 @@ SCKA-20027:
     halfPixelOffset: 2 # Aligns post effects.
     nativeScaling: 1 # Fixes post effects.
     textureInsideRT: 1 # Fixes post shuffles.
+  patches:
+    A3643EB1:
+      content: |-
+        comment=Rearranging COP2 ops to avoid macflag bad stuff.
+        // Solves door problems, possibly other issues later on.
+        patch=0,EE,0010bc88,word,48468800
+        patch=0,EE,0010bc8c,word,4BEC682C
+        patch=0,EE,0010bc94,word,4B8D617D
+        patch=0,EE,0010bc98,word,4A0002FF
+        patch=0,EE,0012a358,word,48468800
+        patch=0,EE,0012a35c,word,4BEC682C
+        patch=0,EE,0012a364,word,4B8D617D
+        patch=0,EE,0012a368,word,4A0002FF
+        patch=0,EE,0012a680,word,48468800
+        patch=0,EE,0012a684,word,4BEC682C
+        patch=0,EE,0012a68c,word,4B8D617D
+        patch=0,EE,0012a690,word,4A0002FF
+        patch=0,EE,0012aafc,word,48468800
+        patch=0,EE,0012ab00,word,4BEC682C
+        patch=0,EE,0012ab04,word,4B8D617D
+        patch=0,EE,0012ab08,word,4A6D617C
+        patch=0,EE,0012ab0c,word,4A0002FF
+        patch=0,EE,001644cc,word,48468800
+        patch=0,EE,001644d0,word,4BEC682C
+        patch=0,EE,001644d8,word,4B8D617D
+        patch=0,EE,001644dc,word,4A0002FF
+        patch=0,EE,001ae958,word,48468800
+        patch=0,EE,001ae95c,word,4BEC682C
+        patch=0,EE,001ae960,word,4BED617D
+        patch=0,EE,001ae968,word,4A0002FF
+        patch=0,EE,001bd410,word,48588800
+        patch=0,EE,001bd41c,word,4A5DEF40
+        patch=0,EE,001bd62c,word,48588800
+        patch=0,EE,001bd638,word,4A5DEF40
+        patch=0,EE,001bd9cc,word,48588800
+        patch=0,EE,001bd9d8,word,4A5DEF40
+        patch=0,EE,001bdf90,word,48588800
+        patch=0,EE,001bdf9c,word,4A5DEF40
 SCKA-20028:
   name: "이코 [PlayStation 2 BigHit Series]"
   name-en: "Ico [PlayStation 2 BigHit Series]"
@@ -9420,7 +9460,7 @@ SCPS-15097:
     - "SCPS-55001"
 SCPS-15098:
   name: "Formula One 2005"
-  name-sort: "ふぉみゅらー わん 2005"
+  name-sort: "ふぉーみゅら わん 2005"
   name-en: "Formula One 2005"
   region: "NTSC-J"
 SCPS-15099:
@@ -12928,6 +12968,7 @@ SCUS-97584:
     autoFlush: 2
     preloadFrameData: 1
     nativeScaling: 2 # Fixes post-processing.
+    halfPixelOffset: 4 # Aligns post bloom.
 SCUS-97589:
   name: "NBA '08 featuring The Life Vol.3"
   region: "NTSC-U"
@@ -20816,6 +20857,9 @@ SLES-52584:
 SLES-52585:
   name: "Burnout 3 - Takedown"
   region: "PAL-F-G-I"
+  memcardFilters: # Used for storage of network information on the memory card.
+    - "SLES-52585"
+    - "PSCD-20001"
   clampModes:
     vuClampMode: 3 # Fixes buggy lighting in the garage.
   gsHWFixes:
@@ -21342,6 +21386,7 @@ SLES-52741:
   region: "PAL-E"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes depth line and edge garbage.
+    nativeScaling: 4 # Softens and aligns bloom.
 SLES-52745:
   name: "Hugo - Cannon Cruise"
   region: "PAL-M4"
@@ -21923,6 +21968,7 @@ SLES-52940:
   region: "PAL-M3"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes double image and aligns glow effects.
+    nativeScaling: 2 # Fixes depth blur.
 SLES-52941:
   name: "Gungrave - Overdose"
   region: "PAL-M3"
@@ -26201,6 +26247,7 @@ SLES-54317:
   compat: 5
   gsHWFixes:
     halfPixelOffset: 4 # Fixes alignment on fire effects.
+    nativeScaling: 2 # Softens and aligns bloom on fire effects.
 SLES-54319:
   name: "Biker Mice from Mars"
   region: "PAL-M5"
@@ -27198,6 +27245,7 @@ SLES-54581:
   region: "PAL-M5"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes depth line and edge garbage.
+    nativeScaling: 4 # Softens and aligns bloom.
 SLES-54582:
   name: "International Tennis Pro"
   region: "PAL-E"
@@ -32130,6 +32178,9 @@ SLKA-25206:
   name: "번아웃3 테이크다운"
   name-en: "Burnout 3 - Takedown"
   region: "NTSC-K"
+  memcardFilters: # Used for storage of network information on the memory card.
+    - "SLKA-25206"
+    - "PSCD-30001"
   clampModes:
     vuClampMode: 3 # Fixes buggy lighting in the garage.
   gsHWFixes:
@@ -35341,6 +35392,7 @@ SLPM-60109:
     gpuPaletteConversion: 2 # Lots of CLUTs in large textures.
     cpuSpriteRenderBW: 1 # Fixes car textures.
     cpuSpriteRenderLevel: 1 # Needed for above.
+    rewriteLargeSTCoords: 1 # Fix reflections on cars.
 SLPM-60112:
   name: "フレースヴェルグ [体験版]"
   name-sort: "ふれーすヴぇるぐ [たいけんばん]"
@@ -38001,7 +38053,7 @@ SLPM-62185:
   name-en: "Sangokushi VII"
   region: "NTSC-J"
 SLPM-62186:
-  name: "ゲットバッカーズ奪還屋 奪われた無限城"
+  name: "GetBackers奪還屋 奪われた無限城"
   name-sort: "げっとばっかーずだっかんや うばわれたむげんじょう"
   name-en: "Get Backers - The Stolen City of Infinite"
   region: "NTSC-J"
@@ -38947,7 +38999,7 @@ SLPM-62375:
   name-en: "Simple 2000 Series Vol. 36 - The Musume Ikusei Simulation"
   region: "NTSC-J"
 SLPM-62376:
-  name: "GetBackers奪還屋 奪還だョ！全員集合！ [KONAMI The BEST]"
+  name: "GetBackers奪還屋 奪還だヨ！全員集合！！ [KONAMI The BEST]"
   name-sort: "げっとばっかーずだっかんや だっかんだよ！ぜんいんしゅうごう！！ [KONAMI The BEST]"
   name-en: "Get Backers - All Members Gather [KONAMI The BEST]"
   region: "NTSC-J"
@@ -41307,7 +41359,7 @@ SLPM-65014:
     - GoemonTlbHack
 SLPM-65015:
   name: "決戦II"
-  name-sort: "けっせんII"
+  name-sort: "けっせん2"
   name-en: "Kessen II"
   region: "NTSC-J"
   patches:
@@ -41406,7 +41458,7 @@ SLPM-65030:
   region: "NTSC-J"
 SLPM-65031:
   name: "決戦&決戦II スーパーバリューセット [決戦Ⅱディスク]"
-  name-sort: "けっせん&けっせんII すーぱーばりゅーせっと [けっせん2でぃすく]"
+  name-sort: "けっせん&けっせん2 すーぱーばりゅーせっと [けっせん2でぃすく]"
   name-en: "Kesse & Kessen II Super Value Set [Kessen II Disc]"
   region: "NTSC-J"
   patches:
@@ -42390,7 +42442,7 @@ SLPM-65207:
   region: "NTSC-J"
 SLPM-65208:
   name: "ポップンミュージック 7"
-  name-sort: "ぽっぷんみゅーじっく 7"
+  name-sort: "ぽっぷんみゅーじっく07"
   name-en: "Pop'n music 7"
   region: "NTSC-J"
 SLPM-65209:
@@ -43093,7 +43145,7 @@ SLPM-65315:
   compat: 5
 SLPM-65316:
   name: "ポップンミュージック 8"
-  name-sort: "ぽっぷんみゅーじっく 8"
+  name-sort: "ぽっぷんみゅーじっく08"
   name-en: "Pop'n music 8"
   region: "NTSC-J"
 SLPM-65317:
@@ -44210,7 +44262,7 @@ SLPM-65507:
     nativeScaling: 2 # Fixes post-processing intensity.
 SLPM-65508:
   name: "ポップンミュージック 9"
-  name-sort: "ぽっぷんみゅーじっく 9"
+  name-sort: "ぽっぷんみゅーじっく09"
   name-en: "Pop'n music 9"
   region: "NTSC-J"
 SLPM-65509:
@@ -45368,6 +45420,9 @@ SLPM-65719:
   name-sort: "ばーんあうと3 ていくだうん"
   name-en: "Burnout 3 - Takedown"
   region: "NTSC-J"
+  memcardFilters: # Used for storage of network information on the memory card.
+    - "SLPM-65719"
+    - "PSCD-00004"
   clampModes:
     vuClampMode: 3 # Fixes buggy lighting in the garage.
   gsHWFixes:
@@ -45709,13 +45764,13 @@ SLPM-65768:
   name-en: "Beatmania IIDX 8th Style"
   region: "NTSC-J"
 SLPM-65769:
-  name: "pop'n music コントローラセット"
-  name-sort: "ぽっぷんみゅーじっく [こんとろーらせっと]"
+  name: "ポップンミュージック10 コントローラセット"
+  name-sort: "ぽっぷんみゅーじっく10 [こんとろーらせっと]"
   name-en: "Pop'n music 10 [Controller Set]"
   region: "NTSC-J"
 SLPM-65770:
-  name: "ポップンミュージック 10"
-  name-sort: "ぽっぷんみゅーじっく 10"
+  name: "ポップンミュージック10"
+  name-sort: "ぽっぷんみゅーじっく10"
   name-en: "Pop'n music 10"
   region: "NTSC-J"
 SLPM-65771:
@@ -45832,6 +45887,7 @@ SLPM-65791:
   region: "NTSC-J"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes double image and aligns glow effects.
+    nativeScaling: 2 # Fixes depth blur.
 SLPM-65793:
   name: "SSX3 [EA BEST HITS]"
   name-sort: "SSX3 [EA BEST HITS]"
@@ -47427,8 +47483,8 @@ SLPM-66064:
   name-en: "Tough Dark Fight"
   region: "NTSC-J"
 SLPM-66065:
-  name: "ポップンミュージック 11"
-  name-sort: "ぽっぷんみゅーじっく 11"
+  name: "ポップンミュージック11"
+  name-sort: "ぽっぷんみゅーじっく11"
   name-en: "Pop'n music 11"
   region: "NTSC-J"
 SLPM-66066:
@@ -48204,12 +48260,12 @@ SLPM-66177:
     nativeScaling: 2 # Fixes post effects.
 SLPM-66178:
   name: "ポップンミュージック 7 [KONAMI The BEST]"
-  name-sort: "ぽっぷんみゅーじっく 7 [KONAMI The BEST]"
+  name-sort: "ぽっぷんみゅーじっく07 [KONAMI The BEST]"
   name-en: "Pop'n music 7 [KONAMI The BEST]"
   region: "NTSC-J"
 SLPM-66179:
   name: "ポップンミュージック 8 [KONAMI The BEST]"
-  name-sort: "ぽっぷんみゅーじっく 8 [KONAMI The BEST]"
+  name-sort: "ぽっぷんみゅーじっく08 [KONAMI The BEST]"
   name-en: "Pop'n music 8 [KONAMI The BEST]"
   region: "NTSC-J"
 SLPM-66180:
@@ -48399,12 +48455,12 @@ SLPM-66208:
   region: "NTSC-J"
 SLPM-66209:
   name: "ポップンミュージック 9 [KONAMI The BEST]"
-  name-sort: "ぽっぷんみゅーじっく 9 [KONAMI The BEST]"
+  name-sort: "ぽっぷんみゅーじっく09 [KONAMI The BEST]"
   name-en: "Pop'n music 9 [KONAMI The BEST]"
   region: "NTSC-J"
 SLPM-66210:
-  name: "ポップンミュージック 10 [KONAMI The BEST]"
-  name-sort: "ぽっぷんみゅーじっく 10 [KONAMI The BEST]"
+  name: "ポップンミュージック10 [KONAMI The BEST]"
+  name-sort: "ぽっぷんみゅーじっく10 [KONAMI The BEST]"
   name-en: "Pop'n music 10 [KONAMI The BEST]"
   region: "NTSC-J"
 SLPM-66211:
@@ -49107,8 +49163,8 @@ SLPM-66313:
   region: "NTSC-J"
   compat: 5
 SLPM-66314:
-  name: "ポップンミュージック 12 いろは"
-  name-sort: "ぽっぷんみゅーじっく 12 いろは"
+  name: "ポップンミュージック12 いろは"
+  name-sort: "ぽっぷんみゅーじっく12 いろは"
   name-en: "Pop'n music 12 Iroha"
   region: "NTSC-J"
   compat: 5
@@ -50492,8 +50548,8 @@ SLPM-66532:
   name-en: "Mizu no Senritsu 2 - Hi no Kioku"
   region: "NTSC-J"
 SLPM-66533:
-  name: "ポップンミュージック 13 カーニバル"
-  name-sort: "ぽっぷんみゅーじっく 13 かーにばる"
+  name: "ポップンミュージック13 カーニバル"
+  name-sort: "ぽっぷんみゅーじっく13 かーにばる"
   name-en: "Pop'n music 13 Carnival"
   region: "NTSC-J"
 SLPM-66534:
@@ -51813,8 +51869,8 @@ SLPM-66741:
   name-en: "Sentou Kokka Kai - Legend [Standard Edition]"
   region: "NTSC-J"
 SLPM-66742:
-  name: "ポップンミュージック 14 FEVER！"
-  name-sort: "ぽっぷんみゅーじっく 14 FEVER！"
+  name: "ポップンミュージック14 FEVER！"
+  name-sort: "ぽっぷんみゅーじっく14 FEVER！"
   name-en: "Pop'n music 14 FEVER!"
   region: "NTSC-J"
   compat: 5
@@ -54759,6 +54815,7 @@ SLPS-20001:
     gpuPaletteConversion: 2 # Lots of CLUTs in large textures.
     cpuSpriteRenderBW: 1 # Fixes car textures.
     cpuSpriteRenderLevel: 1 # Needed for above.
+    rewriteLargeSTCoords: 1 # Fix reflections on cars.
 SLPS-20002:
   name: "撞球 ビリヤードマスター2"
   name-sort: "どうきゅう びりやーどますたー2"
@@ -60552,7 +60609,6 @@ SLPS-25529:
   gsHWFixes:
     halfPixelOffset: 4 # Aligns DoF effects.
     nativeScaling: 2 # Fixes post effects.
-    getSkipCount: "GSC_UltramanFightingEvolution"
 SLPS-25530:
   name: "餓狼伝 Breakblow"
   name-sort: "がろうでん Breakblow"
@@ -62290,7 +62346,6 @@ SLPS-25800:
   gsHWFixes:
     halfPixelOffset: 4 # Aligns DoF effects.
     nativeScaling: 2 # Fixes post effects.
-    getSkipCount: "GSC_UltramanFightingEvolution"
 SLPS-25801:
   name: "今日からマ王！ 眞マ国の休日"
   name-sort: "きょうからまおう しんまこくのきゅうじつ"
@@ -63451,6 +63506,7 @@ SLPS-71502:
     gpuPaletteConversion: 2 # Lots of CLUTs in large textures.
     cpuSpriteRenderBW: 1 # Fixes car textures.
     cpuSpriteRenderLevel: 1 # Needed for above.
+    rewriteLargeSTCoords: 1 # Fix reflections on cars.
 SLPS-72501:
   name: "ファイナルファンタジーⅩ [MEGA HITS!]"
   name-sort: "ふぁいなるふぁんたじー10 [MEGA HITS!]"
@@ -64453,6 +64509,7 @@ SLUS-20002:
     gpuPaletteConversion: 2 # Lots of CLUTs in large textures.
     cpuSpriteRenderBW: 1 # Fixes car textures.
     cpuSpriteRenderLevel: 1 # Needed for above.
+    rewriteLargeSTCoords: 1 # Fix reflections on cars.
 SLUS-20003:
   name: "Portal Runner"
   region: "NTSC-U"
@@ -68854,6 +68911,7 @@ SLUS-20885:
   compat: 5
   gsHWFixes:
     halfPixelOffset: 5 # Fixes depth line and edge garbage.
+    nativeScaling: 4 # Softens and aligns bloom.
 SLUS-20886:
   name: "Sitting Ducks"
   region: "NTSC-U"
@@ -69378,6 +69436,7 @@ SLUS-20969:
   compat: 5
   gsHWFixes:
     halfPixelOffset: 5 # Fixes double image and aligns glow effects.
+    nativeScaling: 2 # Fixes depth blur.
 SLUS-20970:
   name: "Rumble Roses"
   region: "NTSC-U"
@@ -69924,7 +69983,7 @@ SLUS-21050:
   compat: 5
   memcardFilters: # Used for storage of network information on the memory card.
     - "SLUS-21050"
-    - "PSCD-10088"
+    - "PSCD10088"
   clampModes:
     vuClampMode: 3 # Fixes buggy lighting in the garage.
   gsHWFixes:
@@ -71592,6 +71651,7 @@ SLUS-21306:
   compat: 5
   gsHWFixes:
     halfPixelOffset: 4 # Fixes alignment on fire effects.
+    nativeScaling: 2 # Softens and aligns bloom on fire effects.
 SLUS-21307:
   name: "Ice Age 2 - The Meltdown"
   region: "NTSC-U"
@@ -75910,6 +75970,7 @@ SLUS-29132:
   region: "NTSC-U"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes double image and aligns glow effects.
+    nativeScaling: 2 # Fixes depth blur.
 SLUS-29133:
   name: "Namco Transmission Demo Disc Vol.2"
   region: "NTSC-U"
@@ -76375,6 +76436,7 @@ TCES-53247:
   gsHWFixes:
     roundSprite: 1 # Fixes misaligned text.
     autoFlush: 2 # Fixes sun luminosity.
+    nativeScaling: 2 # Helps align sun occasional.
 TCES-53286:
   name: "Jak X Beta Trial Code"
   region: "PAL-E"
@@ -76713,6 +76775,7 @@ TLES-52940:
   region: "PAL-E"
   gsHWFixes:
     halfPixelOffset: 5 # Fixes double image and aligns glow effects.
+    nativeScaling: 2 # Fixes depth blur.
 TLES-53544:
   name: "Pro Evolution Soccer 5 Beta Trial Code"
   region: "PAL-E"

@@ -161,6 +161,7 @@ private:
 	} m_bugs;
 
 	bool m_disable_download_pbo = false;
+	bool m_rgba16_unorm_hw_blend = false;
 
 	// Whether the context is GL ES rather than desktop GL. ES is missing whole
 	// features this renderer otherwise assumes, so it is not a variant of the

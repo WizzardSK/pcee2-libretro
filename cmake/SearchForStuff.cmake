@@ -51,6 +51,15 @@ find_package(Freetype 2.10 REQUIRED) # 2.10 is the first with COLRv0 support, wh
 find_package(plutovg 1.1.0 REQUIRED)
 find_package(plutosvg 0.0.7 REQUIRED)
 find_package(ryml REQUIRED)
+# Upstream requires FFmpeg outright. This core does not link it: GSCapture
+# loads it at run time everywhere but Windows, so the headers are all a build
+# needs - and the libretro build images carry no 7.1. Found means found;
+# missing means the bundled headers, the way this tree has always done it.
+find_package(FFMPEG 7.1 COMPONENTS avcodec avformat avutil swresample swscale)
+if(NOT FFMPEG_FOUND)
+	message(STATUS "FFmpeg 7.1 not found, using the bundled headers.")
+	set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
+endif()
 if (WIN32)
 	find_package(DirectX-Headers 1.618.1 REQUIRED)
 endif()
@@ -74,7 +83,6 @@ if (WIN32)
 		add_subdirectory(3rdparty/winpixeventruntime EXCLUDE_FROM_ALL)
 	endif()
 	add_subdirectory(3rdparty/winwil EXCLUDE_FROM_ALL)
-	set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
 	find_package(Vtune)
 elseif(ANDROID OR APPLE_EMBEDDED OR WEBOS)
 	# Everything above comes from the prefix built by
@@ -98,14 +106,6 @@ else()
 	find_package(CURL REQUIRED)
 	find_package(PCAP REQUIRED)
 	find_package(Vtune)
-
-	# Use bundled ffmpeg v4.x.x headers if we can't locate it in the system.
-	# We'll try to load it dynamically at runtime.
-	find_package(FFMPEG COMPONENTS avcodec avformat avutil swresample swscale)
-	if(NOT FFMPEG_FOUND)
-		message(WARNING "FFmpeg not found, using bundled headers.")
-		set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
-	endif()
 
 	## Use CheckLib package to find module
 	include(CheckLib)
@@ -169,7 +169,7 @@ disable_compiler_warnings_for_target(speex)
 
 # Find the Qt components that we need.
 if(ENABLE_QT_UI)
-	find_package(Qt6 6.10.1 COMPONENTS CoreTools Core GuiTools Gui WidgetsTools Widgets LinguistTools REQUIRED)
+	find_package(Qt6 6.10 COMPONENTS CoreTools Core GuiTools Gui WidgetsTools Widgets LinguistTools REQUIRED)
 
 	if(NOT WIN32 AND NOT APPLE)
 		if (Qt6_VERSION VERSION_GREATER_EQUAL 6.10.0)
@@ -181,7 +181,7 @@ if(ENABLE_QT_UI)
 	find_package(KDDockWidgets-qt6 2.3.0 REQUIRED)
 endif()
 
-if(WIN32)
+if(WIN32 AND ARCH_X86)
 	add_subdirectory(3rdparty/rainterface EXCLUDE_FROM_ALL)
 endif()
 

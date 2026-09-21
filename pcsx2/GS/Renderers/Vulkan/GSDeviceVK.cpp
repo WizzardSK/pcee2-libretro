@@ -1266,6 +1266,77 @@ bool GSDeviceVK::SetGPUPipelineStatisticsEnabled(bool enabled)
 	return (enabled == m_gpu_pipeline_statistics_enabled);
 }
 
+void GSDeviceVK::StartGPUTiming(u32 index)
+{
+	if (m_gpu_timing_enabled || m_spin_timer)
+	{
+		FrameResources& resources = m_frame_resources[index];
+		vkCmdResetQueryPool(resources.command_buffers[1], m_timestamp_query_pool, index * 2, 2);
+		vkCmdWriteTimestamp(
+			resources.command_buffers[1], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, m_timestamp_query_pool, index * 2);
+		resources.timestamp_query_state = QueryState::Querying;
+	}
+}
+
+void GSDeviceVK::EndGPUTiming(u32 index)
+{
+	FrameResources& resources = m_frame_resources[index];
+
+	const bool wants_timestamp = m_gpu_timing_enabled || m_spin_timer;
+
+	if (wants_timestamp && resources.timestamp_query_state == QueryState::Querying)
+	{
+		vkCmdWriteTimestamp(m_current_command_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, m_timestamp_query_pool,
+			m_current_frame * 2 + 1);
+		resources.timestamp_query_state = QueryState::Ready;
+	}
+}
+
+void GSDeviceVK::ReadGPUTiming(u32 index)
+{
+	FrameResources& resources = m_frame_resources[index];
+
+	const bool wants_timestamps = m_gpu_timing_enabled || resources.spin_id >= 0;
+
+	if (wants_timestamps && resources.timestamp_query_state == QueryState::Ready)
+	{
+		std::array<u64, 2> timestamps;
+		const VkResult res =
+			vkGetQueryPoolResults(m_device, m_timestamp_query_pool, index * 2, static_cast<u32>(timestamps.size()),
+				sizeof(u64) * timestamps.size(), timestamps.data(), sizeof(u64), VK_QUERY_RESULT_64_BIT);
+		if (res == VK_SUCCESS)
+		{
+			// if we didn't write the timestamp at the start of the cmdbuffer (just enabled timing), the first TS will be zero
+			if (timestamps[0] > 0 && m_gpu_timing_enabled)
+			{
+				const double ns_diff =
+					(timestamps[1] - timestamps[0]) * static_cast<double>(m_device_properties.limits.timestampPeriod);
+				m_accumulated_gpu_time += ns_diff / 1000000.0;
+			}
+			if (resources.spin_id >= 0)
+			{
+				if (m_optional_extensions.vk_ext_calibrated_timestamps && timestamps[1] > 0)
+				{
+					const u64 end = timestamps[1] * m_spin_timestamp_scale + m_spin_timestamp_offset;
+					m_spin_manager.DrawCompleted(resources.spin_id, resources.submit_timestamp, end);
+				}
+				else if (!m_optional_extensions.vk_ext_calibrated_timestamps && timestamps[0] > 0)
+				{
+					const u64 begin = timestamps[0] * m_spin_timestamp_scale;
+					const u64 end = timestamps[1] * m_spin_timestamp_scale;
+					m_spin_manager.DrawCompleted(resources.spin_id, begin, end);
+				}
+			}
+		}
+		else
+		{
+			LOG_VULKAN_ERROR(res, "vkGetQueryPoolResults failed: ");
+		}
+
+		resources.timestamp_query_state = QueryState::None;
+	}
+}
+
 void GSDeviceVK::ScanForCommandBufferCompletion()
 {
 	for (u32 check_index = (m_current_frame + 1) % NUM_COMMAND_BUFFERS; check_index != m_current_frame;
@@ -1335,12 +1406,7 @@ void GSDeviceVK::SubmitCommandBuffer(VKSwapChain* present_swap_chain)
 		}
 	}
 
-	bool wants_timestamp = m_gpu_timing_enabled || m_spin_timer;
-	if (wants_timestamp && resources.timestamp_written)
-	{
-		vkCmdWriteTimestamp(m_current_command_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, m_timestamp_query_pool,
-			m_current_frame * 2 + 1);
-	}
+	EndGPUTiming(m_current_frame);
 
 	if (resources.pipeline_statistics_query == QueryState::Querying)
 	{
@@ -1476,43 +1542,7 @@ void GSDeviceVK::CommandBufferCompleted(u32 index)
 		it();
 	resources.cleanup_resources.clear();
 
-	bool wants_timestamps = m_gpu_timing_enabled || resources.spin_id >= 0;
-
-	if (wants_timestamps && resources.timestamp_written)
-	{
-		std::array<u64, 2> timestamps;
-		VkResult res =
-			vkGetQueryPoolResults(m_device, m_timestamp_query_pool, index * 2, static_cast<u32>(timestamps.size()),
-				sizeof(u64) * timestamps.size(), timestamps.data(), sizeof(u64), VK_QUERY_RESULT_64_BIT);
-		if (res == VK_SUCCESS)
-		{
-			// if we didn't write the timestamp at the start of the cmdbuffer (just enabled timing), the first TS will be zero
-			if (timestamps[0] > 0 && m_gpu_timing_enabled)
-			{
-				const double ns_diff =
-					(timestamps[1] - timestamps[0]) * static_cast<double>(m_device_properties.limits.timestampPeriod);
-				m_accumulated_gpu_time += ns_diff / 1000000.0;
-			}
-			if (resources.spin_id >= 0)
-			{
-				if (m_optional_extensions.vk_ext_calibrated_timestamps && timestamps[1] > 0)
-				{
-					u64 end = timestamps[1] * m_spin_timestamp_scale + m_spin_timestamp_offset;
-					m_spin_manager.DrawCompleted(resources.spin_id, resources.submit_timestamp, end);
-				}
-				else if (!m_optional_extensions.vk_ext_calibrated_timestamps && timestamps[0] > 0)
-				{
-					u64 begin = timestamps[0] * m_spin_timestamp_scale;
-					u64 end = timestamps[1] * m_spin_timestamp_scale;
-					m_spin_manager.DrawCompleted(resources.spin_id, begin, end);
-				}
-			}
-		}
-		else
-		{
-			LOG_VULKAN_ERROR(res, "vkGetQueryPoolResults failed: ");
-		}
-	}
+	ReadGPUTiming(index);
 }
 
 void GSDeviceVK::MoveToNextCommandBuffer()
@@ -1556,13 +1586,7 @@ void GSDeviceVK::ActivateCommandBuffer(u32 index)
 	if (res != VK_SUCCESS)
 		LOG_VULKAN_ERROR(res, "vkBeginCommandBuffer failed: ");
 
-	bool wants_timestamp = m_gpu_timing_enabled || m_spin_timer;
-	if (wants_timestamp)
-	{
-		vkCmdResetQueryPool(resources.command_buffers[1], m_timestamp_query_pool, index * 2, 2);
-		vkCmdWriteTimestamp(
-			resources.command_buffers[1], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, m_timestamp_query_pool, index * 2);
-	}
+	StartGPUTiming(index);
 
 	if (resources.pipeline_statistics_query == QueryState::Ready)
 	{
@@ -1593,7 +1617,6 @@ void GSDeviceVK::ActivateCommandBuffer(u32 index)
 
 	resources.fence_counter = m_next_fence_counter++;
 	resources.init_buffer_used = false;
-	resources.timestamp_written = wants_timestamp;
 
 	m_current_frame = index;
 	m_current_command_buffer = resources.command_buffers[1];
@@ -4500,6 +4523,8 @@ bool GSDeviceVK::CompileConvertPipelines()
 		gpb.SetColorWriteMask(0, shader.Mask());
 
 		std::string macro;
+		macro += fmt::format("#define PRIMID_MAX {}\n", GSShader::PRIMID_MAX);
+		macro += fmt::format("#define PRIMID_MIN {}\n", GSShader::PRIMID_MIN);
 		macro += fmt::format("#define HAS_BILN {}\n", static_cast<int>(shader.Biln()));
 		macro += fmt::format("#define HAS_STENCIL_OUTPUT {}\n", static_cast<int>(shader.StencilOutput()));
 		macro += fmt::format("#define HAS_INTEGER_OUTPUT {}\n", static_cast<int>(shader.IntegerOutputBpp() != 0));
@@ -4577,9 +4602,14 @@ bool GSDeviceVK::CompileConvertPipelines()
 
 	for (u32 datm = 0; datm < 4; datm++)
 	{
+		std::string macro;
+		macro += fmt::format("#define PRIMID_MAX {}\n", GSShader::PRIMID_MAX);
+		macro += fmt::format("#define PRIMID_MIN {}\n", GSShader::PRIMID_MIN);
+
+		const std::string source_with_header = macro + *source;
+
 		const std::string entry_point(StringUtil::StdStringFromFormat("ps_primid_image_init_%d", datm));
-		VkShaderModule ps =
-			GetUtilityFragmentShader(*source, entry_point.c_str());
+		VkShaderModule ps = GetUtilityFragmentShader(source_with_header, entry_point.c_str());
 		if (ps == VK_NULL_HANDLE)
 			return false;
 
@@ -4956,7 +4986,7 @@ void GSDeviceVK::RenderImGui()
 {
 	ImGui::Render();
 	const ImDrawData* draw_data = ImGui::GetDrawData();
-	if (draw_data->CmdListsCount == 0)
+	if (draw_data->CmdLists.Size == 0)
 		return;
 
 	UpdateImGuiTextures();
@@ -4979,7 +5009,7 @@ void GSDeviceVK::RenderImGui()
 	// this is for presenting, we don't want to screw with the viewport/scissor set by display
 	m_dirty_flags &= ~(DIRTY_FLAG_VIEWPORT | DIRTY_FLAG_SCISSOR);
 
-	for (int n = 0; n < draw_data->CmdListsCount; n++)
+	for (int n = 0; n < draw_data->CmdLists.Size; n++)
 	{
 		const ImDrawList* cmd_list = draw_data->CmdLists[n];
 

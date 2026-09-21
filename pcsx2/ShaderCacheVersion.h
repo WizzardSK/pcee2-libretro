@@ -3,4 +3,4 @@
 
 /// Version number for GS and other shaders. Increment whenever any of the contents of the
 /// shaders change, to invalidate the cache.
-static constexpr u32 SHADER_CACHE_VERSION = 110; // Last changed for the GL ES shader port
+static constexpr u32 SHADER_CACHE_VERSION = 116; // Last changed merging upstream 2.7.x into the GL ES shader port
