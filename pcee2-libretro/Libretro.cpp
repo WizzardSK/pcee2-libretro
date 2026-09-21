@@ -243,6 +243,7 @@ namespace LibretroHost
 	static std::vector<std::string> s_bios_names; // backing storage for option values
 	static std::vector<std::string> s_memcard_names; // backing storage for option values
 	static std::string s_memcards_dir; // decided once, see LibretroResolveMemcardsDir
+	static std::string s_content_name; // basename of the loaded content, for the per-game card
 	static u32 s_opt_upscale = 1;
 
 	// libretro port -> PCSX2 pad index (see sioConvertPadToPortAndSlot: 0=1A,
@@ -429,6 +430,21 @@ static void ShutdownCoreAtExit()
 // directory, so both slots landed in <system>/pcsx2/memcards wherever the
 // frontend had been told to put saves.
 //
+// Per game or shared, from pcee2_memcard_shared. Asked once and remembered for
+// the same reason the directory below is: the option list is built before
+// InitializeConfig() runs, and a card that moves between those two points is a
+// save the player cannot find.
+static bool LibretroSharedMemcards()
+{
+	static const bool shared = []() {
+		retro_variable var = {"pcee2_memcard_shared", nullptr};
+		if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+			return std::strcmp(var.value, "enabled") == 0;
+		return false;
+	}();
+	return shared;
+}
+
 // Decided once and remembered, because the option list is built before
 // InitializeConfig() runs and the two must not disagree about where a card is.
 static const std::string& LibretroResolveMemcardsDir()
@@ -466,6 +482,18 @@ static const std::string& LibretroResolveMemcardsDir()
 	std::string base(save_dir);
 	if (Path::GetFileName(base) != "PCEE2")
 		base = Path::Combine(base, "PCEE2");
+
+	// Per game, the card is named after the content and lives in that folder
+	// directly - the layout the other PS2 core writes and the one a player
+	// recognises: saves/<core>/<game>.ps2. There is nothing to inherit from the
+	// old shared directory in that case, since no file there has the new name.
+	if (!LibretroSharedMemcards())
+	{
+		s_memcards_dir = std::move(base);
+		Console.WriteLnFmt("Memory cards: {} (one per game)", s_memcards_dir);
+		return s_memcards_dir;
+	}
+
 	std::string preferred = Path::Combine(base, "memcards");
 
 	// A card someone has been playing on for months is not something to leave
@@ -919,6 +947,12 @@ void LibretroHost::RegisterCoreOptions()
 			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
 			"enabled"},
 		// memory cards
+		{"pcee2_memcard_shared", "Shared Memory Cards", nullptr,
+			"Off (the default), each game gets its own card named after it, in the frontend's save directory - "
+			"which is what the other PS2 core does and what the frontend's save rules expect. On, every game "
+			"shares Mcd001.ps2 and Mcd002.ps2 in a memcards folder, the way a real console does. Requires restart.",
+			nullptr, "memory_cards", {{"disabled", "Disabled (Per Game)"}, {"enabled", "Enabled (Shared)"}, {nullptr, nullptr}},
+			"disabled"},
 		{"pcsx2_memcard_slot1_enable", "Slot 1 Enabled", nullptr,
 			"Enable the Slot 1 PS2 memory card. Changes apply immediately while content is running.",
 			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
@@ -1327,7 +1361,15 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		std::strcmp(get_option("pcsx2_memcard_slot1_enable", "enabled"), "enabled") == 0);
 	s_settings_interface.SetBoolValue("MemoryCards", "Slot2_Enable",
 		std::strcmp(get_option("pcsx2_memcard_slot2_enable", "enabled"), "enabled") == 0);
-	if (startup)
+	// One card per game: the name comes from the content, not from a selector,
+	// and slot 2 stays shut - two cards per game would be two files to keep and
+	// nothing asks for the second one.
+	if (!LibretroSharedMemcards() && !s_content_name.empty())
+	{
+		s_settings_interface.SetStringValue("MemoryCards", "Slot1_Filename", (s_content_name + ".ps2").c_str());
+		s_settings_interface.SetBoolValue("MemoryCards", "Slot2_Enable", false);
+	}
+	else if (startup)
 	{
 		// The discovered list controls which selectors are registered, not
 		// whether RetroArch has a current value for those selectors.
@@ -2182,6 +2224,14 @@ bool retro_load_game(const struct retro_game_info* game)
 	// retro_game_info instead, and an empty path there means the same thing,
 	// not a load to refuse.
 	const bool no_content = (game == nullptr) || !game->path || game->path[0] == '\0';
+
+	// The per-game memory card is named after the content, so this has to be
+	// known before the options are read below. A playlist names the card after
+	// the playlist, which is what a multi-disc game wants: one card for all of
+	// its discs.
+	s_content_name.clear();
+	if (!no_content)
+		s_content_name = std::string(Path::GetFileTitle(game->path));
 
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
 	if (!s_environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
