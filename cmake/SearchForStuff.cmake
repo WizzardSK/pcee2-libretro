@@ -51,7 +51,15 @@ find_package(Freetype 2.10 REQUIRED) # 2.10 is the first with COLRv0 support, wh
 find_package(plutovg 1.1.0 REQUIRED)
 find_package(plutosvg 0.0.7 REQUIRED)
 find_package(ryml REQUIRED)
-find_package(FFMPEG 7.1 COMPONENTS avcodec avformat avutil swresample swscale REQUIRED)
+# Upstream requires FFmpeg outright. This core does not link it: GSCapture
+# loads it at run time everywhere but Windows, so the headers are all a build
+# needs - and the libretro build images carry no 7.1. Found means found;
+# missing means the bundled headers, the way this tree has always done it.
+find_package(FFMPEG 7.1 COMPONENTS avcodec avformat avutil swresample swscale)
+if(NOT FFMPEG_FOUND)
+	message(STATUS "FFmpeg 7.1 not found, using the bundled headers.")
+	set(FFMPEG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/3rdparty/ffmpeg/include")
+endif()
 if (WIN32)
 	find_package(DirectX-Headers 1.618.1 REQUIRED)
 endif()
