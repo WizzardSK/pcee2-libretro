@@ -88,12 +88,6 @@ bool GSRenderer::Merge(int field)
 	int y_offset[3] = { 0, 0, 0 };
 	const bool feedback_merge = m_regs->EXTWRITE.WRITE == 1;
 
-	if (!PCRTCDisplays.PCRTCDisplays[0].enabled && !PCRTCDisplays.PCRTCDisplays[1].enabled)
-	{
-		m_real_size = GSVector2i(0, 0);
-		return false;
-	}
-
 	// Need to do this here, if the user has Anti-Blur enabled, these offsets can get wiped out/changed.
 	const bool game_deinterlacing = (PCRTCDisplays.PCRTCDisplays[0].prevFramebufferOffsets.y != PCRTCDisplays.PCRTCDisplays[0].framebufferOffsets.y) !=
 	                                (PCRTCDisplays.PCRTCDisplays[1].prevFramebufferOffsets.y != PCRTCDisplays.PCRTCDisplays[1].framebufferOffsets.y);
@@ -137,8 +131,6 @@ bool GSRenderer::Merge(int field)
 
 	if (!tex[0] && !tex[1])
 	{
-		m_real_size = GSVector2i(0, 0);
-
 		// Clear out the MAD buffer as some remnants of the previously shown frame came be left over, causing a flash for one frame.
 		if (GSConfig.InterlaceMode == GSInterlaceMode::Automatic || GSConfig.InterlaceMode >= GSInterlaceMode::AdaptiveTFF)
 		{
@@ -150,13 +142,19 @@ bool GSRenderer::Merge(int field)
 				mad_tex = nullptr;
 			}
 		}
-		return false;
+
+		// Both circuits off still outputs BGCOLOR on real hardware.
+		if (PCRTCDisplays.PCRTCDisplays[0].enabled || PCRTCDisplays.PCRTCDisplays[1].enabled)
+		{
+			m_real_size = GSVector2i(0, 0);
+			return false;
+		}
 	}
 
-	s_n++;
+	IncDraw();
 
-	GSVector4 src_gs_read[2];
-	GSVector4 dst[3];
+	GSVector4 src_gs_read[2] = {};
+	GSVector4 dst[3] = {};
 
 	// Use offset for bob deinterlacing always, extra offset added later for FFMD mode.
 	const bool scanmask_frame = m_scanmask_used && abs(PCRTCDisplays.PCRTCDisplays[0].displayRect.y - PCRTCDisplays.PCRTCDisplays[1].displayRect.y) != 1;
@@ -227,7 +225,7 @@ bool GSRenderer::Merge(int field)
 
 	m_real_size = GSVector2i(fs.x, fs.y);
 
-	if ((tex[0] == tex[1]) && (src_gs_read[0] == src_gs_read[1]).alltrue() && (dst[0] == dst[1]).alltrue() &&
+	if ((tex[0] || tex[1]) && (tex[0] == tex[1]) && (src_gs_read[0] == src_gs_read[1]).alltrue() && (dst[0] == dst[1]).alltrue() &&
 		(PCRTCDisplays.PCRTCDisplays[0].displayRect == PCRTCDisplays.PCRTCDisplays[1].displayRect).alltrue() &&
 		(PCRTCDisplays.PCRTCDisplays[0].framebufferRect == PCRTCDisplays.PCRTCDisplays[1].framebufferRect).alltrue() &&
 		!feedback_merge && !m_regs->PMODE.SLBG)
@@ -239,7 +237,7 @@ bool GSRenderer::Merge(int field)
 	const u32 c = (m_regs->BGCOLOR.U32[0] & 0x00FFFFFFu) | (m_regs->PMODE.ALP << 24);
 	g_gs_device->Merge(tex, src_gs_read, dst, fs, m_regs->PMODE, m_regs->EXTBUF, c);
 
-	if (isReallyInterlaced() && GSConfig.InterlaceMode != GSInterlaceMode::Off)
+	if ((tex[0] || tex[1]) && isReallyInterlaced() && GSConfig.InterlaceMode != GSInterlaceMode::Off)
 	{
 		const float offset = is_bob ? (tex[1] ? tex_scale[1] : tex_scale[0]) : 0.0f;
 
@@ -631,6 +629,9 @@ bool GSRenderer::BeginPresentFrame(bool frame_skip)
 {
 	Host::BeginPresentFrame();
 
+	if (GSDumpReplayer::IsReplayingDump())
+		GSDumpReplayer::UpdateGSStats();
+
 	const GSDevice::PresentResult res = g_gs_device->BeginPresent(frame_skip);
 	if (res == GSDevice::PresentResult::FrameSkipped)
 	{
@@ -989,6 +990,10 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 		}
 	}
 
+	// metrics
+	if (m_saving_metrics && !PerformanceMetrics::IsSavingMetrics())
+		DumpSavedMetrics();
+
 	// capture
 	if (GSCapture::IsCapturingVideo())
 	{
@@ -1135,6 +1140,29 @@ void GSRenderer::StopGSDump()
 {
 	m_snapshot = {};
 	m_dump_frames = 0;
+}
+
+void GSRenderer::StartSavingMetrics(u32 seconds)
+{
+	m_saving_metrics = true;
+	PerformanceMetrics::StartSavingMetrics(seconds);
+	Host::AddKeyedOSDMessage("GSMetrics",
+		fmt::format(TRANSLATE_FS("GS", "Started saving performance metrics{}"),
+			(0 < seconds && seconds < UINT32_MAX) ? fmt::format(" ({} seconds)", seconds) : ""),
+		Host::OSD_INFO_DURATION);
+}
+
+void GSRenderer::DumpSavedMetrics()
+{
+	m_saving_metrics = false;
+	PerformanceMetrics::DumpSavedMetrics();
+	Host::AddKeyedOSDMessage("GSMetrics", fmt::format(TRANSLATE_FS("GS", "Logging saved performance metrics")),
+		Host::OSD_INFO_DURATION);
+}
+
+bool GSRenderer::IsSavingMetrics()
+{
+	return m_saving_metrics;
 }
 
 void GSRenderer::PresentCurrentFrame()

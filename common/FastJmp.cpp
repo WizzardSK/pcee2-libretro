@@ -70,7 +70,7 @@ asm(
 #endif
 
 // Win32 uses Fastjmp.asm, because MSVC doesn't support inline asm.
-#if !defined(_WIN32) || defined(ARCH_ARM64)
+#if !defined(_WIN32)
 
 #if defined(__APPLE__)
 #define PREFIX "_"

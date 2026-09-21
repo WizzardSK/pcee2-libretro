@@ -14,6 +14,7 @@ constant uint SHUFFLE_READWRITE = 3;
 constant bool HAS_FBFETCH           [[function_constant(GSMTLConstantIndex_FRAMEBUFFER_FETCH)]];
 constant bool DEPTH_FEEDBACK        [[function_constant(GSMTLConstantIndex_DEPTH_FEEDBACK)]];
 constant bool ROV_NEEDS_R32         [[function_constant(GSMTLConstantIndex_ROV_NEEDS_R32)]];
+constant bool BROKEN_SHADER_DEPTH   [[function_constant(GSMTLConstantIndex_BROKEN_SHADER_DEPTH)]];
 constant bool FST                   [[function_constant(GSMTLConstantIndex_FST)]];
 constant bool IIP                   [[function_constant(GSMTLConstantIndex_IIP)]];
 constant bool VS_POINT_SIZE         [[function_constant(GSMTLConstantIndex_VS_POINT_SIZE)]];
@@ -247,6 +248,14 @@ static MainVSOut vs_main_run(thread const MainVSIn& v, constant GSMTLMainVSUnifo
 
 	if (VS_POINT_SIZE)
 		out.point_size = cb.point_size.x;
+
+	// Apple GPUs use slightly different algorithms to calculate the Z they send to the shader vs the Z they use in hardware.
+	// This breaks a lot of things (the most common is conservative depth rejecting pixels that should have depth equal to current depth but now don't).
+	// Work around by always routing depth through the shader, and never using hardware depth values.
+	// To allow us to continue to use [[depth(less)]] optimizations, add a bit in the VS and subtract it off in the FS,
+	// so that "equal" depth doesn't ever fail a hardware depth test.
+	if (BROKEN_SHADER_DEPTH)
+		out.p.z += exp_min32;
 
 	return out;
 }
@@ -1103,7 +1112,7 @@ struct PSMain
 		{
 			uint4 rt = uint4(fetch_raw_color() * 255.5f);
 			uint green = (rt.g >> cb.channel_shuffle.green_shift) & cb.channel_shuffle.green_mask;
-			uint blue  = (rt.b >> cb.channel_shuffle.blue_shift)  & cb.channel_shuffle.blue_mask;
+			uint blue  = (rt.b << cb.channel_shuffle.blue_shift)  & cb.channel_shuffle.blue_mask;
 			return float4(green | blue);
 		}
 	}
@@ -1295,8 +1304,12 @@ struct PSMain
 	{
 		if (PS_FBMASK)
 		{
-			float multi = PS_COLCLIP_HW ? 65535.0 : 255.5;
-			C = float4((uint4(int4(C)) & (cb.fbmask ^ 0xff)) | (uint4(current_color * float4(multi, multi, multi, 255)) & cb.fbmask));
+			float multi_rgb = PS_COLCLIP_HW ? 65535.0 : 255.5;
+			float multi_a = PS_RTA_CORRECTION ? 128.0 : 255.0;
+			float4 RT = current_color;
+			RT.rgb = RT.rgb * multi_rgb;
+			RT.a = round(RT.a * multi_a);
+			C = float4((uint4(int4(C)) & (cb.fbmask ^ 0xff)) | (uint4(RT) & cb.fbmask));
 		}
 	}
 
@@ -1494,6 +1507,8 @@ struct PSMain
 	{
 		MainResult out = {};
 		float input_z = in.p.z;
+		if (BROKEN_SHADER_DEPTH)
+			input_z -= 0x1p-32;
 		if (PS_ZFLOOR)
 			input_z = floor(input_z * 0x1p32) * 0x1p-32;
 
@@ -1758,7 +1773,7 @@ fragment MainPSOut ps_main(
 			main.current_depth = ds_tex.read(coord).x;
 	}
 
-	if (NEEDS_RT || (PS_ROV_COLOR && any(cb.fbmask == 0xff)))
+	if (NEEDS_RT)
 	{
 		if (PS_ROV_COLOR)
 		{
@@ -1786,8 +1801,6 @@ fragment MainPSOut ps_main(
 		ds_rov.write(out.depth, coord);
 	if (PS_ROV_COLOR && !main.color_discarded)
 	{
-		if (!PS_FBMASK)
-			out.c0 = select(out.c0, main.current_color, cb.fbmask == 0xff);
 		if (ROV_NEEDS_R32)
 			rt_u32.write(pack_float_to_unorm4x8(out.c0), coord);
 		else
