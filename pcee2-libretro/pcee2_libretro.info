@@ -6,7 +6,7 @@ corename = "PCEE2"
 categories = "Emulator"
 license = "GPLv3"
 permissions = ""
-display_version = "v2.7.523"
+display_version = "v2.9.78"
 
 # Hardware Information
 manufacturer = "Sony"
