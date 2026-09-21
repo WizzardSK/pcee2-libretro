@@ -242,6 +242,7 @@ namespace LibretroHost
 	// core option state
 	static std::vector<std::string> s_bios_names; // backing storage for option values
 	static std::vector<std::string> s_memcard_names; // backing storage for option values
+	static std::string s_memcards_dir; // decided once, see LibretroResolveMemcardsDir
 	static u32 s_opt_upscale = 1;
 
 	// libretro port -> PCSX2 pad index (see sioConvertPadToPortAndSlot: 0=1A,
@@ -542,6 +543,15 @@ bool LibretroHost::InitializeConfig()
 		}
 	}
 
+	// Set before LoadStartupSettings, which is what calls EmuFolders::LoadConfig
+	// and turns these into the paths the emulator uses. An absolute value is
+	// taken as-is there rather than joined to DataRoot, which is how the cards
+	// get out from under the system directory. Folders is not one of the
+	// sections adopted from a standalone PCSX2.ini above, so nothing overwrites
+	// this; a user who wants the cards elsewhere still has the emulator's own
+	// setting.
+	s_settings_interface.SetStringValue("Folders", "MemoryCards", LibretroResolveMemcardsDir().c_str());
+
 	VMManager::Internal::LoadStartupSettings();
 
 	EmuFolders::EnsureFoldersExist();
@@ -605,6 +615,71 @@ void LibretroHost::SettingsOverride()
 	}
 }
 
+// Where the memory cards live. A memory card is a save, and the frontend has a
+// directory for those which the user can have it sort per core - which is what
+// "Sort Saves into Folders by Core Name" does, and which this core used to
+// ignore because it never asked for it: every folder hung off the system
+// directory, so both slots landed in <system>/pcsx2/memcards wherever the
+// frontend had been told to put saves.
+//
+// Decided once and remembered, because the option list is built before
+// InitializeConfig() runs and the two must not disagree about where a card is.
+static const std::string& LibretroResolveMemcardsDir()
+{
+	if (!s_memcards_dir.empty())
+		return s_memcards_dir;
+
+	const auto has_cards = [](const std::string& dir) {
+		FileSystem::FindResultsArray files;
+		FileSystem::FindFiles(dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+		for (const FILESYSTEM_FIND_DATA& fd : files)
+		{
+			if (Path::GetFileName(fd.FileName).ends_with(".ps2"))
+				return true;
+		}
+		return false;
+	};
+
+	std::string legacy;
+	const char* system_dir = nullptr;
+	if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
+		legacy = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
+
+	const char* save_dir = nullptr;
+	if (!s_environ_cb || !s_environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir) || !save_dir || !*save_dir)
+	{
+		// No save directory to move to. Nothing changes.
+		s_memcards_dir = legacy.empty() ? std::string("memcards") : legacy;
+		Console.WriteLnFmt("Memory cards: {} (the frontend offers no save directory)", s_memcards_dir);
+		return s_memcards_dir;
+	}
+
+	// The frontend already names the folder after this core when it is set to
+	// sort saves that way, so adding our own would make PCEE2/PCEE2.
+	std::string base(save_dir);
+	if (Path::GetFileName(base) != "PCEE2")
+		base = Path::Combine(base, "PCEE2");
+	std::string preferred = Path::Combine(base, "memcards");
+
+	// A card someone has been playing on for months is not something to leave
+	// behind quietly: moving it is the frontend's call, not ours, and creating
+	// an empty Mcd001.ps2 next to it would look like the save was lost. So the
+	// old directory keeps being used while it holds cards and the new one does
+	// not, and the log says which one won and why.
+	if (!legacy.empty() && !has_cards(preferred) && has_cards(legacy))
+	{
+		s_memcards_dir = legacy;
+		Console.WriteLnFmt("Memory cards: {} - staying with the old directory because it has cards and '{}' "
+						   "has none. Move the .ps2 files there to follow the frontend's save directory.",
+			legacy, preferred);
+		return s_memcards_dir;
+	}
+
+	s_memcards_dir = std::move(preferred);
+	Console.WriteLnFmt("Memory cards: {}", s_memcards_dir);
+	return s_memcards_dir;
+}
+
 void LibretroHost::RegisterCoreOptions()
 {
 	// scan for BIOS images so the option can list them
@@ -630,20 +705,17 @@ void LibretroHost::RegisterCoreOptions()
 	// Scan only real .ps2 files. This happens before InitializeConfig(), so the
 	// existing FileMcd_GetAvailableCards() helper cannot be used here: it reads
 	// EmuFolders::MemoryCards, which is populated during startup configuration.
+	// The directory is the one InitializeConfig() will settle on, not the old
+	// fixed path - otherwise the list would name cards from somewhere else.
 	s_memcard_names.clear();
 	{
-		const char* system_dir = nullptr;
-		if (s_environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir)
+		FileSystem::FindResultsArray files;
+		FileSystem::FindFiles(LibretroResolveMemcardsDir().c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+		for (const FILESYSTEM_FIND_DATA& fd : files)
 		{
-			FileSystem::FindResultsArray files;
-			const std::string memcards_dir = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
-			FileSystem::FindFiles(memcards_dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
-			for (const FILESYSTEM_FIND_DATA& fd : files)
-			{
-				const std::string filename(Path::GetFileName(fd.FileName));
-				if (filename.ends_with(".ps2"))
-					s_memcard_names.push_back(filename);
-			}
+			const std::string filename(Path::GetFileName(fd.FileName));
+			if (filename.ends_with(".ps2"))
+				s_memcard_names.push_back(filename);
 		}
 	}
 	std::sort(s_memcard_names.begin(), s_memcard_names.end());
@@ -854,10 +926,10 @@ void LibretroHost::RegisterCoreOptions()
 			"Enable the Slot 2 PS2 memory card. Changes apply immediately while content is running.",
 			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
 		{"pcsx2_memcard_slot1_file", "Slot 1 Card", nullptr,
-			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+			"Select an existing .ps2 card from the memory card directory the log names at startup. Changes apply immediately while content is running.",
 			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd001.ps2"},
 		{"pcsx2_memcard_slot2_file", "Slot 2 Card", nullptr,
-			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+			"Select an existing .ps2 card from the memory card directory the log names at startup. Changes apply immediately while content is running.",
 			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd002.ps2"},
 		{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, {{nullptr, nullptr}}, nullptr},
 	};
