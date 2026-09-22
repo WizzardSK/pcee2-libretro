@@ -158,6 +158,26 @@ static bool OpenGSDevice(GSRendererType renderer, bool clear_state_on_fail, bool
 	GSVSyncMode vsync_mode, bool allow_present_throttle)
 {
 	const RenderAPI new_api = GetAPIForRenderer(renderer);
+
+	// Which device is about to be built, said out loud. A report of "the
+	// software renderer hangs" cannot be told apart from "a Metal device was
+	// built inside a Vulkan session" without this, and the two have nothing in
+	// common but the symptom.
+	{
+		const char* api_name = "unknown";
+		switch (new_api)
+		{
+			case RenderAPI::None: api_name = "none"; break;
+			case RenderAPI::D3D11: api_name = "Direct3D 11"; break;
+			case RenderAPI::D3D12: api_name = "Direct3D 12"; break;
+			case RenderAPI::Metal: api_name = "Metal"; break;
+			case RenderAPI::Vulkan: api_name = "Vulkan"; break;
+			case RenderAPI::OpenGL: api_name = "OpenGL"; break;
+		}
+		Console.WriteLn(fmt::format("Opening GS device: renderer {}, API {}",
+			Pcsx2Config::GSOptions::GetRendererName(renderer), api_name));
+	}
+
 	switch (new_api)
 	{
 #if defined(_WIN32) && !defined(PCSX2_DISABLE_D3D)
