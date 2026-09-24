@@ -64,9 +64,12 @@ The result is `build/pcee2_libretro.so`. Load it with
   pcee2's changes in it.
 - Bump both lines of `pcee2-libretro/upstream.version`, and `display_version`
   in `pcee2_libretro.info`, with every merge.
-- `AGENTS.md`, `GEMINI.md` and `.github/PULL_REQUEST_TEMPLATE.md` come from
-  PCSX2 and were removed here; keep them removed when a merge brings them
-  back.
+- `AGENTS.md`, `GEMINI.md` and everything PCSX2 keeps in `.github` other than
+  what pcee2 uses were removed here: its templates, funding and labeler
+  configs, dependabot, and the Qt application's build workflows and scripts.
+  `.github/workflows` holds pcee2's own five - `libretro_builds`,
+  `android_libretro`, `deps_cmake` and the two `crowdin_*`. Keep the rest
+  removed when a merge brings it back.
 
 ## ARM64 recompilers
 
