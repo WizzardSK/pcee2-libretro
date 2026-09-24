@@ -86,6 +86,7 @@
 #include "libretro_vulkan.h"
 #endif
 #include "LibretroVFS.h"
+#include "libretro_core_options.h"
 
 #include "fmt/format.h"
 
@@ -700,246 +701,28 @@ void LibretroHost::RegisterCoreOptions()
 	std::sort(s_memcard_names.begin(), s_memcard_names.end());
 	s_memcard_names.erase(std::unique(s_memcard_names.begin(), s_memcard_names.end()), s_memcard_names.end());
 
-	static retro_core_option_v2_category categories[] = {
-		{"system", "System", "BIOS and boot behaviour."},
-		{"memory_cards", "Memory Cards", "PS2 memory card slot settings."},
-		{"graphics", "Graphics", "Renderer, resolution and image quality."},
-		{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing)."},
-		{"performance", "Performance", "Speed hacks. May break games."},
-		{"audio", "Audio", "Sound output and buffering."},
-		{nullptr, nullptr, nullptr},
-	};
-
-	retro_core_option_v2_definition definitions[] = {
-		// system
-		{"pcsx2_bios", "BIOS", nullptr, "BIOS image to use, from <system>/pcsx2/bios. Requires restart.", nullptr,
-			"system", {{nullptr, nullptr}}, "auto"},
-		{"pcsx2_fast_boot", "Fast Boot", nullptr, "Skip the BIOS boot animation. Requires restart.", nullptr,
-			"system", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		// graphics
-		// Offering an API this build has no renderer for would leave GSCreateDevice
-		// with nothing to construct (Android turns OpenGL off entirely), so the
-		// list only carries what is actually compiled in.
-		{"pcsx2_renderer", "Renderer", nullptr,
-			"Hardware renderer API, or the software renderer. Switching to or from Software applies "
-			"on the fly; switching between hardware APIs takes effect when the content is restarted.",
-			nullptr, "graphics",
-			{
-#ifdef ENABLE_VULKAN
-			{"vulkan", "Vulkan (Hardware)"},
-#endif
-#ifdef ENABLE_OPENGL
-				{"opengl", "OpenGL (Hardware)"},
-#endif
-				{"software", "Software"}, {nullptr, nullptr}},
-			"vulkan"},
-		{"pcsx2_upscale_multiplier", "Internal Resolution", nullptr,
-			"Internal rendering resolution multiplier for the hardware renderer. Also scales the output framebuffer. Applies on the fly.",
-			nullptr, "graphics",
-			{{"1", "1x Native (640x480)"}, {"2", "2x Native (1280x960)"}, {"3", "3x Native (1920x1440)"},
-				{"4", "4x Native (2560x1920)"}, {nullptr, nullptr}},
-			"1"},
-		{"pcsx2_hw_download_mode", "Hardware Download Mode", nullptr,
-			"How GPU->CPU readbacks are handled when a game reads rendered data back (GT3 heat haze, "
-			"photo modes...). Accurate stalls the whole pipeline on tiler GPUs; Unsynchronized returns "
-			"stale data without stalling (big speedup, may glitch those effects); Disabled skips them.",
-			nullptr, "graphics",
-			{{"accurate", "Accurate (Default)"}, {"unsynchronized", "Unsynchronized (Fast)"},
-				{"disabled", "Disabled (Fastest)"}, {nullptr, nullptr}},
-			"accurate"},
-		{"pcsx2_blending_accuracy", "Blending Accuracy", nullptr,
-			"Higher levels emulate more PS2 blending effects correctly at a GPU cost.", nullptr, "graphics",
-			{{"minimum", "Minimum"}, {"basic", "Basic (Recommended)"}, {"medium", "Medium"}, {"high", "High"},
-				{"full", "Full (Slow)"}, {"maximum", "Maximum (Very Slow)"}, {nullptr, nullptr}},
-			"basic"},
-		{"pcsx2_texture_filtering", "Texture Filtering", nullptr,
-			"Bilinear (PS2) replicates the console; forced modes smooth all textures.", nullptr, "graphics",
-			{{"nearest", "Nearest"}, {"bilinear_ps2", "Bilinear (PS2)"}, {"bilinear_forced", "Bilinear (Forced)"},
-				{"bilinear_forced_sprite", "Bilinear (Forced excluding sprites)"}, {nullptr, nullptr}},
-			"bilinear_ps2"},
-		{"pcsx2_trilinear_filtering", "Trilinear Filtering", nullptr, nullptr, nullptr, "graphics",
-			{{"auto", "Automatic (Default)"}, {"off", "Off"}, {"ps2", "Trilinear (PS2)"}, {"forced", "Trilinear (Forced)"},
-				{nullptr, nullptr}},
-			"auto"},
-		{"pcsx2_anisotropic_filtering", "Anisotropic Filtering", nullptr,
-			"Reduces texture aliasing at steep angles.", nullptr, "graphics",
-			{{"0", "Off"}, {"2", "2x"}, {"4", "4x"}, {"8", "8x"}, {"16", "16x"}, {nullptr, nullptr}}, "0"},
-		{"pcsx2_dithering", "Dithering", nullptr,
-			"Unscaled (default) replicates PS2 dithering; Off can reduce banding artifacts at high resolutions.",
-			nullptr, "graphics",
-			{{"0", "Off"}, {"1", "Scaled"}, {"2", "Unscaled (Default)"}, {nullptr, nullptr}}, "2"},
-		{"pcsx2_mipmapping", "Hardware Mipmapping", nullptr, nullptr, nullptr, "graphics",
-			{{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_deinterlace_mode", "Deinterlacing", nullptr,
-			"Automatic uses the GameDB-recommended mode per game.", nullptr, "graphics",
-			{{"0", "Automatic (Default)"}, {"1", "Off"}, {"2", "Weave (TFF)"}, {"3", "Weave (BFF)"},
-				{"4", "Bob (TFF)"}, {"5", "Bob (BFF)"}, {"6", "Blend (TFF)"}, {"7", "Blend (BFF)"},
-				{"8", "Adaptive (TFF)"}, {"9", "Adaptive (BFF)"}, {nullptr, nullptr}},
-			"0"},
-		{"pcsx2_fxaa", "FXAA", nullptr, "Cheap post-process anti-aliasing.", nullptr, "graphics",
-			{{"disabled", nullptr}, {"enabled", nullptr}, {nullptr, nullptr}}, "disabled"},
-		{"pcsx2_cas_mode", "Contrast Adaptive Sharpening", nullptr, nullptr, nullptr, "graphics",
-			{{"disabled", "Disabled"}, {"sharpen", "Sharpen Only"}, {nullptr, nullptr}}, "disabled"},
-		{"pcsx2_audio_buffer_ms", "Audio Buffer", nullptr,
-			"How much audio the emulator keeps ahead of the frontend. More of it rides out a "
-			"stall that would otherwise be heard as a break in the sound, at the cost of that "
-			"much delay before you hear anything. PCSX2's own default is 50 ms, which assumes it "
-			"is feeding an audio device directly rather than a frontend that pulls once a frame.",
-			nullptr, "audio",
-			{{"50", "50 ms"}, {"75", "75 ms"}, {"100", "100 ms"}, {"150", "150 ms"}, {"200", "200 ms"},
-				{nullptr, nullptr}}, "100"},
-		{"pcsx2_frame_limiter", "Frame Limiter", nullptr,
-			"What holds the emulator to full speed. Frontend leaves the pacing to RetroArch, which "
-			"throttles by making the core wait on the audio it hands over. Internal uses PCSX2's own "
-			"limiter instead - for a device where that wait never happens, because the audio driver "
-			"underruns rather than blocking, and the emulator's own speed variation then reaches the "
-			"screen as uneven frame pacing.",
-			nullptr, "system",
-			{{"frontend", "Frontend (RetroArch)"}, {"internal", "Internal (PCSX2)"}, {nullptr, nullptr}}, "frontend"},
-		{"pcsx2_skip_duplicate_frames", "Skip Presenting Duplicate Frames", nullptr,
-			"Don't hand the frontend a frame the GS never redrew - a 30fps game then delivers 30 "
-			"unique frames instead of 60 with every second one repeated. Turn this off if a frame "
-			"generation or interpolation filter needs every frame delivered as its own.",
-			nullptr, "graphics",
-			{{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_cas_sharpness", "CAS Sharpness", nullptr, nullptr, nullptr, "graphics",
-			{{"10", nullptr}, {"20", nullptr}, {"30", nullptr}, {"40", nullptr}, {"50", nullptr}, {"60", nullptr},
-				{"70", nullptr}, {"80", nullptr}, {"90", nullptr}, {"100", nullptr}, {nullptr, nullptr}},
-			"50"},
-		{"pcsx2_aspect_ratio", "Aspect Ratio", nullptr,
-			"Automatic reports 16:9 when widescreen patches are enabled, 4:3 otherwise.", nullptr, "graphics",
-			{{"auto", "Automatic"}, {"4:3", nullptr}, {"16:9", nullptr}, {nullptr, nullptr}}, "auto"},
-		// system (continued)
-		{"pcsx2_multitap", "Multitap", nullptr,
-			"Enable the multitap adapter for up to 8 controllers. Player order follows the physical slots "
-			"(port 1: 1A-1D, then port 2: 2A-2D). Restart recommended.",
-			nullptr, "system",
-			{{"disabled", "Disabled (2 players)"}, {"port1", "Port 1 (5 players)"}, {"port2", "Port 2 (5 players)"},
-				{"both", "Both Ports (8 players)"}, {nullptr, nullptr}},
-			"disabled"},
-		{"pcsx2_lightgun", "Lightgun (GunCon 2)", nullptr,
-			"Emulate a Namco GunCon 2 on a USB port, aimed with the frontend's lightgun (or mouse mapped as "
-			"lightgun) on the matching controller port. Requires restart.",
-			nullptr, "system",
-			{{"disabled", "Disabled"}, {"usb1", "USB Port 1"}, {"usb2", "USB Port 2"}, {"both", "Both Ports"},
-				{nullptr, nullptr}},
-			"disabled"},
-		{"pcsx2_rumble", "Rumble", nullptr, "Forward DualShock 2 vibration to the frontend's rumble support.",
-			nullptr, "system", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_axis_scale", "Analog Axis Scale", nullptr,
-			"Scales stick input like a real DualShock 2 (PCSX2 default 133%). Lower if diagonals feel clamped.",
-			nullptr, "system",
-			{{"100", "100%"}, {"115", "115%"}, {"133", "133% (Default)"}, {"150", "150%"}, {nullptr, nullptr}},
-			"133"},
-		{"pcsx2_axis_deadzone", "Analog Deadzone", nullptr,
-			"Stick deadzone applied inside the emulated controller, on top of any frontend deadzone.", nullptr,
-			"system",
-			{{"0", "0% (Default)"}, {"5", "5%"}, {"10", "10%"}, {"15", "15%"}, {"20", "20%"}, {"30", "30%"},
-				{nullptr, nullptr}},
-			"0"},
-		// patches
-		{"pcsx2_widescreen_patches", "Widescreen Patches", nullptr,
-			"Enable built-in 16:9 widescreen patches where available. Best applied before starting a game.", nullptr,
-			"patches", {{"disabled", nullptr}, {"enabled", nullptr}, {nullptr, nullptr}}, "disabled"},
-		{"pcsx2_no_interlacing_patches", "No-Interlacing Patches", nullptr,
-			"Enable built-in progressive-output patches where available. Best applied before starting a game.", nullptr,
-			"patches", {{"disabled", nullptr}, {"enabled", nullptr}, {nullptr, nullptr}}, "disabled"},
-		// performance
-		{"pcsx2_mtvu", "MTVU (Multi-Threaded VU1)", nullptr,
-			"Runs VU1 on its own thread. Large speedup on multi-core CPUs; a small number of games hang with it.",
-			nullptr, "performance",
-			{{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_instant_vu1", "Instant VU1", nullptr,
-			"Runs VU1 to completion immediately (ignored while MTVU is enabled). Usually a speedup.",
-			nullptr, "performance",
-			{{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_ee_cycle_rate", "EE Cycle Rate", nullptr,
-			"Underclock or overclock the emulated Emotion Engine. Default 100%. May break games.", nullptr,
-			"performance",
-			{{"-3", "50% (Underclock)"}, {"-2", "60% (Underclock)"}, {"-1", "75% (Underclock)"},
-				{"0", "100% (Default)"}, {"1", "130% (Overclock)"}, {"2", "180% (Overclock)"},
-				{"3", "300% (Overclock)"}, {nullptr, nullptr}},
-			"0"},
-		{"pcsx2_ee_cycle_skip", "EE Cycle Skip", nullptr,
-			"Makes the EE skip cycles. Helps some games with high VU activity, breaks others.", nullptr,
-			"performance",
-			{{"0", "Disabled (Default)"}, {"1", "Mild"}, {"2", "Moderate"}, {"3", "Maximum"}, {nullptr, nullptr}},
-			"0"},
-		{"pcsx2_cpu_recompiler", "CPU Recompiler (JIT)", nullptr,
-			"Diagnostic master switch. Enabled runs the EE, IOP and VU0/VU1 dynarecs (JIT, fast, default). "
-			"Disabled forces every CPU to an interpreter, which is far slower but isolates JIT bugs: if a crash "
-			"still happens with this off, the recompiler is not the cause. The four per-CPU switches below only "
-			"take effect while this is Enabled. Requires restart.",
-			nullptr, "performance",
-			{{"enabled", "Enabled (JIT, Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
-			"enabled"},
-		{"pcsx2_rec_ee", "  - EE Recompiler", nullptr,
-			"Diagnostic. Disable just the Emotion Engine (EE) dynarec while leaving the others on, to bisect "
-			"which recompiler causes a crash. Requires restart.",
-			nullptr, "performance",
-			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
-			"enabled"},
-		{"pcsx2_rec_iop", "  - IOP Recompiler", nullptr,
-			"Diagnostic. Disable just the IOP (R3000) dynarec while leaving the others on, to bisect which "
-			"recompiler causes a crash. Requires restart.",
-			nullptr, "performance",
-			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
-			"enabled"},
-		{"pcsx2_rec_vu0", "  - VU0 Recompiler", nullptr,
-			"Diagnostic. Disable just the VU0 microVU dynarec while leaving the others on, to bisect which "
-			"recompiler causes a crash. Requires restart.",
-			nullptr, "performance",
-			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
-			"enabled"},
-		{"pcsx2_rec_vu1", "  - VU1 Recompiler", nullptr,
-			"Diagnostic. Disable just the VU1 microVU dynarec while leaving the others on, to bisect which "
-			"recompiler causes a crash. Requires restart.",
-			nullptr, "performance",
-			{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {nullptr, nullptr}},
-			"enabled"},
-		// memory cards
-		{"pcsx2_memcard_slot1_enable", "Slot 1 Enabled", nullptr,
-			"Enable the Slot 1 PS2 memory card. Changes apply immediately while content is running.",
-			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_memcard_slot2_enable", "Slot 2 Enabled", nullptr,
-			"Enable the Slot 2 PS2 memory card. Changes apply immediately while content is running.",
-			nullptr, "memory_cards", {{"enabled", nullptr}, {"disabled", nullptr}, {nullptr, nullptr}}, "enabled"},
-		{"pcsx2_memcard_slot1_file", "Slot 1 Card", nullptr,
-			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
-			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd001.ps2"},
-		{"pcsx2_memcard_slot2_file", "Slot 2 Card", nullptr,
-			"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
-			nullptr, "memory_cards", {{nullptr, nullptr}}, "Mcd002.ps2"},
-		{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, {{nullptr, nullptr}}, nullptr},
-	};
+	// The English definitions live in libretro_core_options.h, where Crowdin's
+	// scripts can find them; the lists found on disk are filled into that array
+	// below. It outlives this call, so start every call from its pristine state:
+	// a key cleared or a default redirected last time must not stick.
+	static const std::vector<retro_core_option_v2_definition> pristine(
+		std::begin(option_defs_us), std::end(option_defs_us));
+	std::copy(pristine.begin(), pristine.end(), option_defs_us);
+	auto& definitions = option_defs_us;
 
 	// Do not invent Mcd001.ps2/Mcd002.ps2 entries when the directory is empty.
 	// The final two definitions are deliberately last so a null key here only
 	// omits the Card selectors while retaining the Enabled options above them.
-	//
-	// definitions[] is static, so a key cleared on one call is still cleared on
-	// the next - and cannot be found by key any more either. Note where the two
-	// selectors are while their keys are intact, and put the keys back before
-	// deciding again, or a first run with an empty memcards directory would
-	// hide the selectors for the rest of the process.
-	static constexpr const char* SLOT_FILE_KEYS[2] = {"pcsx2_memcard_slot1_file", "pcsx2_memcard_slot2_file"};
-	static size_t slot_file_defs[2] = {std::size(definitions), std::size(definitions)};
-	for (size_t k = 0; k < std::size(SLOT_FILE_KEYS); k++)
+	if (s_memcard_names.empty())
 	{
-		if (slot_file_defs[k] == std::size(definitions))
+		for (retro_core_option_v2_definition& def : definitions)
 		{
-			for (size_t i = 0; i < std::size(definitions); i++)
+			if (def.key && std::strcmp(def.key, "pcsx2_memcard_slot1_file") == 0)
 			{
-				if (definitions[i].key && std::strcmp(definitions[i].key, SLOT_FILE_KEYS[k]) == 0)
-				{
-					slot_file_defs[k] = i;
-					break;
-				}
+				def.key = nullptr;
+				break;
 			}
 		}
-
-		if (slot_file_defs[k] != std::size(definitions))
-			definitions[slot_file_defs[k]].key = s_memcard_names.empty() ? nullptr : SLOT_FILE_KEYS[k];
 	}
 
 	// fill in the discovered BIOS list (bounded by the option value array size)
@@ -985,41 +768,10 @@ void LibretroHost::RegisterCoreOptions()
 		}
 	}
 
-	unsigned version = 0;
-	if (s_environ_cb(RETRO_ENVIRONMENT_GET_CORE_OPTIONS_VERSION, &version) && version >= 2)
-	{
-		retro_core_options_v2 options = {categories, definitions};
-		s_environ_cb(RETRO_ENVIRONMENT_SET_CORE_OPTIONS_V2, &options);
-		return;
-	}
-
-	// legacy fallback: "Description; value1|value2" strings
-	static std::vector<std::string> legacy_storage;
-	legacy_storage.clear();
-	// legacy[] holds c_str() pointers into these strings, so the storage must not
-	// reallocate while it is being filled (a moved short string changes address)
-	legacy_storage.reserve(std::size(definitions));
-	std::vector<retro_variable> legacy;
-	for (const retro_core_option_v2_definition& def : definitions)
-	{
-		if (!def.key)
-			break;
-
-		std::string str = fmt::format("{}; ", def.desc);
-		// default first, as required by the legacy API
-		str += def.default_value;
-		for (const retro_core_option_value& v : def.values)
-		{
-			if (!v.value)
-				break;
-			if (std::strcmp(v.value, def.default_value) != 0)
-				str += fmt::format("|{}", v.value);
-		}
-		legacy_storage.push_back(std::move(str));
-		legacy.push_back({def.key, legacy_storage.back().c_str()});
-	}
-	legacy.push_back({nullptr, nullptr});
-	s_environ_cb(RETRO_ENVIRONMENT_SET_VARIABLES, legacy.data());
+	// Picks the frontend's language (v2 intl), and falls back to v1 or to
+	// legacy "Description; value1|value2" strings for older frontends.
+	bool categories_supported = false;
+	libretro_set_core_options(s_environ_cb, &categories_supported);
 }
 
 void LibretroHost::ReadCoreOptions(bool startup)

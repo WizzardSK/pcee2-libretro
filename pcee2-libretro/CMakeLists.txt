@@ -25,6 +25,8 @@ target_sources(pcee2_libretro PRIVATE
 	LibretroVFS.cpp
 	LibretroVFS.h
 	libretro.h
+	libretro_core_options.h
+	libretro_core_options_intl.h
 )
 
 target_include_directories(pcee2_libretro PRIVATE
