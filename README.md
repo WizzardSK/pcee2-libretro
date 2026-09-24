@@ -149,7 +149,7 @@ automatic per-game fixes from the GameDB).
 
 ## Architecture notes
 
-- The frontend (`pcee2-libretro/Libretro.cpp`) is modeled on `pcsx2-gsrunner`:
+- The frontend (`pcee2-libretro/Libretro.cpp`) is modeled on upstream PCSX2's `pcsx2-gsrunner`:
   a dedicated CPU thread runs the `VMManager::Execute()` loop, and
   `Host::PumpMessagesOnCPUThread()` paces it 1:1 against `retro_run()`.
 - Frames leave the GS thread through `VKLibretro`

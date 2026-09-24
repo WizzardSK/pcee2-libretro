@@ -167,20 +167,6 @@ add_subdirectory(3rdparty/cubeb EXCLUDE_FROM_ALL)
 disable_compiler_warnings_for_target(cubeb)
 disable_compiler_warnings_for_target(speex)
 
-# Find the Qt components that we need.
-if(ENABLE_QT_UI)
-	find_package(Qt6 6.10 COMPONENTS CoreTools Core GuiTools Gui WidgetsTools Widgets LinguistTools REQUIRED)
-
-	if(NOT WIN32 AND NOT APPLE)
-		if (Qt6_VERSION VERSION_GREATER_EQUAL 6.10.0)
-			find_package(Qt6 COMPONENTS CorePrivate GuiPrivate WidgetsPrivate REQUIRED)
-		endif()
-	endif()
-
-	# The docking system for the debugger.
-	find_package(KDDockWidgets-qt6 2.3.0 REQUIRED)
-endif()
-
 if(WIN32 AND ARCH_X86)
 	add_subdirectory(3rdparty/rainterface EXCLUDE_FROM_ALL)
 endif()

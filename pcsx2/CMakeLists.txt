@@ -1647,9 +1647,8 @@ function(setup_main_executable target)
 	endif()
 endfunction()
 
-source_groups_from_vcxproj_filters(pcsx2.vcxproj.filters)
-
-# Unix-only files aren't in the vcxproj.filters
+# IDE source groups. Upstream reads most of them from pcsx2.vcxproj.filters,
+# which pcee2 does not carry; these are the ones it declares here.
 source_group(System/Ps2/DEV9 REGULAR_EXPRESSION DEV9/*)
 source_group(System/Ps2/PAD FILES ${pcsx2PADSources} ${pcsx2PADHeaders})
 source_group(System/Ps2/SPU2 REGULAR_EXPRESSION SPU2/*)

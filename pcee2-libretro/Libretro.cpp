@@ -5,7 +5,7 @@
 //
 // Threading model:
 //  - retro_load_game() spawns a dedicated CPU thread which runs the usual
-//    VMManager::Execute() loop (same shape as pcsx2-gsrunner's CPUThreadMain).
+//    VMManager::Execute() loop (same shape as upstream pcsx2-gsrunner's CPUThreadMain).
 //  - Host::PumpMessagesOnCPUThread() is invoked by the core once per emulated
 //    frame (at CPU vsync). We use it as the pacing point: the CPU thread grabs
 //    the presented frame into a buffer, signals retro_run(), then blocks until
