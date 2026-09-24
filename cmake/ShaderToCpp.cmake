@@ -17,8 +17,8 @@ function(shader_to_cpp SHADER_FILES_OUT SHADER_FILES_CPP_OUT CPP_OUTPUT_DIR_OUT)
 		set(cpp_path "${CPP_OUTPUT_DIR}/${API}_${BASE}.cpp")
 		add_custom_command(
 			OUTPUT ${cpp_path}
-			COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/../tools/shader_to_cpp.py ${path} ${cpp_path} "${API}_${BASE}"
-			DEPENDS ${path} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/shader_to_cpp.py
+			COMMAND python ${CMAKE_SOURCE_DIR}/cmake/shader_to_cpp.py ${path} ${cpp_path} "${API}_${BASE}"
+			DEPENDS ${path} ${CMAKE_SOURCE_DIR}/cmake/shader_to_cpp.py
 			COMMENT "Shader to CPP: ${path} -> ${cpp_path}"
 			VERBATIM
 		)

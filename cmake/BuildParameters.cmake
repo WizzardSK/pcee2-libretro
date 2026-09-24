@@ -6,7 +6,6 @@ include(GNUInstallDirs)
 #-------------------------------------------------------------------------------
 # Misc option
 #-------------------------------------------------------------------------------
-option(ENABLE_TESTS "Enables building the unit tests" ON)
 option(ENABLE_LIBRETRO "Enables building the libretro core." OFF)
 option(SHADERC_STATIC "Link shaderc statically (SHADERC_LIBRARY must point at shaderc_combined) instead of loading it at runtime." OFF)
 option(LTO_PCSX2_CORE "Enable LTO/IPO/LTCG on the subset of pcsx2 that benefits most from it but not anything else")

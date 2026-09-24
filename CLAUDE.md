@@ -66,15 +66,22 @@ The result is `build/pcee2_libretro.so`. Load it with
   in `pcee2_libretro.info`, with every merge.
 - What upstream has and pcee2 does not use was removed, and stays removed when
   a merge brings it back: the Qt application (`pcsx2-qt/`, its `crowdin.yml`),
-  `updater/`, `pcsx2-gsrunner/`, the MSBuild files (`*.vcxproj*`, `*.props`,
-  `PCSX2_qt.slnx`, `common/vsprops/`), `AGENTS.md`, `GEMINI.md`, and
+  `updater/`, `pcsx2-gsrunner/`, the unit tests (`tests/`,
+  `3rdparty/googletest/`), the developer scripts in `tools/`, the MSBuild
+  files (`*.vcxproj*`, `*.props`, `PCSX2_qt.slnx`, `common/vsprops/`),
+  `AGENTS.md`, `GEMINI.md`, and
   everything in `.github` but pcee2's own five workflows (`libretro_builds`,
   `android_libretro`, `deps_cmake` and the two `crowdin_*`). Upstream changes
   to those files come back as "deleted by us" conflicts; resolve them all with
   `git status --porcelain | awk '/^DU/ {print $2}' | xargs git rm`.
-- The CMake options `ENABLE_QT_UI` and `ENABLE_GSRUNNER` went with them, as
-  did the `source_groups_from_vcxproj_filters()` call in `pcsx2/CMakeLists.txt`
-  (IDE grouping read from a file that is not here).
+- The CMake options `ENABLE_QT_UI`, `ENABLE_GSRUNNER` and `ENABLE_TESTS` went
+  with them, as did the `source_groups_from_vcxproj_filters()` call in
+  `pcsx2/CMakeLists.txt` (IDE grouping read from a file that is not here).
+- `tools/shader_to_cpp.py` lives at `cmake/shader_to_cpp.py`, next to
+  `cmake/ShaderToCpp.cmake`, the only thing that runs it (for
+  `BAKE_SHADERS_IN_CPP`). Git follows the move, so an upstream change to the
+  script still lands on it; a change to the path in `ShaderToCpp.cmake` keeps
+  the `cmake/` one.
 
 ## ARM64 recompilers
 

@@ -81,12 +81,6 @@ add_subdirectory(common)
 # make pcsx2
 add_subdirectory(pcsx2)
 
-# tests
-if(ENABLE_TESTS)
-	add_subdirectory(3rdparty/googletest)
-	add_subdirectory(tests/ctest)
-endif()
-
 # libretro core
 if(ENABLE_LIBRETRO)
 	add_subdirectory(pcee2-libretro)
