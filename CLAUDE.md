@@ -67,7 +67,10 @@ The result is `build/pcee2_libretro.so`. Load it with
 - What upstream has and pcee2 does not use was removed, and stays removed when
   a merge brings it back: the Qt application (`pcsx2-qt/`, its `crowdin.yml`),
   `updater/`, `pcsx2-gsrunner/`, the unit tests (`tests/`,
-  `3rdparty/googletest/`), the developer scripts in `tools/`, the MSBuild
+  `3rdparty/googletest/`), the developer scripts in `tools/` and `bin/utils/`,
+  the standalone docs (`pcsx2/Docs/`, `bin/docs/`), the promptfont source
+  (`3rdparty/promptfont/`; the built `.otf` in `bin/resources/fonts/` stays),
+  `.codacy.yaml`, `.prettierrc.yaml`, `.gitmodules`, the MSBuild
   files (`*.vcxproj*`, `*.props`, `PCSX2_qt.slnx`, `common/vsprops/`),
   `AGENTS.md`, `GEMINI.md`, and
   everything in `.github` but pcee2's own five workflows (`libretro_builds`,
@@ -77,6 +80,7 @@ The result is `build/pcee2_libretro.so`. Load it with
 - The CMake options `ENABLE_QT_UI`, `ENABLE_GSRUNNER` and `ENABLE_TESTS` went
   with them, as did the `source_groups_from_vcxproj_filters()` call in
   `pcsx2/CMakeLists.txt` (IDE grouping read from a file that is not here).
+- `bin/docs/ThirdPartyLicenses.html` lives at `THIRD_PARTY_LICENSES.html`.
 - `tools/shader_to_cpp.py` lives at `cmake/shader_to_cpp.py`, next to
   `cmake/ShaderToCpp.cmake`, the only thing that runs it (for
   `BAKE_SHADERS_IN_CPP`). Git follows the move, so an upstream change to the

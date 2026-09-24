@@ -1,8 +1,0 @@
-overrides:
-  - files: "**/GameIndex.yaml"
-    options:
-      tabWidth: 2
-      useTabs: false
-      quoteProps: consistent
-      endOfLine: auto
-      proseWrap: preserve
