@@ -1,160 +1,84 @@
-# CLAUDE.md — ARM64 Recompiler Port (Apple Silicon)
+# CLAUDE.md — pcee2 (PCSX2 as a libretro core)
 
-> This file is auto-loaded by Claude Code at the start of every session.
-> It is the single entry point for the native Apple Silicon (ARM64) PCSX2 effort.
+pcee2 is PCSX2 built as a libretro core (`pcee2_libretro`) for RetroArch and
+other libretro frontends. The emulator is upstream PCSX2, merged in regularly;
+what is pcee2's own is the libretro frontend, the build and CI around it, and
+the ARM64 recompilers.
 
----
+The working branch is **`libretro`**. It is what the libretro buildbot builds
+(`.gitlab-ci.yml`, mirrored to git.libretro.com) and what the GitHub Actions
+matrix (`.github/workflows/libretro_builds.yml`) builds on every push. A push to
+a `libretro-arm64-*` branch runs the same matrix without touching `libretro`.
 
-## ⏯ RESUME PROTOCOL — read this first if you are a fresh session
+## Layout
 
-You are continuing a long-running, multi-session project: porting PCSX2's JIT
-recompilers (EE / IOP / VU0 / VU1 + vtlb fastmem) from x86-64 to ARM64 so that
-PCSX2 runs at playable speed natively on Apple Silicon.
+- `pcee2-libretro/` — the core itself.
+  - `Libretro.cpp` — the libretro API, host glue, core options handling,
+    video/audio/input.
+  - `LibretroVFS.cpp/.h` — file access through the frontend's VFS, so content
+    and system files work where plain `fopen` does not (Android SAF).
+  - `libretro_core_options.h` — the core option definitions (English), in the
+    layout libretro's Crowdin scripts read. `libretro_core_options_intl.h` is
+    generated from Crowdin by `.github/workflows/crowdin_translation_sync.yml`;
+    do not edit it by hand. Options found at run time (BIOS images, memory
+    cards) are filled into `option_defs_us` in `RegisterCoreOptions()`.
+  - `scripts/build-deps-*.{sh,bat}` — build the third-party dependencies into a
+    prefix; `deps.versions` pins them.
+  - `pcee2_libretro.info` — the core info file.
+  - `upstream.version` — the upstream PCSX2 version and commit merged in. The
+    core reports this version, not pcee2's own tags.
+- `pcsx2/`, `common/`, `3rdparty/` — upstream PCSX2 (plus pcee2's changes).
+- `pcsx2/arm64/` — the ARM64 recompilers. Their docs are in `arm64-port/`.
+- `intl/` — libretro's Crowdin scripts for the core option translations.
 
-**To pick up where the last session left off, read these in order:**
+## Building
 
-1. **`arm64-port/PROGRESS.md`** — the living roadmap. The top "▶ CURRENT FOCUS"
-   block tells you exactly what to work on next. Phase/task checkboxes show what
-   is done (`[x]`), in progress (`[~]`), and not started (`[ ]`).
-2. **`arm64-port/JOURNAL.md`** — append-only session log. Read the **most recent
-   1–2 entries** for fresh context: what was just done, decisions made, open
-   blockers, and the explicit "Next step".
-3. **`arm64-port/CONVENTIONS.md`** — the technical contract: ARM64 register
-   allocation map, VIXL emission patterns, the build/test loop, debugging tools,
-   and git hygiene. Follow it; do not invent parallel conventions.
+Dependencies first, into a prefix (Linux shown; Windows, macOS and Android have
+their own scripts):
 
-Deep background (read on demand, not every session):
-- `arm64-port/reference/apple-silicon-analysis.md` — what works / what's missing.
-- `arm64-port/reference/ARM64_RECOMPILER_PLAN.md` — the full phased plan.
-
-**After reading those three files you should be able to state, in one sentence,
-what the next concrete coding task is.** If you cannot, re-read PROGRESS.md.
-
----
-
-## 🎯 Mission
-
-Make the core PS2 processor recompilers work on ARM64. Today the native ARM64
-build runs but falls back to interpreters (orders of magnitude too slow). The
-build system, GS (Metal/Vulkan/SW-JIT), NEON math, and VIF dynarec are already
-done. The remaining work is the EE, IOP, and VU recompilers + vtlb fastmem.
-
-Order of attack (see PROGRESS.md for detail): vtlb/skeleton → EE → IOP → VU.
-
----
-
-## 🔧 Build / Run / Test (verified on this machine)
-
-Paths are real and current as of the last journal entry.
-
-```bash
-# Deps are already built here (do NOT rebuild unless they're gone):
-#   /Users/isztld/Documents/projects/pcsx2/pcsx2-deps
-# Build dir already configured for arm64 Release:
-#   build/
-
-# --- Incremental rebuild (the common case) ---
-cmake --build build --target pcsx2-qt -j18
-
-# --- Re-configure from scratch (only if build/ is broken or deleted) ---
-cmake -DCMAKE_PREFIX_PATH="/Users/isztld/Documents/projects/pcsx2/pcsx2-deps" \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_OSX_ARCHITECTURES="arm64" \
-      -DDISABLE_ADVANCE_SIMD=ON \
-      -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
-      -DUSE_LINKED_FFMPEG=ON \
-      -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON \
-      -B build .
-
-# --- Verify the binary is actually arm64 ---
-file build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2   # must say: arm64
-
-# --- Run (macOS: ALWAYS postprocess the bundle first — see below) ---
-cmake --build build --target pcsx2-postprocess-bundle   # macdeployqt: bundle Qt + fix install names
-codesign --force --deep --sign - build/pcsx2-qt/PCSX2.app
-open build/pcsx2-qt/PCSX2.app
-# or for logs in the terminal:
-build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2
-
-# --- Unit tests ---
-cmake --build build --target unittests -j18 && ctest --test-dir build/tests/ctest
+```sh
+pcee2-libretro/scripts/build-deps-linux.sh deps
 ```
 
-**macOS bundle rule (avoids the duplicate-Qt / "Could not load the Qt platform
-plugin cocoa" crash):** `cmake --build build --target pcsx2-qt` only relinks the
-binary — it does **not** run the bundle postprocess, so launching `PCSX2.app`
-straight from a `pcsx2-qt` build half-deploys it (main binary loads Qt from
-`pcsx2-deps/lib` while the bundled Cocoa plugin loads Qt from the app's
-`Frameworks/`). Before launching, run `cmake --build build --target
-pcsx2-postprocess-bundle` (then re-sign), which has `macdeployqt` copy the Qt
-plugins/frameworks and rewrite install names to `@executable_path/../Frameworks/...`.
-Verify with `otool -L .../MacOS/PCSX2 | rg 'Qt6'` — healthy paths are
-`@executable_path/...`, not absolute `pcsx2-deps/lib/...`. (A plain
-`make -C build` builds the `all` target, which already includes the postprocess
-step unless configured with `SKIP_POSTPROCESS_BUNDLE`.) Full detail in
-`arm64-port/CONVENTIONS.md` §3.
+Then the core, as CI configures it:
 
-If a fresh codesign is needed after a build (rare, for distribution):
-```bash
-codesign --force --sign - build/pcsx2-qt/PCSX2.app/Contents/Frameworks/libshaderc_shared.1.dylib
-codesign --force --deep --sign - build/pcsx2-qt/PCSX2.app
+```sh
+cmake -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+  -DENABLE_QT_UI=OFF -DENABLE_TESTS=OFF -DENABLE_LIBRETRO=ON \
+  -DCMAKE_PREFIX_PATH="$PWD/deps" \
+  -DSHADERC_STATIC=ON -DSHADERC_LIBRARY="$PWD/deps/lib/libshaderc_combined.a" \
+  -DDISABLE_ADVANCE_SIMD=ON
+cmake --build build --target pcee2_libretro
 ```
 
----
+The result is `build/pcee2_libretro.so`. Load it with
+`retroarch -L build/pcee2_libretro.so <content>`. The BIOS goes in
+`<system>/pcsx2/bios`.
 
-## 🔬 Debugging tools
+## Merging upstream PCSX2
 
-See **`arm64-port/DEBUGGING.md`** for the full reference. Quick summary:
+- Merge upstream (`github.com/PCSX2/pcsx2`) into `libretro`. Resolve conflicts
+  hunk by hunk; never take a whole file with `checkout --theirs`, which drops
+  pcee2's changes in it.
+- Bump both lines of `pcee2-libretro/upstream.version`, and `display_version`
+  in `pcee2_libretro.info`, with every merge.
+- `AGENTS.md`, `GEMINI.md` and the AI question in
+  `.github/PULL_REQUEST_TEMPLATE.md` are PCSX2's contribution policy and were
+  removed here; keep them removed when a merge brings them back.
 
-**MVU_DIFF shadow harness** (`pcsx2/arm64/aVU.cpp`) — finds where microVU1 diverges
-from the interpreter on real games. Runs microVU1 as the real committed VU1, then
-re-runs the interpreter as a suppressed shadow and compares. Configured via env vars,
-writes `MVUDIFF key=value` records to a file.
+## ARM64 recompilers
 
-```bash
-# Find + localize the first diverging VU1 program:
-MVU_DIFF=1 MVU_LOC=1 MVU_DIFF_OUT=/tmp/diff.log \
-  build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch <game>
-```
+Work on the EE/IOP/VU recompilers for ARM64 follows `arm64-port/`:
+`PROGRESS.md` (roadmap), `JOURNAL.md` (session log), `CONVENTIONS.md`
+(register map, emission patterns), `DEBUGGING.md` (the `MVU_DIFF` harness).
+Two rules from there hold for the whole tree:
 
-Key vars: `MVU_DIFF_PC=<hex>` (focus one program), `MVU_DIFF_REG=mac,status,clip`
-(watch-list), `MVU_DIFF_ULP=0` (require bit-exact FP), `MVU_DIFF_SKIP=<n>` (skip
-first n divergences before the per-instruction localizer fires).
+1. **Never break the x86-64 build.** ARM64 code goes behind `#ifdef ARCH_ARM64`
+   or into `pcsx2/arm64/`.
+2. **Use `ARCH_ARM64` / `ARCH_X86`** (from `common/Pcsx2Defs.h`), not
+   `_M_ARM64` / `_M_X86`. The `_M_*` macros are MSVC-only: under clang or GCC
+   `#ifdef _M_ARM64` is silently dead and `#ifndef _M_X86` is true on x86 too.
 
----
-
-## 🚧 Hard rules (do not violate)
-
-1. **Never break the x86-64 build.** All ARM64 code goes behind `#ifdef ARCH_ARM64`
-   guards or in `pcsx2/arm64/` files. The x86 recompiler in `pcsx2/x86/` is the
-   reference — read it, never break it.
-   **⚠ Use `ARCH_ARM64` / `ARCH_X86` (defined in `common/Pcsx2Defs.h`), NOT
-   `_M_ARM64` / `_M_X86`.** The `_M_*` macros are MSVC-only predefined macros; under
-   the Apple-clang toolchain used here they are **never defined**, so `#ifdef _M_ARM64`
-   silently compiles to nothing (dead code) and `#ifndef _M_X86` is true on *every*
-   non-MSVC target including x86 Linux. A whole class of "the gate isn't taking effect"
-   bugs traces back to this — when an `#ifdef` block seems ignored, check the macro first.
-2. **Work on the `armjit` branch.** Make atomic commits (one opcode family / one
-   subtask per commit). Commit messages: `ARM64: <what>` e.g.
-   `ARM64: Add recLB/recSB load-store generators`.
-3. **Tight build/test loop.** Change 1–2 functions → `cmake --build build` →
-   fix errors → test → commit. Do not write hundreds of lines before compiling.
-4. **The interpreter is the ground truth.** When ARM64 JIT output is wrong,
-   compare against `Interpreter.cpp` / `R3000AInterpreter.cpp` semantics.
-   Interpreter fallback (`recCall(...)`) is an acceptable first pass for rare ops.
-5. **End every working session by updating the trackers** (see below).
-
----
-
-## ✅ Session-end checklist (every session must do this before stopping)
-
-1. Update **`arm64-port/PROGRESS.md`**: flip checkboxes, move the "▶ CURRENT
-   FOCUS" pointer to the next task.
-2. Append a new entry to **`arm64-port/JOURNAL.md`** using the template at the
-   top of that file (date, goal, what changed + commit hashes, decisions,
-   blockers, **Next step**).
-3. Commit the doc updates together with (or right after) the code:
-   `git add -A && git commit`.
-
-The next session's ability to resume depends entirely on these two files being
-current. Treat updating them as part of "done", not optional cleanup.
+The interpreter is the ground truth when a recompiler disagrees with it.
