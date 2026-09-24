@@ -74,9 +74,9 @@ The result is `build/pcee2_libretro.so`. Load it with
 ## ARM64 recompilers
 
 Work on the EE/IOP/VU recompilers for ARM64 follows `arm64-port/`:
-`PROGRESS.md` (roadmap), `JOURNAL.md` (session log), `CONVENTIONS.md`
-(register map, emission patterns), `DEBUGGING.md` (the `MVU_DIFF` harness).
-Two rules from there hold for the whole tree:
+`CONVENTIONS.md` (the VIXL emitter, register map, code placement) and
+`DEBUGGING.md` (the `MVU_DIFF` microVU1-vs-interpreter harness, debugger
+recipes). Two rules from there hold for the whole tree:
 
 1. **Never break the x86-64 build.** ARM64 code goes behind `#ifdef ARCH_ARM64`
    or into `pcsx2/arm64/`.

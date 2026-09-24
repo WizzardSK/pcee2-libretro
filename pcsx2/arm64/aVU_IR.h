@@ -7,8 +7,7 @@
 // ARM64 microVU recompiler — host register allocator (Phase 7, task 7.2b).
 //
 // This is the ARM64 counterpart to the `microRegAlloc` class in
-// pcsx2/x86/microVU_IR.h (lines 226-1139). Per the Phase 7 strategy
-// (PROGRESS.md / [[arm64-microvu-architecture]]) microVU is *parallel-cloned*
+// pcsx2/x86/microVU_IR.h (lines 226-1139). microVU is *parallel-cloned*
 // into pcsx2/arm64/ rather than #included from x86/.
 //
 // What changed vs the x86 original:

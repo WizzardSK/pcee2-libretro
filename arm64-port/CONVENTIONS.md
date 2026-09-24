@@ -1,17 +1,17 @@
-# CONVENTIONS — ARM64 Recompiler Port
+# CONVENTIONS — ARM64 recompilers
 
-> The technical contract. Follow these so every session's code is consistent.
-> Grounded in what **already exists** in `pcsx2/arm64/AsmHelpers.h` + `Vif_Dynarec.cpp` —
-> not a greenfield proposal. When in doubt, copy the patterns already in those files.
+> How the ARM64 recompilers in `pcsx2/arm64/` are written. Grounded in what
+> already exists in `pcsx2/arm64/AsmHelpers.h`, `aR5900.h` and `Vif_Dynarec.cpp`
+> — when in doubt, copy the patterns already in those files.
 
 ---
 
 ## 1. The emitter: VIXL MacroAssembler
 
 All ARM64 codegen goes through VIXL's `MacroAssembler`, accessed via the
-thread-local `armAsm` pointer (`AsmHelpers.h:64`). The existing VIF dynarec
-(`Vif_Dynarec.cpp`) is the canonical worked example — read it before writing new
-emission code.
+thread-local `armAsm` pointer (`AsmHelpers.h`). The VIF dynarec
+(`Vif_Dynarec.cpp`) is the smallest complete worked example — read it before
+writing new emission code.
 
 Block lifecycle (see `AsmHelpers.cpp`):
 - `armSetAsmPtr(ptr, capacity, pool)` — point the assembler at a code buffer.
@@ -19,7 +19,7 @@ Block lifecycle (see `AsmHelpers.cpp`):
 - `armGetCurrentCodePointer()` — current emit position.
 - `armAlignAsmPtr()` — alignment between blocks.
 
-Helpers you should reuse instead of re-rolling:
+Helpers to reuse instead of re-rolling:
 - `armEmitJmp(ptr)` / `armEmitCall(ptr)` — far jump/call (handles range via trampolines).
 - `armEmitCbnz(reg, ptr)` / `armEmitCondBranch(cond, ptr)` — conditional far branches.
 - `armMoveAddressToReg(reg, addr)` — materialize a 64-bit address.
@@ -29,19 +29,17 @@ Helpers you should reuse instead of re-rolling:
 - `armLoadConstant128`, `armEmitVTBL` — 128-bit literal load, NEON table lookup.
 - `GetPCDisplacement(cur, tgt)` — PC-relative branch displacement (>>2).
 
-Constant pool: `ArmConstantPool` (`AsmHelpers.h:113`) provides `GetJumpTrampoline`,
+Constant pool: `ArmConstantPool` (`AsmHelpers.h`) provides `GetJumpTrampoline`,
 `GetLiteral` (u64 / u128 / bytes), and `EmitLoadLiteral`. Use it for far targets
 and 128-bit constants rather than inlining.
 
-Debugging: `armDisassembleAndDumpCode(ptr, size)` dumps emitted ARM64 — use it
-liberally when JIT output is wrong. See `arm64-port/DEBUGGING.md` for the full
-debug toolkit (MVU_DIFF shadow harness, lldb recipes, etc.).
+`armDisassembleAndDumpCode(ptr, size)` dumps emitted ARM64 — see `DEBUGGING.md`.
 
 ---
 
-## 2. Register allocation map (from `AsmHelpers.h` — already fixed)
+## 2. Register allocation map
 
-These macros are **already defined and in use**. Do not reassign them.
+Shared scratch and ABI registers, defined in `AsmHelpers.h`. Do not reassign them.
 
 | Macro | Reg | Role |
 |---|---|---|
@@ -53,76 +51,55 @@ These macros are **already defined and in use**. Do not reassign them.
 | `RQSCRATCH2*` | q31 / d31 / s31 | Vector scratch #2 |
 | `RQSCRATCH3*` | q29 / d29 / s29 | Vector scratch #3 |
 
-ABI reminders (AAPCS64 / macOS):
-- **x18 is reserved by the OS on macOS — never use it.**
-- x29 = FP, x30 = LR, sp / xzr special.
+Persistent EE state, defined in `aR5900.h` — callee-saved so it survives calls
+into the interpreter and C++ helpers. Never use these as scratch in a generator:
+
+| Macro | Reg | Role |
+|---|---|---|
+| `RESTATEPTR` | x19 | `&cpuRegs` — base for guest GPR / PC / HI/LO accesses |
+| — | x20 | EE guest-GPR cache register (`REC_GPR_CACHE_REGS` in `aR5900.cpp`) |
+| `REVTLBPTR` | x21 | vtlb table base (the non-fastmem fallback path) |
+| `RFASTMEMBASE` | x28 | host-MMU fastmem base (`vtlbdata.fastmem_base`), pinned in `recGenDispatchers` when fastmem is on |
+
+ABI reminders (AAPCS64):
+- **x18 is the platform register** (reserved on macOS and Windows) — never use it.
+- x29 = FP, x30 = LR, sp / xzr special. In an immediate-operand position the
+  register number 31 means **sp**, not xzr — check what VIXL emits.
 - Callee-saved GPRs: **x19–x28** (+ x29/x30). Callee-saved SIMD: **v8–v15** (low 64 bits only).
 - `armIsCalleeSavedRegister(reg)` tells you if a reg must be preserved.
 
-**To be assigned by the EE rec (Phase 1, document here when chosen):** persistent
-callee-saved registers for hot state — proposed `x19` = `&cpuRegs`, `x20` = fastmem
-base, `x21` = vtlb table base. Confirm and record the final choice in this section
-once Phase 1.1 lands, so every later phase uses the same regs.
-
-Guest→host mapping intent:
+Guest → host mapping:
 - EE/VU 128-bit registers → NEON `v0–v31` (q regs). 64-bit GPR halves via `ldp/stp`.
 - 32-bit MIPS GPRs (IOP) → ARM64 w-registers.
 - MIPS FPU (COP1) → `s0–s31` (single) / `d0–d31` (double).
 
 ---
 
-## 3. Build / test loop (do this every 1–2 functions)
+## 3. Build / test loop
 
-```bash
-cmake --build build --target pcsx2-qt -j18   # incremental
-# fix errors, repeat. Then:
-cmake --build build --target unittests -j18 && ctest --test-dir build/tests/ctest
+Change one or two functions, rebuild, test, commit — do not write hundreds of
+lines before compiling. The core builds as in `CLAUDE.md`:
+
+```sh
+cmake --build build --target pcee2_libretro
+retroarch -L build/pcee2_libretro.so path/to/game.iso
 ```
 
-### macOS app bundle rule
-
-`pcsx2-qt` only builds/relinks the app target. It does **not** run the macOS bundle
-postprocess step. Before launching `PCSX2.app` from the build tree, run
-`pcsx2-postprocess-bundle` so `macdeployqt` copies Qt plugins/frameworks and rewrites
-the executable install names to the bundled frameworks. Then re-sign the mutated app.
-
-```bash
-cmake --build build --target pcsx2-qt -j18
-cmake --build build --target pcsx2-postprocess-bundle
-codesign --force --deep --sign - build/pcsx2-qt/PCSX2.app
-
-build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2
-```
-
-Equivalent: a default `make -C build -j$(sysctl -n hw.ncpu)` builds the `all` target,
-which includes `pcsx2-postprocess-bundle` unless CMake was configured with
-`SKIP_POSTPROCESS_BUNDLE`.
-
-If launch fails with duplicate Qt classes or `Could not load the Qt platform plugin
-"cocoa"`, the app is likely half-deployed: the main binary is loading Qt from
-`pcsx2-deps/lib` while the bundled Cocoa plugin loads Qt from
-`PCSX2.app/Contents/Frameworks`. Verify the main binary points at bundled Qt:
-
-```bash
-otool -L build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 | rg 'Qt6|kddock'
-```
-
-Healthy output uses `@executable_path/../Frameworks/...`, not absolute
-`pcsx2-deps/lib/...` paths.
-
-Validation ladder (see PROGRESS.md "Test ladder"): unittests → BIOS boot → 2D game
-→ IOP-heavy game → 3D game.
+Test a change on a BIOS boot, a 2D game, an IOP-heavy game and a 3D game before
+calling it done. The *CPU Recompiler (JIT)* core options turn off the EE, IOP,
+VU0 and VU1 recompilers one at a time, which is the quickest way to tell which
+one a crash belongs to.
 
 ---
 
 ## 4. Correctness discipline
 
-- **Interpreter is ground truth.** When JIT output diverges, diff against the C++
-  semantics in `Interpreter.cpp` (EE), `R3000AInterpreter.cpp` (IOP),
+- **The interpreter is the ground truth.** When JIT output diverges, diff against
+  the C++ semantics in `Interpreter.cpp` (EE), `R3000AInterpreter.cpp` (IOP),
   `VU0microInterp.cpp` / `VU1microInterp.cpp` (VU). Opcode dispatch:
   `R5900OpcodeTables.cpp`.
-- **Interpreter fallback is allowed.** Rare/complex ops may call back via
-  `recCall(Interp::...)` as a first pass; optimize later. Mark such TODOs clearly.
+- **Interpreter fallback is allowed.** Rare or complex ops may call back via
+  `recCall(Interp::...)`; mark such places clearly.
 - **x86 is the reference implementation, never the thing to break.** Mirror the
   structure of `pcsx2/x86/` (`iR5900*.cpp`, `recVTLB.cpp`, `iR3000A.cpp`,
   `microVU*`), translating x86emitter calls to VIXL.
@@ -131,20 +108,20 @@ Validation ladder (see PROGRESS.md "Test ladder"): unittests → BIOS boot → 2
 
 ## 5. Code placement & guards
 
-- New ARM64 rec files live in `pcsx2/arm64/` (`aR5900.{h,cpp}`, `aR3000A.{h,cpp}`,
-  `microVU*` etc.) and are registered in `pcsx2/CMakeLists.txt`
-  (`pcsx2arm64Sources` / `pcsx2arm64Headers`, ~lines 1052–1061; vixl link ~1078).
-- Shared call sites (e.g. `VMManager.cpp`) gate ARM64 paths with `#ifdef _M_ARM64`
-  / `#ifndef _M_X86`. **Never** remove or weaken the x86 path.
-- The `_M_X86` TODO guards in `VMManager.cpp` (2671, 2695, 2720, 2740) are the
-  hook points — extend them to cover ARM64 as each rec comes online.
+- ARM64 rec files live in `pcsx2/arm64/` and are registered in
+  `pcsx2/CMakeLists.txt` (`pcsx2arm64Sources` / `pcsx2arm64Headers`).
+- Gate ARM64 code in shared files with `#ifdef ARCH_ARM64` / `#ifdef ARCH_X86`
+  (from `common/Pcsx2Defs.h`). **Not** `_M_ARM64` / `_M_X86`: those are
+  MSVC-only, so under clang or GCC `#ifdef _M_ARM64` is dead code and
+  `#ifndef _M_X86` is true on x86 too. Upstream's own `#ifdef _M_X86` blocks in
+  `VMManager.cpp` (`InitializeCPUProviders` and friends) are where the ARM64
+  recs are hooked in, in their `#else` branches.
+- **Never** remove or weaken the x86 path.
 
 ---
 
-## 6. Git hygiene
+## 6. Commits
 
-- Branch: `armjit`.
-- Atomic commits, one opcode family / subtask each.
-- Message format: `ARM64: <what>` — e.g. `ARM64: Add EE recompiler skeleton`,
-  `ARM64: Implement recLB/recSB load-store`.
-- Commit doc updates (PROGRESS + JOURNAL) with or right after the code change.
+- On `libretro`, or a `libretro-arm64-*` branch to run the CI matrix first.
+- One opcode family or subtask per commit, message `ARM64: <what>` — e.g.
+  `ARM64: microVU — fix FTOI NaN-pattern inputs`.

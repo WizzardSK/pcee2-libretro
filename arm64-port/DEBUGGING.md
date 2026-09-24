@@ -1,7 +1,8 @@
-# DEBUGGING — ARM64 Recompiler Port
+# DEBUGGING — ARM64 recompilers
 
-Techniques and tools for debugging the native ARM64 JIT on Apple Silicon.
-Add new harnesses and workflows here as they are built.
+Techniques and tools for debugging the ARM64 JIT. The examples run the core in
+RetroArch; the environment variables are read by the core, so they go on the
+frontend's command line.
 
 ---
 
@@ -69,21 +70,21 @@ including benign ones, e.g. `MVU_DIFF_REG=mac,status` to chase flag bugs.
 ```bash
 # Find the first diverging program and localize it to the instruction:
 MVU_DIFF=1 MVU_LOC=1 MVU_DIFF_OUT=/tmp/gow2.log \
-  build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch path/to/game.iso
+  retroarch -L build/pcee2_libretro.so path/to/game.iso
 
 # Focus on one program (its entry byte-PC from the log) and watch flags + accumulator:
 MVU_DIFF=1 MVU_DIFF_PC=0x00d8 MVU_DIFF_REG=mac,status,clip,acc MVU_LOC=1 \
   MVU_DIFF_OUT=/tmp/narrow.log \
-  build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch path/to/game.iso
+  retroarch -L build/pcee2_libretro.so path/to/game.iso
 
 # Require bit-exact FP (removes the ULP benign classification):
 MVU_DIFF=1 MVU_DIFF_ULP=0 MVU_DIFF_OUT=/tmp/exact.log \
-  build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch path/to/game.iso
+  retroarch -L build/pcee2_libretro.so path/to/game.iso
 
 # Skip the first 5 divergences before the localizer fires (useful when the first
 # few are known-harmless BIOS programs that aren't the bug you care about):
 MVU_DIFF=1 MVU_LOC=1 MVU_DIFF_SKIP=5 MVU_DIFF_OUT=/tmp/skip.log \
-  build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch path/to/game.iso
+  retroarch -L build/pcee2_libretro.so path/to/game.iso
 ```
 
 ### Reading the output
@@ -121,26 +122,29 @@ For the VU recompiler you can also read the per-program code range out of the
 
 ---
 
-## 3. lldb on Apple Silicon
+## 3. gdb / lldb
 
 ### Basic launch
 
 ```bash
-# Run under lldb with env vars set:
-lldb -- build/pcsx2-qt/PCSX2.app/Contents/MacOS/PCSX2 -batch path/to/game.iso
+# gdb (Linux, Android):
+MVU_DIFF=1 MVU_LOC=1 gdb --args retroarch -L build/pcee2_libretro.so path/to/game.iso
+
+# lldb (macOS):
+lldb -- retroarch -L build/pcee2_libretro.so path/to/game.iso
 (lldb) env MVU_DIFF=1 MVU_LOC=1
 (lldb) run
-
-# Or attach to a running process:
-lldb -p $(pgrep PCSX2)
 ```
 
 ### Handling JIT-generated signals
 
-The JIT uses SIGSEGV for vtlb fastmem fault handling. By default lldb stops on every
-signal, which makes running games impossible. Tell lldb to pass them through:
+The JIT uses SIGSEGV for vtlb fastmem fault handling. By default the debugger stops
+on every signal, which makes running games impossible. Pass them through:
 
 ```
+(gdb) handle SIGSEGV nostop noprint pass
+(gdb) handle SIGBUS nostop noprint pass
+
 (lldb) process handle SIGSEGV --stop false --notify false --pass true
 (lldb) process handle SIGBUS  --stop false --notify false --pass true
 ```
@@ -168,6 +172,9 @@ To break at an arbitrary emitted address (once you know it from a log or dump):
 ```
 (lldb) br set -a 0x<address>
 ```
+
+The commands below are lldb's; gdb has the same operations (`break`,
+`info registers`, `x/20i $pc`, `watch`, `bt`).
 
 ### Inspecting ARM64 registers
 
@@ -227,12 +234,3 @@ Useful for catching when a specific VU memory location or register gets a wrong 
 ```
 
 ---
-
-## 4. Future harnesses (placeholder)
-
-Add new debugging tools here as they are built. Candidates:
-
-- EE recompiler divergence checker (same shadow approach as VU1, but for the EE).
-- IOP per-instruction localizer.
-- vtlb fastmem miss rate counter (env-gated, writes to a file).
-- GS packet trace (log every XGKICK transfer with its source PC and size).

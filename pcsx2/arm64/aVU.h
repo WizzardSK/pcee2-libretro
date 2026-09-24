@@ -6,9 +6,8 @@
 
 // ARM64 microVU recompiler — arch-neutral data structures (Phase 7, task 7.2a).
 //
-// This is the ARM64 counterpart to pcsx2/x86/microVU.h + microVU_IR.h. Per the
-// Phase 7 strategy (PROGRESS.md / [[arm64-microvu-architecture]]) microVU is
-// *parallel-cloned* into pcsx2/arm64/ rather than #included from x86/ — the x86
+// This is the ARM64 counterpart to pcsx2/x86/microVU.h + microVU_IR.h.
+// microVU is *parallel-cloned* into pcsx2/arm64/ rather than #included from x86/ — the x86
 // headers fuse the arch-neutral structs together with x86emitter types and the
 // x86 `microRegAlloc` in the same files, so they cannot be compiled on ARM64.
 //
@@ -26,7 +25,7 @@
 //     globals are *defined* in aVU.cpp where the allocator is complete.
 //   * the emitter / dispatcher / opcode emission (tasks 7.2c onward).
 //
-// Renames vs the x86 original (documented in PROGRESS.md 7.2a):
+// Renames vs the x86 original:
 //   microProgManager::x86ptr / x86start / x86end  -> codePtr / codeStart / codeEnd
 //   microBlock::x86ptrStart                        -> codeStart
 //   microJumpCache::x86ptrStart                    -> codeStart
