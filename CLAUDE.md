@@ -64,9 +64,9 @@ The result is `build/pcee2_libretro.so`. Load it with
   pcee2's changes in it.
 - Bump both lines of `pcee2-libretro/upstream.version`, and `display_version`
   in `pcee2_libretro.info`, with every merge.
-- `AGENTS.md`, `GEMINI.md` and the AI question in
-  `.github/PULL_REQUEST_TEMPLATE.md` are PCSX2's contribution policy and were
-  removed here; keep them removed when a merge brings them back.
+- `AGENTS.md`, `GEMINI.md` and `.github/PULL_REQUEST_TEMPLATE.md` come from
+  PCSX2 and were removed here; keep them removed when a merge brings them
+  back.
 
 ## ARM64 recompilers
 
