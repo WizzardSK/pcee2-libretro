@@ -6,8 +6,8 @@ A [libretro](https://www.libretro.com/) core frontend for the current PCSX2
 codebase, letting RetroArch (and other libretro frontends) run PS2 games with
 an up-to-date emulation core.
 
-Unlike [LRPS2](https://github.com/libretro/ps2) — a hard fork of an older
-PCSX2 snapshot — this port keeps the libretro layer *additive*: the emulation
+Unlike [LRPS2](https://github.com/libretro/ps2) — a hard fork — this port
+keeps the libretro layer *additive*: the emulation
 core is tracked from [upstream PCSX2](https://github.com/PCSX2/pcsx2) with a
 minimal set of hooks, so rebasing onto new upstream releases stays cheap.
 
