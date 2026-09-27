@@ -79,7 +79,7 @@ std::string GetDefaultAdapter()
 	return "(Default)";
 }
 
-#ifdef ENABLE_LIBRETRO
+#ifdef PCSX2_LIBRETRO
 // Defined by the libretro glue. The API the frontend's context was negotiated
 // for, or None when this core has no frontend context to answer for.
 RenderAPI LibretroGetRenderAPI();
@@ -87,7 +87,7 @@ RenderAPI LibretroGetRenderAPI();
 
 static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 {
-#ifdef ENABLE_LIBRETRO
+#ifdef PCSX2_LIBRETRO
 	// In a core the graphics API is not ours to choose: the frontend negotiated
 	// one when the content loaded and nothing can change it under a running
 	// session. That holds for every renderer, not just the software one - a
@@ -132,7 +132,7 @@ static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 	}
 }
 
-#ifdef ENABLE_LIBRETRO
+#ifdef PCSX2_LIBRETRO
 // The renderer a config or a game settings INI asks for is not always one this
 // session can build: the frontend's context type is fixed when the content
 // loads. Software is left alone - it presents through whatever device is open -
@@ -315,7 +315,7 @@ bool GSreopen(bool recreate_device, bool recreate_renderer, GSRendererType new_r
 {
 	Console.WriteLn("Reopening GS with %s device", recreate_device ? "new" : "existing");
 
-#ifdef ENABLE_LIBRETRO
+#ifdef PCSX2_LIBRETRO
 	// Switching back out of software passes Auto in, which resolves to the
 	// machine's preference - Metal here, Direct3D there - and that is not what
 	// the frontend gave us.
@@ -428,7 +428,7 @@ bool GSopen(const Pcsx2Config::GSOptions& config, GSRendererType renderer, u8* b
 	if (renderer == GSRendererType::Auto)
 		renderer = GSUtil::GetPreferredRenderer();
 
-#ifdef ENABLE_LIBRETRO
+#ifdef PCSX2_LIBRETRO
 	// GetPreferredRenderer() answers for the machine, not for the frontend -
 	// Metal on a Mac, Direct3D on Windows - and a game settings INI copied from
 	// a desktop PCSX2 carries the same answer. Either one opens a device the
