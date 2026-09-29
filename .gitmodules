@@ -1,0 +1,4 @@
+[submodule "3rdparty/pcsx2_patches"]
+	path = 3rdparty/pcsx2_patches
+	url = https://github.com/PCSX2/pcsx2_patches.git
+	shallow = true

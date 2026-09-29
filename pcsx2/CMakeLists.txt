@@ -1154,13 +1154,40 @@ if(ENABLE_LIBRETRO)
 		"${CMAKE_SOURCE_DIR}/bin/resources/fonts/fa-solid-900.ttf"
 		"${CMAKE_SOURCE_DIR}/bin/resources/fonts/promptfont.otf"
 		"${CMAKE_SOURCE_DIR}/bin/resources/GameIndex.yaml")
+
+	# PCSX2's game patches (widescreen, no-interlacing and the rest), packed
+	# the way pcsx2_patches packs its own release: the .pnach files at the
+	# root of patches.zip. They come from the 3rdparty/pcsx2_patches
+	# submodule, so a build carries the patches of the commit it points at.
+	set(pcsx2PatchesDir "${CMAKE_SOURCE_DIR}/3rdparty/pcsx2_patches/patches")
+	set(pcsx2PatchesZip "${CMAKE_CURRENT_BINARY_DIR}/patches.zip")
+	file(GLOB pcsx2PatchFiles RELATIVE "${pcsx2PatchesDir}" "${pcsx2PatchesDir}/*.pnach")
+	if(NOT pcsx2PatchFiles)
+		message(FATAL_ERROR "No patches in ${pcsx2PatchesDir} - run git submodule update --init 3rdparty/pcsx2_patches")
+	endif()
+	list(SORT pcsx2PatchFiles)
+	# Through a list file: several thousand names are longer than a Windows
+	# command line may be
+	string(REPLACE ";" "\n" pcsx2PatchList "${pcsx2PatchFiles}")
+	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/patches.list" "${pcsx2PatchList}\n")
+	list(TRANSFORM pcsx2PatchFiles PREPEND "${pcsx2PatchesDir}/" OUTPUT_VARIABLE pcsx2PatchPaths)
+	add_custom_command(
+		OUTPUT "${pcsx2PatchesZip}"
+		COMMAND ${CMAKE_COMMAND} -E tar cf "${pcsx2PatchesZip}" --format=zip --mtime=2000-01-01
+			"--files-from=${CMAKE_CURRENT_BINARY_DIR}/patches.list"
+		WORKING_DIRECTORY "${pcsx2PatchesDir}"
+		DEPENDS ${pcsx2PatchPaths}
+		COMMENT "Packing patches.zip"
+		VERBATIM)
+
 	add_custom_command(
 		OUTPUT "${pcsx2GSShaderResources}"
 		COMMAND ${CMAKE_COMMAND}
 			-DRESOURCES_DIR=${CMAKE_SOURCE_DIR}/bin/resources
+			-DPATCHES_ZIP=${pcsx2PatchesZip}
 			-DOUTPUT_CPP=${pcsx2GSShaderResources}
 			-P ${CMAKE_SOURCE_DIR}/cmake/EmbedResources.cmake
-		DEPENDS ${pcsx2ShaderFiles} ${CMAKE_SOURCE_DIR}/cmake/EmbedResources.cmake
+		DEPENDS ${pcsx2ShaderFiles} "${pcsx2PatchesZip}" ${CMAKE_SOURCE_DIR}/cmake/EmbedResources.cmake
 		COMMENT "Embedding resources"
 		VERBATIM)
 	list(APPEND pcsx2GSSources "${pcsx2GSShaderResources}" "${CMAKE_SOURCE_DIR}/pcsx2/EmbeddedResources.cpp")

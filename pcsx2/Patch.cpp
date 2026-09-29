@@ -12,6 +12,9 @@
 
 #include "Achievements.h"
 #include "Config.h"
+#ifdef PCSX2_EMBEDDED_RESOURCES
+#include "EmbeddedResources.h"
+#endif
 #include "GameDatabase.h"
 #include "Host.h"
 #include "IopMem.h"
@@ -294,7 +297,18 @@ bool Patch::OpenPatchesZip()
 	const std::string filename = Path::Combine(EmuFolders::Resources, PATCHES_ZIP_NAME);
 
 	zip_error ze = {};
-	zip_source_t* zs = zip_source_file_create(filename.c_str(), 0, 0, &ze);
+	zip_source_t* zs = nullptr;
+#ifdef PCSX2_EMBEDDED_RESOURCES
+	// The core carries the patches itself, like the rest of its resources, so
+	// they need no separate download - which on Android may have nowhere to go
+	if (EmbeddedResourcesPreferred())
+	{
+		if (const std::optional<std::string_view> embedded = GetEmbeddedResource(PATCHES_ZIP_NAME))
+			zs = zip_source_buffer_create(embedded->data(), embedded->size(), 0, &ze);
+	}
+	if (!zs)
+#endif
+		zs = zip_source_file_create(filename.c_str(), 0, 0, &ze);
 	if (zs && !(s_patches_zip = zip_open_from_source(zs, ZIP_RDONLY, &ze)))
 	{
 		static bool warning_shown = false;

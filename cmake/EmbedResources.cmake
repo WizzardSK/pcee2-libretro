@@ -43,8 +43,22 @@ endforeach()
 set(blobs "")
 set(table "")
 set(index 0)
+# patches.zip is built from the pcsx2_patches submodule rather than kept in
+# resources, so it comes in by its own path (see pcsx2/CMakeLists.txt)
+if(DEFINED PATCHES_ZIP)
+	if(NOT EXISTS "${PATCHES_ZIP}")
+		message(FATAL_ERROR "${PATCHES_ZIP} is missing")
+	endif()
+	list(APPEND shader_files "patches.zip")
+	math(EXPR shader_count "${shader_count} + 1")
+endif()
+
 foreach(shader ${shader_files})
-	file(READ "${RESOURCES_DIR}/${shader}" hex HEX)
+	if(shader STREQUAL "patches.zip" AND DEFINED PATCHES_ZIP)
+		file(READ "${PATCHES_ZIP}" hex HEX)
+	else()
+		file(READ "${RESOURCES_DIR}/${shader}" hex HEX)
+	endif()
 	# One byte array rather than a string literal: ffx_a.h alone is 161 KB and
 	# MSVC caps a string literal at 65535 bytes.
 	string(REGEX REPLACE "(..)" "0x\\1," bytes "${hex}")
