@@ -352,7 +352,11 @@ def json2h(intl_dir_path: str, file_list) -> None:
          old_key = tp_msg.group(1)
          if old_key in s_messages and s_messages[old_key] != s_source_messages[old_key]:
             tl_msg_val = s_messages[old_key]
-            tl_msg_val = tl_msg_val.replace('"', '\\\"').replace('\n', '')  # escape
+            # A text split over lines in the source keeps the split as a backslash
+            # and a line break, and a translation can carry it too. Dropping only
+            # the line break left the backslash to escape the next letter ("\o"),
+            # which does not compile; drop the pair, then any other line break.
+            tl_msg_val = tl_msg_val.replace('"', '\\\"').replace('\\\n', '').replace('\n', '')  # escape
             translation = ''.join((translation, '#define ', old_key, file_name.upper(), f' "{tl_msg_val}"\n'))
 
          else:  # Remove English duplicates and non-translatable strings

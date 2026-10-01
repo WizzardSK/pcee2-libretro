@@ -73,8 +73,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	// with nothing to construct (Android turns OpenGL off entirely), so the
 	// list only carries what is actually compiled in.
 	{"pcsx2_renderer", "Renderer", NULL,
-		"Hardware renderer API, or the software renderer. Switching to or from Software applies "
-		"on the fly; switching between hardware APIs takes effect when the content is restarted.",
+		"Hardware renderer API, or the software renderer. Switching to or from Software applies on the fly; switching between hardware APIs takes effect when the content is restarted.",
 		NULL, "graphics",
 		{
 #ifdef ENABLE_VULKAN
@@ -92,9 +91,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 			{"4", "4x Native (2560x1920)"}, {NULL, NULL}},
 		"1"},
 	{"pcsx2_hw_download_mode", "Hardware Download Mode", NULL,
-		"How GPU->CPU readbacks are handled when a game reads rendered data back (GT3 heat haze, "
-		"photo modes...). Accurate stalls the whole pipeline on tiler GPUs; Unsynchronized returns "
-		"stale data without stalling (big speedup, may glitch those effects); Disabled skips them.",
+		"How GPU->CPU readbacks are handled when a game reads rendered data back (GT3 heat haze, photo modes...). Accurate stalls the whole pipeline on tiler GPUs; Unsynchronized returns stale data without stalling (big speedup, may glitch those effects); Disabled skips them.",
 		NULL, "graphics",
 		{{"accurate", "Accurate (Default)"}, {"unsynchronized", "Unsynchronized (Fast)"},
 			{"disabled", "Disabled (Fastest)"}, {NULL, NULL}},
@@ -133,25 +130,16 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	{"pcsx2_cas_mode", "Contrast Adaptive Sharpening", NULL, NULL, NULL, "graphics",
 		{{"disabled", NULL}, {"sharpen", "Sharpen Only"}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_audio_buffer_ms", "Audio Buffer", NULL,
-		"How much audio the emulator keeps ahead of the frontend. More of it rides out a "
-		"stall that would otherwise be heard as a break in the sound, at the cost of that "
-		"much delay before you hear anything. PCSX2's own default is 50 ms, which assumes it "
-		"is feeding an audio device directly rather than a frontend that pulls once a frame.",
+		"How much audio the emulator keeps ahead of the frontend. More of it rides out a stall that would otherwise be heard as a break in the sound, at the cost of that much delay before you hear anything. PCSX2's own default is 50 ms, which assumes it is feeding an audio device directly rather than a frontend that pulls once a frame.",
 		NULL, "audio",
 		{{"50", "50 ms"}, {"75", "75 ms"}, {"100", "100 ms"}, {"150", "150 ms"}, {"200", "200 ms"},
 			{NULL, NULL}}, "100"},
 	{"pcsx2_frame_limiter", "Frame Limiter", NULL,
-		"What holds the emulator to full speed. Frontend leaves the pacing to RetroArch, which "
-		"throttles by making the core wait on the audio it hands over. Internal uses PCSX2's own "
-		"limiter instead - for a device where that wait never happens, because the audio driver "
-		"underruns rather than blocking, and the emulator's own speed variation then reaches the "
-		"screen as uneven frame pacing.",
+		"What holds the emulator to full speed. Frontend leaves the pacing to RetroArch, which throttles by making the core wait on the audio it hands over. Internal uses PCSX2's own limiter instead - for a device where that wait never happens, because the audio driver underruns rather than blocking, and the emulator's own speed variation then reaches the screen as uneven frame pacing.",
 		NULL, "system",
 		{{"frontend", "Frontend (RetroArch)"}, {"internal", "Internal (PCSX2)"}, {NULL, NULL}}, "frontend"},
 	{"pcsx2_skip_duplicate_frames", "Skip Presenting Duplicate Frames", NULL,
-		"Don't hand the frontend a frame the GS never redrew - a 30fps game then delivers 30 "
-		"unique frames instead of 60 with every second one repeated. Turn this off if a frame "
-		"generation or interpolation filter needs every frame delivered as its own.",
+		"Don't hand the frontend a frame the GS never redrew - a 30fps game then delivers 30 unique frames instead of 60 with every second one repeated. Turn this off if a frame generation or interpolation filter needs every frame delivered as its own.",
 		NULL, "graphics",
 		{{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_cas_sharpness", "CAS Sharpness", NULL, NULL, NULL, "graphics",
@@ -163,15 +151,13 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		{{"auto", "Automatic"}, {"4:3", NULL}, {"16:9", NULL}, {NULL, NULL}}, "auto"},
 	// system (continued)
 	{"pcsx2_multitap", "Multitap", NULL,
-		"Enable the multitap adapter for up to 8 controllers. Player order follows the physical slots "
-		"(port 1: 1A-1D, then port 2: 2A-2D). Restart recommended.",
+		"Enable the multitap adapter for up to 8 controllers. Player order follows the physical slots (port 1: 1A-1D, then port 2: 2A-2D). Restart recommended.",
 		NULL, "system",
 		{{"disabled", "Disabled (2 players)"}, {"port1", "Port 1 (5 players)"}, {"port2", "Port 2 (5 players)"},
 			{"both", "Both Ports (8 players)"}, {NULL, NULL}},
 		"disabled"},
 	{"pcsx2_lightgun", "Lightgun (GunCon 2)", NULL,
-		"Emulate a Namco GunCon 2 on a USB port, aimed with the frontend's lightgun (or mouse mapped as "
-		"lightgun) on the matching controller port. Requires restart.",
+		"Emulate a Namco GunCon 2 on a USB port, aimed with the frontend's lightgun (or mouse mapped as lightgun) on the matching controller port. Requires restart.",
 		NULL, "system",
 		{{"disabled", NULL}, {"usb1", "USB Port 1"}, {"usb2", "USB Port 2"}, {"both", "Both Ports"},
 			{NULL, NULL}},
@@ -218,34 +204,27 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		{{"0", "Disabled (Default)"}, {"1", "Mild"}, {"2", "Moderate"}, {"3", "Maximum"}, {NULL, NULL}},
 		"0"},
 	{"pcsx2_cpu_recompiler", "CPU Recompiler (JIT)", NULL,
-		"Diagnostic master switch. Enabled runs the EE, IOP and VU0/VU1 dynarecs (JIT, fast, default). "
-		"Disabled forces every CPU to an interpreter, which is far slower but isolates JIT bugs: if a crash "
-		"still happens with this off, the recompiler is not the cause. The four per-CPU switches below only "
-		"take effect while this is Enabled. Requires restart.",
+		"Diagnostic master switch. Enabled runs the EE, IOP and VU0/VU1 dynarecs (JIT, fast, default). Disabled forces every CPU to an interpreter, which is far slower but isolates JIT bugs: if a crash still happens with this off, the recompiler is not the cause. The four per-CPU switches below only take effect while this is Enabled. Requires restart.",
 		NULL, "performance",
 		{{"enabled", "Enabled (JIT, Default)"}, {"disabled", "Disabled (Interpreter)"}, {NULL, NULL}},
 		"enabled"},
 	{"pcsx2_rec_ee", "  - EE Recompiler", NULL,
-		"Diagnostic. Disable just the Emotion Engine (EE) dynarec while leaving the others on, to bisect "
-		"which recompiler causes a crash. Requires restart.",
+		"Diagnostic. Disable just the Emotion Engine (EE) dynarec while leaving the others on, to bisect which recompiler causes a crash. Requires restart.",
 		NULL, "performance",
 		{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {NULL, NULL}},
 		"enabled"},
 	{"pcsx2_rec_iop", "  - IOP Recompiler", NULL,
-		"Diagnostic. Disable just the IOP (R3000) dynarec while leaving the others on, to bisect which "
-		"recompiler causes a crash. Requires restart.",
+		"Diagnostic. Disable just the IOP (R3000) dynarec while leaving the others on, to bisect which recompiler causes a crash. Requires restart.",
 		NULL, "performance",
 		{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {NULL, NULL}},
 		"enabled"},
 	{"pcsx2_rec_vu0", "  - VU0 Recompiler", NULL,
-		"Diagnostic. Disable just the VU0 microVU dynarec while leaving the others on, to bisect which "
-		"recompiler causes a crash. Requires restart.",
+		"Diagnostic. Disable just the VU0 microVU dynarec while leaving the others on, to bisect which recompiler causes a crash. Requires restart.",
 		NULL, "performance",
 		{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {NULL, NULL}},
 		"enabled"},
 	{"pcsx2_rec_vu1", "  - VU1 Recompiler", NULL,
-		"Diagnostic. Disable just the VU1 microVU dynarec while leaving the others on, to bisect which "
-		"recompiler causes a crash. Requires restart.",
+		"Diagnostic. Disable just the VU1 microVU dynarec while leaving the others on, to bisect which recompiler causes a crash. Requires restart.",
 		NULL, "performance",
 		{{"enabled", "Enabled (Default)"}, {"disabled", "Disabled (Interpreter)"}, {NULL, NULL}},
 		"enabled"},
