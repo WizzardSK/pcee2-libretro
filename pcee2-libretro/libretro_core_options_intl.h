@@ -5124,7 +5124,7 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_FAST_BOOT_LABEL_ES "Arranque rápido"
 #define PCSX2_FAST_BOOT_INFO_0_ES "Omite la animación de arranque de la BIOS. Es necesario reiniciar."
 #define PCSX2_RENDERER_LABEL_ES "Renderizador"
-#define PCSX2_RENDERER_INFO_0_ES "Selecciona una API de renderizado por hardware o el renderizador por software. Los cambios entre el renderizador por software y otros se aplicarán al momento, los cambios entre API por hardware surtirán efecto al reiniciar el contenido."
+#define PCSX2_RENDERER_INFO_0_ES NULL
 #define OPTION_VAL_VULKAN_ES NULL
 #define OPTION_VAL_OPENGL_ES NULL
 #define OPTION_VAL_SOFTWARE_ES NULL
@@ -5135,7 +5135,7 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_3_ES "Nativa × 3 (1920 × 1440)"
 #define OPTION_VAL_4_ES "Nativa × 4 (2560 × 1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_ES "Modo de descarga de hardware"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_ES "Indica cómo se gestiona el cotejado de la GPU a la CPU cuando un juego vuelve a leer datos ya renderizados (la neblina por el calor en GT3, los modos Foto...). Preciso retendrá toda la canalización en GPU más antiguas, Asíncrono devolverá datos obsoletos sin retener nada (aumentará mucho la velocidad, esos efectos podrían mostrarse mal). Desactivado omite estos datos."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_ES NULL
 #define OPTION_VAL_ACCURATE_ES "Preciso (predeterminado)"
 #define OPTION_VAL_UNSYNCHRONIZED_ES "Asíncrono (rápido)"
 #define OPTION_VAL_DISABLED_ES "Desactivado (lo más rápido)"
@@ -5183,18 +5183,18 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_CAS_MODE_LABEL_ES "Realce por contraste adaptativo (CAS)"
 #define OPTION_VAL_SHARPEN_ES "Solo realzar"
 #define PCSX2_AUDIO_BUFFER_MS_LABEL_ES "Búfer de audio"
-#define PCSX2_AUDIO_BUFFER_MS_INFO_0_ES "Establece la cantidad de audio que guardará el emulador adelantándose al front-end. Si la cantidad es alta, se minimizará que cualquier parón se oiga como un corte de sonido a costa de aumentar el retraso antes de oír algo. El valor predeterminado de PCSX2 es de 50 ms, asumiendo que está enviando su señal directamente a un dispositivo de audio y no a un front-end que capta el audio fotograma a fotograma."
+#define PCSX2_AUDIO_BUFFER_MS_INFO_0_ES NULL
 #define OPTION_VAL_50_ES "50 ms"
 #define OPTION_VAL_75_ES "75 ms"
 #define OPTION_VAL_100_ES "100 ms"
 #define OPTION_VAL_150_ES "150 ms"
 #define OPTION_VAL_200_ES "200 ms"
 #define PCSX2_FRAME_LIMITER_LABEL_ES "Limitador de fotogramas"
-#define PCSX2_FRAME_LIMITER_INFO_0_ES "Establece qué será lo que dicte que la velocidad del emulador sea del 100 %. Front-end hace que sea RetroArch quien dicte el ritmo, que lo limitará haciendo que el núcleo espere a que se envíe el audio. Interno utiliza el limitador de PCSX2 en su lugar: en caso de un dispositivo que no espere porque el controlador de audio se quede corto en vez de parar, la variación de velocidad del emulador se mostrará en pantalla como un ritmo de fotogramas desigual."
+#define PCSX2_FRAME_LIMITER_INFO_0_ES NULL
 #define OPTION_VAL_FRONTEND_ES "Front-end (RetroArch)"
 #define OPTION_VAL_INTERNAL_ES "Interno (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ES "Omitir fotogramas duplicados"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES "No presentar al front-end un fotograma que el GS no haya vuelto a dibujar: de esta forma, un juego que se ejecute a 30 FPS mostrará 30 fotogramas únicos en vez de 60 repitiendo uno de cada dos. Desactiva esta opción si un filtro de generación de fotogramas o de interpolación necesita que cada fotograma sea el original."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_ES "Realzado del CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_ES "Relación de aspecto"
 #define PCSX2_ASPECT_RATIO_INFO_0_ES "El valor automático utilizará 16:9 cuando se activen los parches de imagen panorámica, en caso contrario será 4:3."
@@ -5202,13 +5202,13 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_4_3_ES NULL
 #define OPTION_VAL_16_9_ES NULL
 #define PCSX2_MULTITAP_LABEL_ES NULL
-#define PCSX2_MULTITAP_INFO_0_ES "Activa el adaptador Multitap para conectar hasta 8 mandos. El orden de jugadores es el de las ranuras físicas (puerto 1: 1A-1D, luego puerto 2: 2A-2D). Se recomienda reiniciar."
+#define PCSX2_MULTITAP_INFO_0_ES NULL
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_ES "Desactivado (2 jugadores)"
 #define OPTION_VAL_PORT1_ES "Puerto 1 (5 jugadores)"
 #define OPTION_VAL_PORT2_ES "Puerto 2 (5 jugadores)"
 #define OPTION_VAL_BOTH_ES "Ambos puertos (8 jugadores)"
 #define PCSX2_LIGHTGUN_LABEL_ES NULL
-#define PCSX2_LIGHTGUN_INFO_0_ES "Emula una GunCon 2 de Namco en un puerto USB, apuntado a través de la lightgun del front-end (o de un ratón asignado como lightgun) del puerto de mando correspondiente. Es necesario reiniciar."
+#define PCSX2_LIGHTGUN_INFO_0_ES NULL
 #define OPTION_VAL_USB1_ES "Puerto USB 1"
 #define OPTION_VAL_USB2_ES "Puerto USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ES "Ambos puertos"
@@ -5252,18 +5252,18 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_ES "Moderada"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_ES "Valor máximo"
 #define PCSX2_CPU_RECOMPILER_LABEL_ES "Recompilador de la CPU (JIT)"
-#define PCSX2_CPU_RECOMPILER_INFO_0_ES "Selector maestro para diagnósticos. Al activar esta opción se ejecutarán los recompiladores dinámicos (dynarecs) del EE, el IOP y las VU0/VU1 (JIT, rápido, predeterminado). Al desactivar esta opción forzará que todas las CPU se ejecuten con intérpretes, que son mucho más lentos pero pueden aislar fallos provocados por el JIT: si desactivas esta opción y sigue produciéndose el mismo cuelgue, es que la culpa no es del recompilador. Los cuatro selectores para cada CPU solo funcionarán si se activa esta opción. Es necesario reiniciar."
+#define PCSX2_CPU_RECOMPILER_INFO_0_ES NULL
 #define OPTION_VAL_ENABLED_ES "Activado (JIT, predeterminado)"
 #define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_ES "Desactivado (intérpretes)"
 #define PCSX2_REC_EE_LABEL_ES "  - Recompilador del EE"
-#define PCSX2_REC_EE_INFO_0_ES "Para diagnósticos. Desactiva solo el recompilador dinámico del Emotion Engine (EE) y deja los demás activados para estudiar cuál de todos los recompiladores está provocando un cuelgue. Es necesario reiniciar."
+#define PCSX2_REC_EE_INFO_0_ES NULL
 #define OPTION_VAL_ENABLED_PCSX2_REC_EE_ES "Activado (predeterminado)"
 #define PCSX2_REC_IOP_LABEL_ES "  - Recompilador del IOP"
-#define PCSX2_REC_IOP_INFO_0_ES "Para diagnósticos. Desactiva solo el recompilador dinámico del IOP (R3000) y deja los demás activados para estudiar cuál de todos los recompiladores está provocando un cuelgue. Es necesario reiniciar."
+#define PCSX2_REC_IOP_INFO_0_ES NULL
 #define PCSX2_REC_VU0_LABEL_ES "  - Recompilador de la VU0"
-#define PCSX2_REC_VU0_INFO_0_ES "Para diagnósticos. Desactiva solo el recompilador dinámico de la microVU VU0 y deja los demás activados para estudiar cuál de todos los recompiladores está provocando un cuelgue. Es necesario reiniciar."
+#define PCSX2_REC_VU0_INFO_0_ES NULL
 #define PCSX2_REC_VU1_LABEL_ES "  - Recompilador de la VU1"
-#define PCSX2_REC_VU1_INFO_0_ES "Para diagnósticos. Desactiva solo el recompilador dinámico de la microVU VU1 y deja los demás activados para estudiar cuál de todos los recompiladores está provocando un cuelgue. Es necesario reiniciar."
+#define PCSX2_REC_VU1_INFO_0_ES NULL
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_ES "Activar ranura 1"
 #define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_ES "Activa la Memory Card de PS2 de la ranura 1. Los cambios con un contenido en marcha se aplicarán inmediatamente."
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_ES "Activar ranura 2"
@@ -6210,7 +6210,7 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_FAST_BOOT_LABEL_FR "Démarrage rapide"
 #define PCSX2_FAST_BOOT_INFO_0_FR "Ignorer l'animation de démarrage du BIOS. Nécessite un redémarrage."
 #define PCSX2_RENDERER_LABEL_FR "Moteur de rendu"
-#define PCSX2_RENDERER_INFO_0_FR "API du moteur de rendu matériel, ou le moteur de rendu logiciel. Le passage \au mode logiciel (ou inversement) s'effectue à la volée, tandis que le changement \d'API matérielle ne prend effet qu'au redémarrage du contenu."
+#define PCSX2_RENDERER_INFO_0_FR NULL
 #define OPTION_VAL_VULKAN_FR "Vulkan (matériel)"
 #define OPTION_VAL_OPENGL_FR "OpenGL (matériel)"
 #define OPTION_VAL_SOFTWARE_FR "Logiciel"
@@ -6221,7 +6221,7 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_3_FR "3x résolution native (1920 x 1440)"
 #define OPTION_VAL_4_FR "4x résolution native (2560 x 1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_FR "Mode de téléchargement matériel"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_FR "Gestion des transferts de données du processeur graphique vers le processeur lorsqu'un jeu récupère des données rendues (effet de distorsion thermique dans GT3, modes photo…). Le mode Précis bloque tout le pipeline sur les processeurs graphiques à architecture 'tiler' ; le mode Non synchronisé renvoie des données obsolètes sans blocages (gain de vitesse important, mais risque d'anomalies visuelles pour ces effets) ; le mode Désactivé ignore ces opérations."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_FR NULL
 #define OPTION_VAL_ACCURATE_FR "Précis (par défaut)"
 #define OPTION_VAL_UNSYNCHRONIZED_FR "Non synchronisé (rapide)"
 #define OPTION_VAL_DISABLED_FR "Désactivé (le plus rapide)"
@@ -6244,7 +6244,7 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_PS2_FR "Trilinéaire (PS2)"
 #define OPTION_VAL_FORCED_FR "Trilinéaire (forcé)"
 #define PCSX2_ANISOTROPIC_FILTERING_LABEL_FR "Filtrage anisotrope"
-#define PCSX2_ANISOTROPIC_FILTERING_INFO_0_FR "Réduit l'aliasing des textures aux angles prononcés."
+#define PCSX2_ANISOTROPIC_FILTERING_INFO_0_FR "Réduit le crénelage des textures aux angles prononcés."
 #define OPTION_VAL_2_PCSX2_ANISOTROPIC_FILTERING_FR "x2"
 #define OPTION_VAL_4_PCSX2_ANISOTROPIC_FILTERING_FR "x4"
 #define OPTION_VAL_8_FR "x8"
@@ -6254,109 +6254,109 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_1_PCSX2_DITHERING_FR "À l'échelle"
 #define OPTION_VAL_2_PCSX2_DITHERING_FR "Sans mise à l'échelle (par défaut)"
 #define PCSX2_MIPMAPPING_LABEL_FR "Mipmapping matériel"
-#define PCSX2_DEINTERLACE_MODE_LABEL_FR NULL
-#define PCSX2_DEINTERLACE_MODE_INFO_0_FR NULL
-#define OPTION_VAL_2_PCSX2_DEINTERLACE_MODE_FR NULL
-#define OPTION_VAL_3_PCSX2_DEINTERLACE_MODE_FR NULL
-#define OPTION_VAL_4_PCSX2_DEINTERLACE_MODE_FR NULL
-#define OPTION_VAL_5_FR NULL
-#define OPTION_VAL_6_FR NULL
-#define OPTION_VAL_7_FR NULL
-#define OPTION_VAL_8_PCSX2_DEINTERLACE_MODE_FR NULL
-#define OPTION_VAL_9_FR NULL
+#define PCSX2_DEINTERLACE_MODE_LABEL_FR "Désentrelacement"
+#define PCSX2_DEINTERLACE_MODE_INFO_0_FR "Automatique utilise le mode recommandé par GameDB pour chaque jeu."
+#define OPTION_VAL_2_PCSX2_DEINTERLACE_MODE_FR "Tissage (trame supérieure d'abord)"
+#define OPTION_VAL_3_PCSX2_DEINTERLACE_MODE_FR "Tissage (trame inférieure d'abord)"
+#define OPTION_VAL_4_PCSX2_DEINTERLACE_MODE_FR "Oscillation (trame supérieure d'abord)"
+#define OPTION_VAL_5_FR "Oscillation (trame inférieure d'abord)"
+#define OPTION_VAL_6_FR "Fusion (trame supérieure d'abord)"
+#define OPTION_VAL_7_FR "Fusion (trame inférieure d'abord)"
+#define OPTION_VAL_8_PCSX2_DEINTERLACE_MODE_FR "Adaptatif (trame supérieure d'abord)"
+#define OPTION_VAL_9_FR "Adaptatif (trame supérieure d'abord)"
 #define PCSX2_FXAA_LABEL_FR NULL
-#define PCSX2_FXAA_INFO_0_FR NULL
-#define PCSX2_CAS_MODE_LABEL_FR NULL
-#define OPTION_VAL_SHARPEN_FR NULL
-#define PCSX2_AUDIO_BUFFER_MS_LABEL_FR NULL
+#define PCSX2_FXAA_INFO_0_FR "Anticrénelage par post-traitement peu coûteux."
+#define PCSX2_CAS_MODE_LABEL_FR "Netteté adaptative au contraste"
+#define OPTION_VAL_SHARPEN_FR "Netteté uniquement"
+#define PCSX2_AUDIO_BUFFER_MS_LABEL_FR "Tampon audio"
 #define PCSX2_AUDIO_BUFFER_MS_INFO_0_FR NULL
 #define OPTION_VAL_50_FR NULL
 #define OPTION_VAL_75_FR NULL
 #define OPTION_VAL_100_FR NULL
 #define OPTION_VAL_150_FR NULL
 #define OPTION_VAL_200_FR NULL
-#define PCSX2_FRAME_LIMITER_LABEL_FR NULL
+#define PCSX2_FRAME_LIMITER_LABEL_FR "Limiteur de fréquence d'images"
 #define PCSX2_FRAME_LIMITER_INFO_0_FR NULL
-#define OPTION_VAL_FRONTEND_FR NULL
-#define OPTION_VAL_INTERNAL_FR NULL
-#define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FR NULL
+#define OPTION_VAL_FRONTEND_FR "Interface graphique (RetroArch)"
+#define OPTION_VAL_INTERNAL_FR "Interne (PCSX2)"
+#define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FR "Ignorer la présentation des images en double"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FR NULL
-#define PCSX2_CAS_SHARPNESS_LABEL_FR NULL
+#define PCSX2_CAS_SHARPNESS_LABEL_FR "Netteté adaptative au contraste"
 #define PCSX2_ASPECT_RATIO_LABEL_FR "Rapport d'aspect"
-#define PCSX2_ASPECT_RATIO_INFO_0_FR NULL
+#define PCSX2_ASPECT_RATIO_INFO_0_FR "Signale automatiquement le format 16:9 lorsque les correctifs pour écran large sont activés, et 4:3 dans le cas contraire."
 #define OPTION_VAL_AUTO_PCSX2_ASPECT_RATIO_FR "Automatique"
 #define OPTION_VAL_4_3_FR NULL
 #define OPTION_VAL_16_9_FR NULL
 #define PCSX2_MULTITAP_LABEL_FR NULL
 #define PCSX2_MULTITAP_INFO_0_FR NULL
-#define OPTION_VAL_DISABLED_PCSX2_MULTITAP_FR NULL
-#define OPTION_VAL_PORT1_FR NULL
-#define OPTION_VAL_PORT2_FR NULL
-#define OPTION_VAL_BOTH_FR NULL
-#define PCSX2_LIGHTGUN_LABEL_FR NULL
+#define OPTION_VAL_DISABLED_PCSX2_MULTITAP_FR "Désactivé (2 joueurs)"
+#define OPTION_VAL_PORT1_FR "Port 1 (5 joueurs)"
+#define OPTION_VAL_PORT2_FR "Port 2 (5 joueurs)"
+#define OPTION_VAL_BOTH_FR "Les deux ports (8 joueurs)"
+#define PCSX2_LIGHTGUN_LABEL_FR "Pistolet (GunCon 2)"
 #define PCSX2_LIGHTGUN_INFO_0_FR NULL
-#define OPTION_VAL_USB1_FR NULL
-#define OPTION_VAL_USB2_FR NULL
-#define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FR NULL
-#define PCSX2_RUMBLE_LABEL_FR NULL
-#define PCSX2_RUMBLE_INFO_0_FR NULL
-#define PCSX2_AXIS_SCALE_LABEL_FR NULL
-#define PCSX2_AXIS_SCALE_INFO_0_FR NULL
+#define OPTION_VAL_USB1_FR "Port USB 1"
+#define OPTION_VAL_USB2_FR "Port USB 2"
+#define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FR "Les deux ports"
+#define PCSX2_RUMBLE_LABEL_FR "Vibration"
+#define PCSX2_RUMBLE_INFO_0_FR "Transmettre les vibrations de la DualShock 2 à la fonction de retour de force de l'interface graphique."
+#define PCSX2_AXIS_SCALE_LABEL_FR "Échelle d'axe analogique"
+#define PCSX2_AXIS_SCALE_INFO_0_FR "Ajuste la sensibilité des sticks pour reproduire le comportement d'une véritable DualShock 2 (valeur par défaut de 133 % sur PCSX2). Réduisez cette valeur si les diagonales semblent bridées."
 #define OPTION_VAL_100_PCSX2_AXIS_SCALE_FR NULL
 #define OPTION_VAL_115_FR NULL
-#define OPTION_VAL_133_FR NULL
+#define OPTION_VAL_133_FR "133 % (par défaut)"
 #define OPTION_VAL_150_PCSX2_AXIS_SCALE_FR NULL
 #define PCSX2_AXIS_DEADZONE_LABEL_FR "Deadzone analogique "
-#define PCSX2_AXIS_DEADZONE_INFO_0_FR NULL
-#define OPTION_VAL_0_FR NULL
+#define PCSX2_AXIS_DEADZONE_INFO_0_FR "Zone morte du stick appliquée au niveau de la manette émulée, en plus de toute zone morte définie dans l'interface graphique."
+#define OPTION_VAL_0_FR "0 % (par défaut)"
 #define OPTION_VAL_5_PCSX2_AXIS_DEADZONE_FR "5 %"
 #define OPTION_VAL_10_FR "10 %"
 #define OPTION_VAL_15_FR NULL
 #define OPTION_VAL_20_FR NULL
 #define OPTION_VAL_30_FR NULL
-#define PCSX2_WIDESCREEN_PATCHES_LABEL_FR NULL
-#define PCSX2_WIDESCREEN_PATCHES_INFO_0_FR NULL
-#define PCSX2_NO_INTERLACING_PATCHES_LABEL_FR NULL
-#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_FR NULL
-#define PCSX2_MTVU_LABEL_FR NULL
-#define PCSX2_MTVU_INFO_0_FR NULL
-#define PCSX2_INSTANT_VU1_LABEL_FR NULL
-#define PCSX2_INSTANT_VU1_INFO_0_FR NULL
-#define PCSX2_EE_CYCLE_RATE_LABEL_FR NULL
-#define PCSX2_EE_CYCLE_RATE_INFO_0_FR NULL
-#define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_FR NULL
-#define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_FR NULL
-#define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_FR NULL
+#define PCSX2_WIDESCREEN_PATCHES_LABEL_FR "Correctifs pour écran large"
+#define PCSX2_WIDESCREEN_PATCHES_INFO_0_FR "Activer les correctifs intégrés pour le format 16:9 (écran large) lorsqu'ils sont disponibles. Il est préférable de les activer avant de lancer une partie."
+#define PCSX2_NO_INTERLACING_PATCHES_LABEL_FR "Correctifs de non-entrelacement"
+#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_FR "Activer les correctifs intégrés de sortie progressive lorsqu'ils sont disponibles. Il est préférable de les appliquer avant de lancer une partie."
+#define PCSX2_MTVU_LABEL_FR "MTVU (VU1 sur plusieurs fils d'exécution)"
+#define PCSX2_MTVU_INFO_0_FR "Exécute le processeur mathématique VU1 sur son propre fil d'exécution. Cela permet un gain de vitesse important sur les processeurs multicœurs ; bien qu'un petit nombre de jeux se bloquent avec cette option."
+#define PCSX2_INSTANT_VU1_LABEL_FR "VU1 instantané"
+#define PCSX2_INSTANT_VU1_INFO_0_FR "Exécute immédiatement le processeur mathématique VU1 jusqu'à son terme (ignoré lorsque MTVU est activé). Cela améliore généralement la vitesse."
+#define PCSX2_EE_CYCLE_RATE_LABEL_FR "Taux de cycle du microprocesseur EE"
+#define PCSX2_EE_CYCLE_RATE_INFO_0_FR "Underclocker ou overclocker l'Emotion Engine émulé. Valeur par défaut : 100 %. Peut compromettre le fonctionnement de certains jeux."
+#define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_FR "50 % (underclock)"
+#define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_FR "60 % (underclock)"
+#define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_FR "75 % (underclock)"
 #define OPTION_VAL_0_PCSX2_EE_CYCLE_RATE_FR "100% (par défaut)"
-#define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_0_FR NULL
-#define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_0_FR NULL
-#define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_0_FR NULL
-#define PCSX2_EE_CYCLE_SKIP_LABEL_FR NULL
-#define PCSX2_EE_CYCLE_SKIP_INFO_0_FR NULL
-#define OPTION_VAL_0_PCSX2_EE_CYCLE_SKIP_FR NULL
-#define OPTION_VAL_1_PCSX2_EE_CYCLE_SKIP_FR NULL
-#define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_FR NULL
+#define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_0_FR "130 % (overclock)"
+#define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_0_FR "180 % (overclock)"
+#define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_0_FR "300 % (overclock)"
+#define PCSX2_EE_CYCLE_SKIP_LABEL_FR "Saut de cycle du microprocesseur EE"
+#define PCSX2_EE_CYCLE_SKIP_INFO_0_FR "Fait sauter des cycles à l'EE. Aide certains jeux à forte activité des processeurs mathématiques VU, mais en fait dysfonctionner d'autres."
+#define OPTION_VAL_0_PCSX2_EE_CYCLE_SKIP_FR "Désactivé (par défaut)"
+#define OPTION_VAL_1_PCSX2_EE_CYCLE_SKIP_FR "Léger"
+#define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_FR "Modéré"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_FR "Maximal"
-#define PCSX2_CPU_RECOMPILER_LABEL_FR NULL
+#define PCSX2_CPU_RECOMPILER_LABEL_FR "Recompilateur processeur (JIT)"
 #define PCSX2_CPU_RECOMPILER_INFO_0_FR NULL
-#define OPTION_VAL_ENABLED_FR NULL
-#define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_FR NULL
-#define PCSX2_REC_EE_LABEL_FR NULL
+#define OPTION_VAL_ENABLED_FR "Activé (JIT, par défaut)"
+#define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_FR "Désactivé (interpréteur)"
+#define PCSX2_REC_EE_LABEL_FR "  - Recompilateur du microprocesseur EE"
 #define PCSX2_REC_EE_INFO_0_FR NULL
-#define OPTION_VAL_ENABLED_PCSX2_REC_EE_FR NULL
-#define PCSX2_REC_IOP_LABEL_FR NULL
+#define OPTION_VAL_ENABLED_PCSX2_REC_EE_FR "Activé (par défaut)"
+#define PCSX2_REC_IOP_LABEL_FR "  - Recompilateur du processeur de périphériques IOP"
 #define PCSX2_REC_IOP_INFO_0_FR NULL
-#define PCSX2_REC_VU0_LABEL_FR NULL
+#define PCSX2_REC_VU0_LABEL_FR "  - Recompilateur du processeur mathématique VU0"
 #define PCSX2_REC_VU0_INFO_0_FR NULL
-#define PCSX2_REC_VU1_LABEL_FR NULL
+#define PCSX2_REC_VU1_LABEL_FR "  - Recompilateur du processeur mathématique VU1"
 #define PCSX2_REC_VU1_INFO_0_FR NULL
-#define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_FR NULL
-#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_FR NULL
-#define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_FR NULL
-#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_FR NULL
-#define PCSX2_MEMCARD_SLOT1_FILE_LABEL_FR NULL
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_FR NULL
-#define PCSX2_MEMCARD_SLOT2_FILE_LABEL_FR NULL
+#define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_FR "Port 1 activé"
+#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_FR "Activez la carte mémoire PS2 du port 1. Les modifications prennent effet immédiatement pendant l'exécution du contenu."
+#define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_FR "Port 2 activé"
+#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_FR "Activez la carte mémoire PS2 du port 2. Les modifications prennent effet immédiatement pendant l'exécution du contenu."
+#define PCSX2_MEMCARD_SLOT1_FILE_LABEL_FR "Carte port 1"
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_FR "Sélectionner une carte .ps2 existante dans <system>/pcsx2/memcards. Les modifications prennent effet immédiatement pendant l'exécution du contenu."
+#define PCSX2_MEMCARD_SLOT2_FILE_LABEL_FR "Carte port 2"
 
 struct retro_core_option_v2_category option_cats_fr[] = {
 	{"system", CATEGORY_SYSTEM_LABEL_FR, CATEGORY_SYSTEM_INFO_0_FR},
@@ -12364,7 +12364,7 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_FAST_BOOT_LABEL_SK "Rýchly štart"
 #define PCSX2_FAST_BOOT_INFO_0_SK "Preskočí úvodnú animáciu BIOS. Vyžaduje reštart."
 #define PCSX2_RENDERER_LABEL_SK "Vykreslenie"
-#define PCSX2_RENDERER_INFO_0_SK "API hardvérového vykresľovača alebo softvérový vykresľovač. Prepnutie na softvérový alebo späť sa prejaví \hneď; prepnutie medzi hardvérovými API sa prejaví po reštarte obsahu."
+#define PCSX2_RENDERER_INFO_0_SK "API hardvérového vykresľovača alebo softvérový vykresľovač. Prepnutie na softvérový alebo späť sa prejaví hneď; prepnutie medzi hardvérovými API sa prejaví po reštarte obsahu."
 #define OPTION_VAL_VULKAN_SK "Vulkan (hardvér)"
 #define OPTION_VAL_OPENGL_SK "OpenGL (hardvér)"
 #define OPTION_VAL_SOFTWARE_SK "Softvér"
@@ -12375,7 +12375,7 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_3_SK "3x natívne (1920x1440)"
 #define OPTION_VAL_4_SK "4x natívne (2560x1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_SK "Režim hardvérového sťahovania"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_SK "Ako sa spracúvajú spätné čítania z GPU do CPU, keď hra číta vykreslené dáta späť (tepelný opar v GT3, \fotorežimy...). Presné zastaví na dlaždicových GPU celú pipeline; Nesynchronizované vráti \staré dáta bez zastavenia (veľké zrýchlenie, tieto efekty môžu mať chyby); Vypnuté ich preskočí."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_SK "Ako sa spracúvajú spätné čítania z GPU do CPU, keď hra číta vykreslené dáta späť (tepelný opar v GT3, fotorežimy...). Presné zastaví na dlaždicových GPU celú pipeline; Nesynchronizované vráti staré dáta bez zastavenia (veľké zrýchlenie, tieto efekty môžu mať chyby); Vypnuté ich preskočí."
 #define OPTION_VAL_ACCURATE_SK "Presné (predvolené)"
 #define OPTION_VAL_UNSYNCHRONIZED_SK "Nesynchronizované (rýchle)"
 #define OPTION_VAL_DISABLED_SK "Vypnuté (najrýchlejšie)"
@@ -12423,18 +12423,18 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_CAS_MODE_LABEL_SK "Kontrastne adaptívne zostrenie (CAS)"
 #define OPTION_VAL_SHARPEN_SK "Len zostrenie"
 #define PCSX2_AUDIO_BUFFER_MS_LABEL_SK "Zvukový buffer"
-#define PCSX2_AUDIO_BUFFER_MS_INFO_0_SK "Koľko zvuku si emulátor drží v predstihu pred frontendom. Viac ho prekoná \zaseknutie, ktoré by inak bolo počuť ako výpadok zvuku, za cenu práve takého \oneskorenia, kým niečo začujete. Vlastné predvolené nastavenie PCSX2 je 50 ms, čo predpokladá, \že zvuk posiela priamo do zvukového zariadenia, a nie frontendu, ktorý si ho berie raz za snímku."
+#define PCSX2_AUDIO_BUFFER_MS_INFO_0_SK "Koľko zvuku si emulátor drží v predstihu pred frontendom. Viac ho prekoná zaseknutie, ktoré by inak bolo počuť ako výpadok zvuku, za cenu práve takého oneskorenia, kým niečo začujete. Vlastné predvolené nastavenie PCSX2 je 50 ms, čo predpokladá, že zvuk posiela priamo do zvukového zariadenia, a nie frontendu, ktorý si ho berie raz za snímku."
 #define OPTION_VAL_50_SK NULL
 #define OPTION_VAL_75_SK NULL
 #define OPTION_VAL_100_SK NULL
 #define OPTION_VAL_150_SK NULL
 #define OPTION_VAL_200_SK NULL
 #define PCSX2_FRAME_LIMITER_LABEL_SK "Obmedzovač snímok"
-#define PCSX2_FRAME_LIMITER_INFO_0_SK "Čo drží emulátor na plnej rýchlosti. Frontend nechá časovanie na RetroArch, ktorý \ho brzdí tak, že jadro čaká na zvuk, ktorý odovzdá. Interný namiesto toho použije vlastný \obmedzovač PCSX2 – pre zariadenia, kde k tomu čakaniu nedôjde, lebo zvukový ovládač \namiesto blokovania podtečie, a kolísanie rýchlosti emulátora sa potom na \obrazovke prejaví ako nerovnomerné časovanie snímok."
+#define PCSX2_FRAME_LIMITER_INFO_0_SK "Čo drží emulátor na plnej rýchlosti. Frontend nechá časovanie na RetroArch, ktorý ho brzdí tak, že jadro čaká na zvuk, ktorý odovzdá. Interný namiesto toho použije vlastný obmedzovač PCSX2 – pre zariadenia, kde k tomu čakaniu nedôjde, lebo zvukový ovládač namiesto blokovania podtečie, a kolísanie rýchlosti emulátora sa potom na obrazovke prejaví ako nerovnomerné časovanie snímok."
 #define OPTION_VAL_FRONTEND_SK NULL
 #define OPTION_VAL_INTERNAL_SK "Interný (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SK "Preskakovať duplicitné snímky"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK "Neodovzdá frontendu snímku, ktorú GS znova nevykreslil – hra s 30 fps potom dodá 30 \jedinečných snímok namiesto 60, z ktorých je každá druhá zopakovaná. Vypnite, ak filter \generovania alebo interpolácie snímok potrebuje dostať každú snímku samostatne."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK "Neodovzdá frontendu snímku, ktorú GS znova nevykreslil – hra s 30 fps potom dodá 30 jedinečných snímok namiesto 60, z ktorých je každá druhá zopakovaná. Vypnite, ak filter generovania alebo interpolácie snímok potrebuje dostať každú snímku samostatne."
 #define PCSX2_CAS_SHARPNESS_LABEL_SK "Ostrosť CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_SK "Pomer strán"
 #define PCSX2_ASPECT_RATIO_INFO_0_SK "Automaticky hlási 16:9, keď sú zapnuté širokouhlé záplaty, inak 4:3."
@@ -12442,13 +12442,13 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_4_3_SK NULL
 #define OPTION_VAL_16_9_SK NULL
 #define PCSX2_MULTITAP_LABEL_SK NULL
-#define PCSX2_MULTITAP_INFO_0_SK "Zapne adaptér multitap až pre 8 ovládačov. Poradie hráčov zodpovedá fyzickým slotom \(port 1: 1A-1D, potom port 2: 2A-2D). Odporúča sa reštart."
+#define PCSX2_MULTITAP_INFO_0_SK "Zapne adaptér multitap až pre 8 ovládačov. Poradie hráčov zodpovedá fyzickým slotom (port 1: 1A-1D, potom port 2: 2A-2D). Odporúča sa reštart."
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_SK "Vypnuté (2 hráči)"
 #define OPTION_VAL_PORT1_SK "Port 1 (5 hráčov)"
 #define OPTION_VAL_PORT2_SK "Port 2 (5 hráčov)"
 #define OPTION_VAL_BOTH_SK "Oba porty (8 hráčov)"
 #define PCSX2_LIGHTGUN_LABEL_SK "Svetelná pištoľ (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_SK "Emuluje Namco GunCon 2 na porte USB, ovládaný svetelnou pištoľou frontendu (alebo myšou namapovanou ako \svetelná pištoľ) na zodpovedajúcom porte ovládača. Vyžaduje reštart."
+#define PCSX2_LIGHTGUN_INFO_0_SK "Emuluje Namco GunCon 2 na porte USB, ovládaný svetelnou pištoľou frontendu (alebo myšou namapovanou ako svetelná pištoľ) na zodpovedajúcom porte ovládača. Vyžaduje reštart."
 #define OPTION_VAL_USB1_SK "Port USB 1"
 #define OPTION_VAL_USB2_SK "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SK "Oba porty"
@@ -12492,18 +12492,18 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_SK "Stredné"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_SK "Maximálne"
 #define PCSX2_CPU_RECOMPILER_LABEL_SK "Rekompilátor CPU (JIT)"
-#define PCSX2_CPU_RECOMPILER_INFO_0_SK "Hlavný diagnostický prepínač. Zapnuté spúšťa dynamické rekompilátory EE, IOP a VU0/VU1 (JIT, rýchle, predvolené). \Vypnuté prepne všetky CPU na interpreter, ktorý je oveľa pomalší, ale izoluje chyby JIT: ak k pádu \dôjde aj s vypnutou voľbou, príčinou nie je rekompilátor. Štyri prepínače pre jednotlivé CPU nižšie sa \uplatnia, len keď je táto voľba zapnutá. Vyžaduje reštart."
+#define PCSX2_CPU_RECOMPILER_INFO_0_SK "Hlavný diagnostický prepínač. Zapnuté spúšťa dynamické rekompilátory EE, IOP a VU0/VU1 (JIT, rýchle, predvolené). Vypnuté prepne všetky CPU na interpreter, ktorý je oveľa pomalší, ale izoluje chyby JIT: ak k pádu dôjde aj s vypnutou voľbou, príčinou nie je rekompilátor. Štyri prepínače pre jednotlivé CPU nižšie sa uplatnia, len keď je táto voľba zapnutá. Vyžaduje reštart."
 #define OPTION_VAL_ENABLED_SK "Zapnuté (JIT, predvolené)"
 #define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_SK "Vypnuté (interpreter)"
 #define PCSX2_REC_EE_LABEL_SK "  - Rekompilátor EE"
-#define PCSX2_REC_EE_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor Emotion Engine (EE) a ostatné nechá zapnuté, aby sa dalo \zistiť, ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
+#define PCSX2_REC_EE_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor Emotion Engine (EE) a ostatné nechá zapnuté, aby sa dalo zistiť, ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
 #define OPTION_VAL_ENABLED_PCSX2_REC_EE_SK "Zapnuté (predvolené)"
 #define PCSX2_REC_IOP_LABEL_SK "  - Rekompilátor IOP"
-#define PCSX2_REC_IOP_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor IOP (R3000) a ostatné nechá zapnuté, aby sa dalo zistiť, \ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
+#define PCSX2_REC_IOP_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor IOP (R3000) a ostatné nechá zapnuté, aby sa dalo zistiť, ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
 #define PCSX2_REC_VU0_LABEL_SK "  - Rekompilátor VU0"
-#define PCSX2_REC_VU0_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor microVU pre VU0 a ostatné nechá zapnuté, aby sa dalo zistiť, \ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
+#define PCSX2_REC_VU0_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor microVU pre VU0 a ostatné nechá zapnuté, aby sa dalo zistiť, ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
 #define PCSX2_REC_VU1_LABEL_SK "  - Rekompilátor VU1"
-#define PCSX2_REC_VU1_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor microVU pre VU1 a ostatné nechá zapnuté, aby sa dalo zistiť, \ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
+#define PCSX2_REC_VU1_INFO_0_SK "Diagnostika. Vypne len dynamický rekompilátor microVU pre VU1 a ostatné nechá zapnuté, aby sa dalo zistiť, ktorý rekompilátor spôsobuje pád. Vyžaduje reštart."
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_SK "Slot 1 zapnutý"
 #define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_SK "Zapne pamäťovú kartu PS2 v slote 1. Zmeny sa prejavia hneď, aj keď obsah beží."
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_SK "Slot 2 zapnutý"
@@ -15260,7 +15260,7 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_FAST_BOOT_LABEL_VN "Khởi động nhanh"
 #define PCSX2_FAST_BOOT_INFO_0_VN "Bỏ qua hoạt ảnh khởi động BIOS. Yêu cầu khởi động lại."
 #define PCSX2_RENDERER_LABEL_VN "Renderer (Trình kết xuất)"
-#define PCSX2_RENDERER_INFO_0_VN "API trình kết xuất phần cứng hoặc trình kết xuất phần mềm. Chuyển sang hoặc từ Phần mềm có hiệu lực ngay lập tức; chuyển đổi giữa các API phần cứng sẽ có hiệu lực khi khởi động lại nội dung."
+#define PCSX2_RENDERER_INFO_0_VN NULL
 #define OPTION_VAL_VULKAN_VN "Vulkan (Phần cứng)"
 #define OPTION_VAL_OPENGL_VN "OpenGL (Phần cứng)"
 #define OPTION_VAL_SOFTWARE_VN "Phần mềm"
@@ -15271,7 +15271,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_3_VN "3x Độ phân giải gốc (1920x1440)"
 #define OPTION_VAL_4_VN "4x Độ phân giải gốc (2560x1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_VN "Chế độ tải dữ liệu phần cứng"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_VN "Cách xử lý dữ liệu GPU->CPU khi trò chơi đọc dữ liệu đã kết xuất trở lại (hiệu ứng méo nhiệt GT3, chế độ chụp ảnh...). Chính xác sẽ làm dừng toàn bộ quy trình trên GPU dạng lát; Không đồng bộ trả về dữ liệu cũ mà không làm dừng quy trình (tăng tốc đáng kể, nhưng có thể gây lỗi các hiệu ứng này); Tắt sẽ bỏ qua các lần đọc dữ liệu này."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_VN NULL
 #define OPTION_VAL_ACCURATE_VN "Chính xác (Mặc định)"
 #define OPTION_VAL_UNSYNCHRONIZED_VN "Không đồng bộ (Nhanh)"
 #define OPTION_VAL_DISABLED_VN "Tắt (Nhanh nhất)"
@@ -15319,18 +15319,18 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_CAS_MODE_LABEL_VN "Tăng độ nét thích ứng theo độ tương phản"
 #define OPTION_VAL_SHARPEN_VN "Chỉ tăng độ nét"
 #define PCSX2_AUDIO_BUFFER_MS_LABEL_VN "Bộ đệm âm thanh"
-#define PCSX2_AUDIO_BUFFER_MS_INFO_0_VN "Lượng âm thanh mà trình giả lập giữ sẵn trước giao diện chính. Giữ sẵn càng nhiều thì càng có thể duy trì âm thanh khi xảy ra \ tình trạng xử lý bị ngắt quãng, vốn có thể khiến âm thanh bị gián đoạn, nhưng đổi lại sẽ phải chịu \ độ trễ tương ứng trước khi bạn nghe thấy bất kỳ âm thanh nào. Mặc định của PCSX2 là 50 ms, với giả định rằng nó \ xuất âm thanh trực tiếp đến thiết bị âm thanh thay vì thông qua giao diện chính, nơi âm thanh được lấy một lần sau mỗi khung hình."
+#define PCSX2_AUDIO_BUFFER_MS_INFO_0_VN NULL
 #define OPTION_VAL_50_VN "50 mili giây"
 #define OPTION_VAL_75_VN "75 mili giây"
 #define OPTION_VAL_100_VN "100 mili giây"
 #define OPTION_VAL_150_VN "150 mili giây"
 #define OPTION_VAL_200_VN "200 mili giây"
 #define PCSX2_FRAME_LIMITER_LABEL_VN "Giới hạn tốc độ khung hình"
-#define PCSX2_FRAME_LIMITER_INFO_0_VN "Cách giữ trình giả lập chạy ở tốc độ tối đa. Giao diện chính để RetroArch tự điều chỉnh nhịp khung hình, bằng cách làm lõi giả lập chờ tín hiệu âm thanh mà nó nhận được. \ Chế độ Nội bộ sử dụng bộ giới hạn tốc độ riêng của PCSX2 thay thế - dành cho thiết bị mà việc chờ này không bao giờ xảy ra, vì trình điều khiển âm thanh \ bị thiếu dữ liệu thay vì chặn luồng xử lý, khiến tốc độ thay đổi của trình giả lập truyền trực tiếp lên \ màn hình dưới dạng nhịp khung hình không đều."
+#define PCSX2_FRAME_LIMITER_INFO_0_VN NULL
 #define OPTION_VAL_FRONTEND_VN "Giao diện chính (RetroArch)"
 #define OPTION_VAL_INTERNAL_VN "Nội bộ (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN "Bỏ qua việc xuất các khung hình trùng lặp"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Không gửi cho giao diện chính những khung hình mà GS không vẽ lại - game 30fps khi đó sẽ xuất ra 30 \ khung hình riêng biệt thay vì 60 khung hình với mỗi khung hình được lặp lại một lần. Tắt tùy chọn này nếu bộ lọc \ tạo khung hình hoặc nội suy cần nhận từng khung hình riêng biệt."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_VN "Độ sắc nét CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_VN "Tỷ lệ khung hình"
 #define PCSX2_ASPECT_RATIO_INFO_0_VN "Tự động báo tỷ lệ 16:9 khi bản vá màn hình rộng được bật, 4:3 trong các trường hợp khác."
@@ -15338,13 +15338,13 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_4_3_VN NULL
 #define OPTION_VAL_16_9_VN NULL
 #define PCSX2_MULTITAP_LABEL_VN "Bộ chia tay cầm"
-#define PCSX2_MULTITAP_INFO_0_VN "Bật bộ chia tay cầm để hỗ trợ tối đa 8 tay cầm. Thứ tự người chơi tuân theo các cổng vật lý \ (cổng 1: 1A-1D, sau đó cổng 2: 2A-2D). Khuyến nghị khởi động lại."
+#define PCSX2_MULTITAP_INFO_0_VN NULL
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_VN "Tắt (2 người chơi)"
 #define OPTION_VAL_PORT1_VN "Cổng 1 (5 người chơi)"
 #define OPTION_VAL_PORT2_VN "Cổng 2 (5 người chơi)"
 #define OPTION_VAL_BOTH_VN "Cả hai cổng (8 người chơi)"
 #define PCSX2_LIGHTGUN_LABEL_VN "Súng quang (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_VN "Mô phỏng Namco GunCon 2 trên cổng USB, ngắm bằng súng quang của giao diện chính (hoặc chuột được gán làm \ súng quang) trên cổng tay cầm tương ứng. Yêu cầu khởi động lại."
+#define PCSX2_LIGHTGUN_INFO_0_VN NULL
 #define OPTION_VAL_USB1_VN "Cổng USB 1"
 #define OPTION_VAL_USB2_VN "Cổng USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VN "Cả hai cổng"
@@ -15388,18 +15388,18 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_VN "Vừa"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_VN "Tối đa"
 #define PCSX2_CPU_RECOMPILER_LABEL_VN "Trình biên dịch lại CPU (JIT)"
-#define PCSX2_CPU_RECOMPILER_INFO_0_VN "Công tắc chẩn đoán tổng. Khi bật, chạy trình biên dịch lại động của EE, IOP và VU0/VU1 (JIT, nhanh, mặc định).\Khi tắt, buộc mọi CPU sử dụng trình thông dịch, chậm hơn nhiều nhưng giúp xác định lỗi JIT: nếu trò chơi vẫnbị treo \khi tắt mục này, trình biên dịch lại không phải nguyên nhân. Bốn tùy chọn riêng cho từng CPU bên dưới chỉcó \hiệu lực khi mục này được bật. Yêu cầu khởi động lại."
+#define PCSX2_CPU_RECOMPILER_INFO_0_VN NULL
 #define OPTION_VAL_ENABLED_VN "Bật (JIT, Mặc định)"
 #define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_VN "Tắt (Trình thông dịch)"
 #define PCSX2_REC_EE_LABEL_VN "  - Trình biên dịch lại EE"
-#define PCSX2_REC_EE_INFO_0_VN "Chẩn đoán. Chỉ tắt trình biên dịch lại động của Emotion Engine (EE) trong khi vẫn giữ các trình biên dịch khác, để xác định \trình biên dịch lại nào gây ra lỗi treo. Yêu cầu khởi động lại."
+#define PCSX2_REC_EE_INFO_0_VN NULL
 #define OPTION_VAL_ENABLED_PCSX2_REC_EE_VN "Bật (Mặc định)"
 #define PCSX2_REC_IOP_LABEL_VN "  - Trình biên dịch lại IOP"
-#define PCSX2_REC_IOP_INFO_0_VN "Chẩn đoán. Chỉ tắt trình biên dịch lại động của IOP (R3000) trong khi vẫn giữ các trình biên dịch khác, để xác định \trình biên dịch lại nào gây ra lỗi treo. Yêu cầu khởi động lại."
+#define PCSX2_REC_IOP_INFO_0_VN NULL
 #define PCSX2_REC_VU0_LABEL_VN "  - Trình biên dịch lại VU0"
-#define PCSX2_REC_VU0_INFO_0_VN "Chẩn đoán. Chỉ tắt trình biên dịch lại động microVU của VU0 trong khi vẫn giữ các trình biên dịch khác, để xác định \trình biên dịch lại nào gây ra lỗi treo. Yêu cầu khởi động lại."
+#define PCSX2_REC_VU0_INFO_0_VN NULL
 #define PCSX2_REC_VU1_LABEL_VN "  - Trình biên dịch lại VU1"
-#define PCSX2_REC_VU1_INFO_0_VN "Chẩn đoán. Chỉ tắt trình biên dịch lại động microVU của VU1 trong khi vẫn giữ các trình biên dịch khác, để xác định \trình biên dịch lại nào gây ra lỗi treo. Yêu cầu khởi động lại."
+#define PCSX2_REC_VU1_INFO_0_VN NULL
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_VN "Khe cắm 1 được bật"
 #define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_VN "Bật thẻ nhớ PS2 ở Khe cắm 1. Thay đổi có hiệu lực ngay lập tức khi nội dung đang chạy."
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_VN "Khe cắm 2 được bật"
