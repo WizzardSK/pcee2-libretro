@@ -13,7 +13,7 @@ minimal set of hooks, so rebasing onto new upstream releases stays cheap.
 
 The core reports the upstream PCSX2 version it is built from, so the version
 RetroArch shows names the standalone PCSX2 the emulation code corresponds to —
-currently **v2.9.78**. See [Upstream sync and versioning](#upstream-sync-and-versioning).
+currently **v2.9.81-22-g81526d4dc7**. See [Upstream sync and versioning](#upstream-sync-and-versioning).
 
 This project is not affiliated with or endorsed by the PCSX2 team.
 
