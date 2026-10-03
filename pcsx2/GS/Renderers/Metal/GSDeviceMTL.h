@@ -249,7 +249,7 @@ public:
 	MRCOwned<id<MTLFence>> m_spin_fence;
 
 	// Functions and Pipeline States
-	MRCOwned<id<MTLComputePipelineState>> m_cas_pipeline[2];
+	MRCOwned<id<MTLRenderPipelineState>> m_cas_pipeline[2];
 
 	// MetalFX spatial upscaler. Creating the scaler is expensive, so it's cached and
 	// only rebuilt when the input/output size or format changes (the cache key below).
