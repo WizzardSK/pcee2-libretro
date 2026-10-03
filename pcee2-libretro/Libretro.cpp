@@ -2377,6 +2377,19 @@ static void RETRO_CALLCONV AudioBufferStatus(bool active, unsigned occupancy, bo
 	s_audio_occupancy.store(occupancy, std::memory_order_release);
 }
 
+// Whether, with the frontend pacing, its audio buffer is too full for this
+// retro_run() to emulate a frame (see retro_run).
+static bool FrontendAheadOfAudio()
+{
+	if (s_internal_limiter.load(std::memory_order_acquire) ||
+		!s_audio_status_known.load(std::memory_order_acquire) ||
+		s_audio_occupancy.load(std::memory_order_acquire) < 90)
+		return false;
+
+	bool fast_forward = false;
+	return !(s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_FASTFORWARDING, &fast_forward) && fast_forward);
+}
+
 static void OutputAudio(bool pad_when_empty = true)
 {
 	// Leave the frontend alone while its buffer is nearly full: what it does
@@ -2670,9 +2683,22 @@ void retro_run(void)
 	// What holds the speed to 100% is the frontend blocking on the audio it is
 	// handed, the same as it already is for this core - nothing here limits by
 	// wall clock, and SettingsOverride() turns the VM's own limiter off.
+	// That blocking is also why the frontend may not run a frame here at all.
+	// OutputAudio() never writes into a nearly full buffer, because on some
+	// drivers the write then blocks for good - but that also takes away the
+	// block that holds the speed. On a display faster than the game,
+	// RetroArch calls retro_run() once per refresh, and every call ran a
+	// frame: three times too fast at 180Hz, and a 30fps game kept rushing
+	// ahead between its own frames (issue #44). So while the frontend's audio
+	// buffer is that full, this call only repeats the last image and the
+	// audio catches up; the speed is then held by the audio playing, as the
+	// block would have held it. Not while fast-forwarding, where a full
+	// buffer is the point.
+	const bool audio_ahead = FrontendAheadOfAudio();
+
 	std::unique_lock lock(s_frame_mutex);
 	bool got_frame = false;
-	for (u32 run = 0;; run++)
+	for (u32 run = 0; !audio_ahead; run++)
 	{
 		s_run_token = true;
 		s_frame_cv.notify_all();
