@@ -6,8 +6,14 @@
 #include "common/Console.h"
 #include "common/Path.h"
 
+#ifdef PCSX2_LIBRETRO
+#include <dlfcn.h>
+#include <mach-o/getsect.h>
+#endif
+
 #ifdef __APPLE__
 
+#ifndef PCSX2_LIBRETRO
 static id<MTLLibrary> loadMainLibrary(id<MTLDevice> dev, NSString* name)
 {
 	NSString* path = [[NSBundle mainBundle] pathForResource:name ofType:@"metallib"];
@@ -19,7 +25,40 @@ static id<MTLLibrary> loadMainLibrary(id<MTLDevice> dev, NSString* name)
 	}
 	return path ? [dev newLibraryWithFile:path error:nullptr] : nullptr;
 }
+#endif
 
+#ifdef PCSX2_LIBRETRO
+// A core's main bundle is the frontend's, so its default.metallib is the
+// frontend's shaders, not ours: loading it fails on the first function we
+// ask for. The core's own library is linked into the core instead (see
+// pcee2-libretro/CMakeLists.txt) and read out of this image's section.
+static const char s_core_image_anchor = 0;
+
+static MRCOwned<id<MTLLibrary>> loadMainLibrary(id<MTLDevice> dev)
+{
+	Dl_info info;
+	if (!dladdr(&s_core_image_anchor, &info) || !info.dli_fbase)
+		return MRCOwned<id<MTLLibrary>>();
+	unsigned long size = 0;
+	const uint8_t* data = getsectiondata(static_cast<const struct mach_header_64*>(info.dli_fbase),
+		"__DATA", "__pcsx2_mtllib", &size);
+	if (!data || !size)
+	{
+		Console.Error("Metal: the core carries no shader library.");
+		return MRCOwned<id<MTLLibrary>>();
+	}
+	dispatch_data_t dd = dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+	NSError* err = nil;
+	id<MTLLibrary> lib = [dev newLibraryWithData:dd error:&err];
+#if !__has_feature(objc_arc)
+	dispatch_release(dd);
+#endif
+	if (!lib)
+		Console.Error("Metal: loading the core's shader library failed: %s",
+			err ? [[err localizedDescription] UTF8String] : "unknown error");
+	return MRCTransfer(lib);
+}
+#else
 static MRCOwned<id<MTLLibrary>> loadMainLibrary(id<MTLDevice> dev)
 {
 	if (@available(macOS 11.0, iOS 14.0, *))
@@ -35,6 +74,7 @@ static MRCOwned<id<MTLLibrary>> loadMainLibrary(id<MTLDevice> dev)
 		return MRCTransfer(lib);
 	return MRCTransfer([dev newDefaultLibrary]);
 }
+#endif
 
 static GSMTLDevice::MetalVersion detectLibraryVersion(id<MTLLibrary> lib)
 {
