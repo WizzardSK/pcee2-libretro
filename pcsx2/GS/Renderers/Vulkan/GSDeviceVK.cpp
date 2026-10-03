@@ -1847,7 +1847,7 @@ VkRenderPass GSDeviceVK::CreateCachedRenderPass(RenderPassCacheKey key)
 	}
 
 	const VkSubpassDescriptionFlags subpass_flags =
-		(key.color_feedback_loop && m_optional_extensions.vk_ext_rasterization_order_attachment_access) ?
+		(key.color_feedback_loop && m_features.framebuffer_fetch) ?
 			VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT :
 			0;
 	const VkSubpassDescription subpass = {subpass_flags, VK_PIPELINE_BIND_POINT_GRAPHICS, num_subpass_inputs,
@@ -4454,14 +4454,17 @@ bool GSDeviceVK::CreateRenderPasses()
 
 bool GSDeviceVK::CompileConvertPipelines()
 {
-	const std::optional<std::string> source = ReadShaderSource("shaders/vulkan/convert.glsl");
-	if (!source)
 	{
-		Host::ReportErrorAsync("GS", "Failed to read shaders/vulkan/convert.glsl.");
-		return false;
+		const std::optional<std::string> source = ReadShaderSource("shaders/vulkan/convert.glsl");
+		if (!source)
+		{
+			Host::ReportErrorAsync("GS", "Failed to read shaders/vulkan/convert.glsl.");
+			return false;
+		}
+		m_convert_source = std::move(*source);
 	}
 
-	VkShaderModule vs = GetUtilityVertexShader(*source);
+	VkShaderModule vs = GetUtilityVertexShader(m_convert_source);
 	if (vs == VK_NULL_HANDLE)
 		return false;
 	ScopedGuard vs_guard([this, &vs]() { vkDestroyShaderModule(m_device, vs, nullptr); });
@@ -4532,7 +4535,7 @@ bool GSDeviceVK::CompileConvertPipelines()
 		macro += fmt::format("#define HAS_FLOAT32_INPUT {}\n", static_cast<int>(shader.Float32Input()));
 		macro += fmt::format("#define HAS_FLOAT32_OUTPUT {}\n", static_cast<int>(shader.Float32Output()));
 
-		std::string shader_with_header = macro + *source;
+		std::string shader_with_header = macro + m_convert_source;
 
 		VkShaderModule ps = GetUtilityFragmentShader(shader_with_header, shader.EntryPoint());
 		if (ps == VK_NULL_HANDLE)
@@ -4606,7 +4609,7 @@ bool GSDeviceVK::CompileConvertPipelines()
 		macro += fmt::format("#define PRIMID_MAX {}\n", GSShader::PRIMID_MAX);
 		macro += fmt::format("#define PRIMID_MIN {}\n", GSShader::PRIMID_MIN);
 
-		const std::string source_with_header = macro + *source;
+		const std::string source_with_header = macro + m_convert_source;
 
 		const std::string entry_point(StringUtil::StdStringFromFormat("ps_primid_image_init_%d", datm));
 		VkShaderModule ps = GetUtilityFragmentShader(source_with_header, entry_point.c_str());
@@ -4884,41 +4887,47 @@ bool GSDeviceVK::CompilePostProcessingPipelines()
 
 bool GSDeviceVK::CompileCASPipelines()
 {
+	VkShaderModule vs = GetUtilityVertexShader(m_convert_source);
+	if (vs == VK_NULL_HANDLE)
+		return false;
+	ScopedGuard vs_guard([this, &vs]() { vkDestroyShaderModule(m_device, vs, nullptr); });
+
 	VkDevice dev = m_device;
-	Vulkan::DescriptorSetLayoutBuilder dslb;
-	Vulkan::PipelineLayoutBuilder plb;
 
-	if (m_use_push_descriptors)
-		dslb.SetPushFlag();
-	dslb.AddBinding(0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_COMPUTE_BIT);
-	dslb.AddBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1, VK_SHADER_STAGE_COMPUTE_BIT);
-	if ((m_cas_ds_layout = dslb.Create(dev)) == VK_NULL_HANDLE)
-		return false;
-	Vulkan::SetObjectName(dev, m_cas_ds_layout, "CAS descriptor layout");
+	Vulkan::GraphicsPipelineBuilder gpb;
+	SetPipelineProvokingVertex(m_features, gpb);
+	AddUtilityVertexAttributes(gpb);
+	gpb.SetPipelineLayout(m_utility_pipeline_layout);
+	gpb.SetDynamicViewportAndScissorState();
+	gpb.AddDynamicState(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
+	gpb.AddDynamicState(VK_DYNAMIC_STATE_LINE_WIDTH);
+	gpb.SetNoCullRasterizationState();
+	gpb.SetNoBlendingState();
+	gpb.SetVertexShader(vs);
 
-	plb.AddPushConstants(VK_SHADER_STAGE_COMPUTE_BIT, 0, NUM_CAS_CONSTANTS * sizeof(u32));
-	plb.AddDescriptorSet(m_cas_ds_layout);
-	if ((m_cas_pipeline_layout = plb.Create(dev)) == VK_NULL_HANDLE)
-		return false;
-	Vulkan::SetObjectName(dev, m_cas_pipeline_layout, "CAS pipeline layout");
+	gpb.SetRenderPass(
+		GetRenderPass(VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_UNDEFINED, VK_ATTACHMENT_LOAD_OP_DONT_CARE), 0);
 
-	// we use specialization constants to avoid compiling it twice
 	std::optional<std::string> cas_source = ReadShaderSource("shaders/vulkan/cas.glsl");
 	if (!cas_source.has_value() || !GetCASShaderSource(&cas_source.value()))
 		return false;
 
-	VkShaderModule mod = g_vulkan_shader_cache->GetComputeShader(cas_source->c_str());
-	ScopedGuard mod_guard = [this, &mod]() { vkDestroyShaderModule(m_device, mod, nullptr); };
-	if (mod == VK_NULL_HANDLE)
-		return false;
-
 	for (u8 sharpen_only = 0; sharpen_only < 2; sharpen_only++)
 	{
-		Vulkan::ComputePipelineBuilder cpb;
-		cpb.SetPipelineLayout(m_cas_pipeline_layout);
-		cpb.SetShader(mod, "main");
-		cpb.SetSpecializationBool(0, sharpen_only != 0);
-		m_cas_pipelines[sharpen_only] = cpb.Create(dev, g_vulkan_shader_cache->GetPipelineCache(true), false);
+		std::stringstream source_with_header;
+		AddMacro(source_with_header, "CAS_SHARPEN_ONLY", sharpen_only);
+		
+		source_with_header << *cas_source;
+
+		VkShaderModule mod = GetUtilityFragmentShader(source_with_header.str());
+
+		ScopedGuard mod_guard = [this, &mod]() { vkDestroyShaderModule(m_device, mod, nullptr); };
+		if (mod == VK_NULL_HANDLE)
+			return false;
+
+		gpb.SetFragmentShader(mod);
+
+		m_cas_pipelines[sharpen_only] = gpb.Create(dev, g_vulkan_shader_cache->GetPipelineCache(true), false);
 		if (!m_cas_pipelines[sharpen_only])
 			return false;
 	}
@@ -5082,7 +5091,7 @@ void GSDeviceVK::RenderBlankFrame()
 bool GSDeviceVK::DoCAS(
 	GSTexture* sTex, GSTexture* dTex, bool sharpen_only, const std::array<u32, NUM_CAS_CONSTANTS>& constants)
 {
-	g_perfmon.Put(GSPerfMon::TextureCopies, 1);
+	GL_PUSH("DoCAS");
 
 	EndRenderPass();
 
@@ -5091,40 +5100,17 @@ bool GSDeviceVK::DoCAS(
 	VkCommandBuffer cmdbuf = GetCurrentCommandBuffer();
 
 	sTexVK->TransitionToLayout(cmdbuf, GSTextureVK::Layout::ShaderReadOnly);
-	dTexVK->TransitionToLayout(cmdbuf, GSTextureVK::Layout::ComputeReadWriteImage);
+	dTexVK->TransitionToLayout(cmdbuf, GSTextureVK::Layout::ColorAttachment);
 
-	// only happening once a frame, so the update isn't a huge deal.
-	Vulkan::DescriptorSetUpdateBuilder dsub;
-	if (m_use_push_descriptors)
-	{
-		dsub.AddImageDescriptorWrite(VK_NULL_HANDLE, 0, sTexVK->GetView(), sTexVK->GetVkLayout());
-		dsub.AddStorageImageDescriptorWrite(VK_NULL_HANDLE, 1, dTexVK->GetView(), dTexVK->GetVkLayout());
-		dsub.PushUpdate(cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_cas_pipeline_layout, 0, false);
-	}
-	else
-	{
-		const VkDescriptorSet ds = AllocateDescriptorSetFromFramePool(m_cas_ds_layout);
-		if (ds == VK_NULL_HANDLE) [[unlikely]]
-			return false; // one set per frame, after EndRenderPass - just skip the sharpening pass
-		dsub.AddImageDescriptorWrite(ds, 0, sTexVK->GetView(), sTexVK->GetVkLayout());
-		dsub.AddStorageImageDescriptorWrite(ds, 1, dTexVK->GetView(), dTexVK->GetVkLayout());
-		dsub.Update(m_device);
-		vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_cas_pipeline_layout, 0, 1, &ds, 0, nullptr);
-	}
+	SetUtilityPushConstants(constants.data(), NUM_CAS_CONSTANTS * sizeof(u32));
+	const GSVector4 dRect(dTex->GetRect());
+	const GSVector4 sRect(0.0f, 0.0f, 1.0f, 1.0f);
+	const VkPipeline pipeline = m_cas_pipelines[static_cast<u8>(sharpen_only)];
+	DoStretchRect(static_cast<GSTextureVK*>(sTex), sRect, static_cast<GSTextureVK*>(dTex), dRect, pipeline, Nearest, true);
 
-	// the actual meat and potatoes! only four commands.
-	static const int threadGroupWorkRegionDim = 16;
-	const int dispatchX = (dTex->GetWidth() + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
-	const int dispatchY = (dTex->GetHeight() + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
+	EndRenderPass();
+	static_cast<GSTextureVK*>(dTex)->TransitionToLayout(GSTextureVK::Layout::ShaderReadOnly);
 
-	vkCmdPushConstants(cmdbuf, m_cas_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, NUM_CAS_CONSTANTS * sizeof(u32),
-		constants.data());
-	vkCmdBindPipeline(cmdbuf, VK_PIPELINE_BIND_POINT_COMPUTE, m_cas_pipelines[static_cast<u8>(sharpen_only)]);
-	vkCmdDispatch(cmdbuf, dispatchX, dispatchY, 1);
-
-	dTexVK->TransitionToLayout(GSTextureVK::Layout::ShaderReadOnly);
-
-	// all done!
 	return true;
 }
 
@@ -5187,10 +5173,7 @@ void GSDeviceVK::DestroyResources()
 		if (it != VK_NULL_HANDLE)
 			vkDestroyPipeline(m_device, it, nullptr);
 	}
-	if (m_cas_pipeline_layout != VK_NULL_HANDLE)
-		vkDestroyPipelineLayout(m_device, m_cas_pipeline_layout, nullptr);
-	if (m_cas_ds_layout != VK_NULL_HANDLE)
-		vkDestroyDescriptorSetLayout(m_device, m_cas_ds_layout, nullptr);
+
 	if (m_imgui_pipeline != VK_NULL_HANDLE)
 		vkDestroyPipeline(m_device, m_imgui_pipeline, nullptr);
 
@@ -6897,7 +6880,6 @@ void GSDeviceVK::UpdateHWPipelineSelector(GSHWDrawConfig& config, PipelineSelect
 	pipe.topology = static_cast<u32>(config.topology);
 	pipe.rt = config.rt != nullptr && !config.ps.HasColorROV();
 	pipe.ds = config.ds != nullptr && !config.ps.HasDepthROV();
-	pipe.line_width = config.line_expand;
 	pipe.feedback_loop_flags = FeedbackLoopFlag_None;
 	if (m_features.texture_barrier && (config.require_one_barrier || config.require_full_barrier))
 	{
