@@ -1216,6 +1216,8 @@ static const VkApplicationInfo* GetVulkanApplicationInfo(void)
 	return &app_info;
 }
 
+static bool OpenGSOnNegotiatedDevice(retro_vulkan_context* context);
+
 static bool CreateVulkanDevice(retro_vulkan_context* context, VkInstance instance, VkPhysicalDevice gpu,
 	VkSurfaceKHR surface, PFN_vkGetInstanceProcAddr get_instance_proc_addr, const char** required_device_extensions,
 	unsigned num_required_device_extensions, const char** required_device_layers,
@@ -1229,7 +1231,36 @@ static bool CreateVulkanDevice(retro_vulkan_context* context, VkInstance instanc
 	VKLibretro::Init.required_device_layers = required_device_layers;
 	VKLibretro::Init.num_required_device_layers = num_required_device_layers;
 	VKLibretro::Init.required_features = required_features;
+	VKLibretro::Init.create_device_wrapper = nullptr;
+	VKLibretro::Init.create_device_opaque = nullptr;
+	return OpenGSOnNegotiatedDevice(context);
+}
 
+// v2: the frontend creates the device itself, through the wrapper, from the
+// create info GSDeviceVK builds. Preferred by a frontend that has it (Craig).
+static bool CreateVulkanDevice2(retro_vulkan_context* context, VkInstance instance, VkPhysicalDevice gpu,
+	VkSurfaceKHR surface, PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+	retro_vulkan_create_device_wrapper_t create_device_wrapper, void* opaque)
+{
+	VKLibretro::Init.instance = instance;
+	VKLibretro::Init.gpu = gpu;
+	VKLibretro::Init.get_instance_proc_addr = get_instance_proc_addr;
+	VKLibretro::Init.required_device_extensions = nullptr;
+	VKLibretro::Init.num_required_device_extensions = 0;
+	VKLibretro::Init.required_device_layers = nullptr;
+	VKLibretro::Init.num_required_device_layers = 0;
+	VKLibretro::Init.required_features = nullptr;
+	VKLibretro::Init.create_device_wrapper = create_device_wrapper;
+	VKLibretro::Init.create_device_opaque = opaque;
+	const bool ok = OpenGSOnNegotiatedDevice(context);
+	// The wrapper is only valid inside this call.
+	VKLibretro::Init.create_device_wrapper = nullptr;
+	VKLibretro::Init.create_device_opaque = nullptr;
+	return ok;
+}
+
+static bool OpenGSOnNegotiatedDevice(retro_vulkan_context* context)
+{
 	// Bring up the GS thread now: GSDeviceVK adopts Init.instance/gpu and the
 	// wrapped vkCreateDevice fills Init.device with the shared device.
 	if (!MTGS::IsOpen() && !MTGS::WaitForOpen())
@@ -1989,13 +2020,25 @@ bool retro_load_game(const struct retro_game_info* game)
 		}
 		else
 		{
-			static const struct retro_hw_render_context_negotiation_interface_vulkan neg_iface = {
-				RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN,
-				RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN_VERSION,
-				GetVulkanApplicationInfo,
-				CreateVulkanDevice,
-				nullptr, // destroy_device
-			};
+			// v2 where the frontend has it: create_device2, with the frontend's
+			// device wrapper. A frontend that only knows v1 is told version 1,
+			// and calls create_device. create_instance stays null either way,
+			// so the frontend makes the instance, as it always did here.
+			struct retro_hw_render_context_negotiation_interface support = {
+				RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN, 0};
+			unsigned version = 1;
+			if (s_environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_SUPPORT, &support) &&
+				support.interface_version >= 2)
+				version = 2;
+			static struct retro_hw_render_context_negotiation_interface_vulkan neg_iface = {};
+			neg_iface.interface_type = RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN;
+			neg_iface.interface_version = version;
+			neg_iface.get_application_info = GetVulkanApplicationInfo;
+			neg_iface.create_device = CreateVulkanDevice;
+			neg_iface.destroy_device = nullptr;
+			neg_iface.create_instance = nullptr;
+			neg_iface.create_device2 = version >= 2 ? CreateVulkanDevice2 : nullptr;
+			Console.WriteLn("Vulkan context negotiation interface v%u", version);
 			s_environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE, (void*)&neg_iface);
 
 			Error vk_error;

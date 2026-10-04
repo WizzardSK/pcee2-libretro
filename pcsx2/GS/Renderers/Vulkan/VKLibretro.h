@@ -39,6 +39,13 @@ namespace VKLibretro
 		const char** required_device_layers = nullptr;
 		unsigned num_required_device_layers = 0;
 		const VkPhysicalDeviceFeatures* required_features = nullptr;
+		// Negotiation v2 (create_device2): the frontend's own vkCreateDevice,
+		// which adds what the frontend needs to the core's create info -
+		// extensions, layers, and features in any VkPhysicalDeviceFeatures2
+		// chain, not only the v1 plain struct. Used instead of the merge
+		// above while set; only for the device the negotiation creates.
+		VkDevice (*create_device_wrapper)(VkPhysicalDevice, void*, const VkDeviceCreateInfo*) = nullptr;
+		void* create_device_opaque = nullptr;
 	};
 	extern InitInfo Init;
 

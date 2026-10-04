@@ -51,6 +51,17 @@ namespace VKLibretro
 	static VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice_libretro(VkPhysicalDevice physicalDevice,
 		const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
 	{
+		if (Init.create_device_wrapper)
+		{
+			// The wrapper owns the call; it takes no allocator.
+			const VkDevice device = Init.create_device_wrapper(physicalDevice, Init.create_device_opaque, pCreateInfo);
+			if (device == VK_NULL_HANDLE)
+				return VK_ERROR_INITIALIZATION_FAILED;
+			*pDevice = device;
+			Init.device = device;
+			return VK_SUCCESS;
+		}
+
 		VkDeviceCreateInfo info = *pCreateInfo;
 		std::vector<const char*> layers(info.ppEnabledLayerNames, info.ppEnabledLayerNames + info.enabledLayerCount);
 		std::vector<const char*> exts(
