@@ -463,6 +463,18 @@ static void ShutdownCoreAtExit()
 			s_exit_requested = true;
 		}
 		s_session_cv.notify_all();
+
+		// An active session may be parked waiting for the frontend's next
+		// run token. At process exit, no further retro_run() call will arrive.
+		// Break the pacing handshake before joining, as retro_deinit() does.
+		s_running.store(false, std::memory_order_release);
+		if (VMManager::HasValidVM())
+			VMManager::SetState(VMState::Stopping);
+		{
+			std::unique_lock lock(s_frame_mutex);
+			s_run_token = true;
+		}
+		s_frame_cv.notify_all();
 		s_cpu_thread.join();
 	}
 
