@@ -56,7 +56,7 @@ These apply to any AI agent working in this repository (Claude Code reads them t
 
 ## Testing
 
-- Ask testers for RetroArch's log, and check which build a log came from before drawing conclusions from it.
+- The core logs, at start, the upstream version and the commit of this repository it was built from. Ask testers for RetroArch's log, and check which commit a log came from before drawing conclusions from it.
 - Compare with standalone PCSX2 at the same upstream version before calling something a core bug; when standalone fails the same way, it is upstream's.
 - When a recompiler disagrees with the interpreter, the interpreter is the ground truth (`arm64-port/DEBUGGING.md`).
 
