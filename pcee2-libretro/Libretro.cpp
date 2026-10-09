@@ -1523,6 +1523,10 @@ void retro_init(void)
 
 	Log::SetHostOutputLevel(LOGLEVEL_INFO, &HostLogCallback);
 
+	// The upstream PCSX2 version and the commit of this repository the core was
+	// built from, so a tester's log says which build it came from
+	Console.WriteLnFmt("pcee2 libretro core {}, built from commit {:.9}", GIT_REV, GIT_HASH);
+
 	LogVFSStatus();
 }
 
