@@ -33,7 +33,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | Fast-forward | ✅ working |
 | OpenGL renderer | ✅ working (surfaceless EGL) |
 | D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested |
-| Metal renderer | ⚠️ in the macOS build, untested (Vulkan via MoltenVK is the default) |
+| Metal renderer | ➖ not offered: libretro has no Metal hardware context. On macOS the Vulkan renderer runs on Metal through MoltenVK, sharing the frontend's device |
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
 | Multitap (up to 8 controllers) | ✅ core option |
 | Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse |
@@ -47,7 +47,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 
 On the Vulkan renderer the core shares the frontend's `VkDevice` through
 libretro context negotiation and hands over the rendered image directly, with
-no GPU readback in the way. Everything else (OpenGL, software, D3D, Metal, or a
+no GPU readback in the way. Everything else (OpenGL, software, D3D, or a
 frontend that refuses HW render) falls back to the per-frame readback path,
 which is double-buffered on the GS thread and costs one frame of latency;
 `PCEE2_READBACK=1` forces it on Vulkan too, for A/B testing.
