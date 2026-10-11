@@ -40,10 +40,23 @@ These apply to any AI agent working in this repository (Claude Code reads them t
   `BAKE_SHADERS_IN_CPP`). Git follows the move, so an upstream change to the
   script still lands on it; a change to the path in `ShaderToCpp.cmake` keeps
   the `cmake/` one.
+- `CHANGELOG.md` is this fork's own. When a merge conflicts on it, keep this
+  one.
 
 ## These files
 
 - Only the developer writes to or deletes `AGENTS.md` and `CLAUDE.md`. An agent does not change them on its own; it proposes the change to the developer instead.
+
+## Changelog and README
+
+- `CHANGELOG.md` is updated in the same commit as the change it describes: what
+  changed for someone using the core, newest first. Not a copy of the commit
+  message.
+- A change on a feature branch gets its entry on that branch, under
+  "Unreleased"; it reaches `libretro` with the merge.
+- `README.md` is kept true in the same way: when a change makes a sentence in it
+  wrong (a limit lifted, an option added, a file moved), fix the sentence in that
+  commit.
 
 ## Code
 
