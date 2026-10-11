@@ -6,13 +6,13 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 - Merged up to upstream PCSX2 v2.9.81-22. The core reports upstream's version, and logs it at start with the commit it was built from.
 - Vulkan: context negotiation v2, with RetroArch's device wrapper.
-- The frame is held while RetroArch's audio buffer is full, so sound no longer breaks up when the frontend falls behind.
+- The frame is held while RetroArch's audio buffer is full.
 - The translated core option texts compile again.
 
 ## September 2026
 
 - Merged upstream PCSX2 v2.9.78.
-- PCSX2's game patches are compiled into the core; no `patches.zip` is needed.
+- PCSX2's game patches are compiled into the core.
 - The repository holds the core only: the Qt application, the updater, gsrunner, the unit tests, the developer scripts and the standalone's documents are removed.
 - The core option texts are translated through libretro's Crowdin project.
 - The GS is never built on a graphics API RetroArch did not give the core, the software renderer included.
