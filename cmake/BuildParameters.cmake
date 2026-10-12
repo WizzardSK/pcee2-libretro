@@ -63,6 +63,15 @@ elseif(UNIX AND NOT APPLE)
 	option(ENABLE_SETCAP "Enable networking capability for DEV9" OFF)
 	option(X11_API "Enable X11 support" ON)
 	option(WAYLAND_API "Enable Wayland support" ON)
+	# PCEE2_BUILD_LIBRETRO defaults to ON, and is declared after this file
+	if(NOT DEFINED PCEE2_BUILD_LIBRETRO OR PCEE2_BUILD_LIBRETRO)
+		# The frontend owns the window: the core creates no surface or context
+		# on a window system of its own, and must load where neither X11 nor
+		# Wayland is installed. (The GLX context it shares with a frontend on
+		# X11 goes through libGL opened at run time.)
+		set(X11_API OFF)
+		set(WAYLAND_API OFF)
+	endif()
 	option(USE_BACKTRACE "Enable libbacktrace support" ON)
 endif()
 
