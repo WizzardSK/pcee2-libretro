@@ -2509,17 +2509,78 @@ static void RETRO_CALLCONV AudioBufferStatus(bool active, unsigned occupancy, bo
 	s_audio_occupancy.store(occupancy, std::memory_order_release);
 }
 
-// Whether, with the frontend pacing, its audio buffer is too full for this
-// retro_run() to emulate a frame (see retro_run).
+// When the next emulated frame is due by the wall clock, and what the pacing
+// did since its last line in the log.
+static std::chrono::steady_clock::time_point s_pace_due;
+static struct
+{
+	u32 calls, frames, held, not_held, audio_refused;
+	unsigned occupancy_min = 100, occupancy_max;
+} s_pace_stats;
+
+static std::chrono::steady_clock::duration PaceFramePeriod()
+{
+	const u32 fps_bits = s_vm_fps_bits.load(std::memory_order_acquire);
+	const double fps = fps_bits ? std::bit_cast<float>(fps_bits) : 59.94f;
+	return std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(1.0 / fps));
+}
+
+// One emulated frame further.
+static void PaceFrameRun()
+{
+	s_pace_due += PaceFramePeriod();
+	s_pace_stats.frames++;
+}
+
+// Whether, with the frontend pacing, this retro_run() should repeat the last
+// image instead of emulating a frame (see retro_run): the frontend's audio
+// buffer is nearly full, and by the wall clock the VM is ahead as well.
+//
+// The buffer alone is not enough. Its fill arrives as a percentage, and how
+// much audio 90% is depends on the driver's buffer: where that is small
+// against a frame's worth, 90% is reached with the VM merely on time, and
+// frames held on that made every game slow, with the sound breaking up
+// (cubatilles, #48).
 static bool FrontendAheadOfAudio()
 {
-	if (s_internal_limiter.load(std::memory_order_acquire) ||
-		!s_audio_status_known.load(std::memory_order_acquire) ||
-		s_audio_occupancy.load(std::memory_order_acquire) < 90)
-		return false;
+	const auto now = std::chrono::steady_clock::now();
+	const auto period = PaceFramePeriod();
+	// Out of step after a pause, a stall or fast-forwarding: start over
+	if (s_pace_due < now - std::chrono::milliseconds(100) || s_pace_due > now + std::chrono::milliseconds(250))
+		s_pace_due = now;
 
-	bool fast_forward = false;
-	return !(s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_FASTFORWARDING, &fast_forward) && fast_forward);
+	const unsigned occupancy = s_audio_occupancy.load(std::memory_order_acquire);
+	const bool known = s_audio_status_known.load(std::memory_order_acquire);
+	bool held = false;
+	if (!s_internal_limiter.load(std::memory_order_acquire) && known && occupancy >= 90)
+	{
+		bool fast_forward = false;
+		if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_FASTFORWARDING, &fast_forward) && fast_forward)
+			s_pace_due = now;
+		else if (s_pace_due > now + period)
+			held = true;
+		else
+			s_pace_stats.not_held++;
+	}
+
+	s_pace_stats.calls++;
+	s_pace_stats.held += held;
+	if (known)
+	{
+		s_pace_stats.occupancy_min = std::min(s_pace_stats.occupancy_min, occupancy);
+		s_pace_stats.occupancy_max = std::max(s_pace_stats.occupancy_max, occupancy);
+	}
+	if (s_pace_stats.calls >= 600)
+	{
+		// A line only when the pacing had something to do in that time
+		if (s_pace_stats.held || s_pace_stats.not_held || s_pace_stats.audio_refused)
+			Console.WriteLnFmt("Pacing, last {} calls: {} frames emulated, {} held, {} not held with a full buffer, audio kept back {} times, "
+							   "audio buffer {}% to {}%{}",
+				s_pace_stats.calls, s_pace_stats.frames, s_pace_stats.held, s_pace_stats.not_held, s_pace_stats.audio_refused,
+				s_pace_stats.occupancy_min, s_pace_stats.occupancy_max, known ? "" : " (not reported)");
+		s_pace_stats = {};
+	}
+	return held;
 }
 
 static void OutputAudio(bool pad_when_empty = true)
@@ -2528,7 +2589,10 @@ static void OutputAudio(bool pad_when_empty = true)
 	// with an over-full one is block, and on some drivers block for good.
 	if (s_audio_status_known.load(std::memory_order_acquire) &&
 		s_audio_occupancy.load(std::memory_order_acquire) >= 90)
+	{
+		s_pace_stats.audio_refused++;
 		return;
+	}
 
 	if (!s_audio_batch_cb)
 		return;
@@ -2822,16 +2886,17 @@ void retro_run(void)
 	// RetroArch calls retro_run() once per refresh, and every call ran a
 	// frame: three times too fast at 180Hz, and a 30fps game kept rushing
 	// ahead between its own frames (issue #44). So while the frontend's audio
-	// buffer is that full, this call only repeats the last image and the
-	// audio catches up; the speed is then held by the audio playing, as the
-	// block would have held it. Not while fast-forwarding, where a full
-	// buffer is the point.
+	// buffer is that full and the VM is ahead of the wall clock as well, this
+	// call only repeats the last image and the audio catches up; the speed is
+	// then held by the audio playing, as the block would have held it. Not
+	// while fast-forwarding, where a full buffer is the point.
 	const bool audio_ahead = FrontendAheadOfAudio();
 
 	std::unique_lock lock(s_frame_mutex);
 	bool got_frame = false;
 	for (u32 run = 0; !audio_ahead; run++)
 	{
+		PaceFrameRun();
 		s_run_token = true;
 		s_frame_cv.notify_all();
 

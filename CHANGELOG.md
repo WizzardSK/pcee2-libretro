@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## October 2026
 
+- Frame Limiter on Frontend (RetroArch): a frame is held back only when the frontend's audio buffer is nearly full and the game is also ahead of the clock. The full buffer alone held frames on setups where it is small, which made games run slow with broken sound. The log has a line on the pacing for each 600 frames in which it had something to do. With low audio latencies the sound can still break up, from the frontend's buffer running empty: a higher Audio Latency in RetroArch and Audio Buffer in the core settle it (cubatilles, #48).
 - New option System > Lightgun Crosshair: a crosshair drawn where the GunCon 2 is aiming, in a colour of your choice, with the software renderer too. Off by default (cubatilles, #47).
 - GunCon 2: the calibration shot, which the calibration screen of the Time Crisis games waits for, is on Gun Trigger and Gun Reload held together, and on R3 of the gun's port. It was not on any input, so those screens could not be passed (cubatilles, #47).
 - Windows: the core loads again where dxcompiler.dll is not installed. Since the merge of upstream v2.9.78 it needed that DLL just to load ("Failed to open libretro core", error 126), though only the Direct3D 12 renderer uses it; it is now looked for only when that renderer compiles a shader (cubatilles, #47).
