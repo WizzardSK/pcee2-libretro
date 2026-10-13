@@ -124,6 +124,10 @@ namespace ImGuiManager
 	/// Sets the position of a software cursor, used when we have relative coordinates such as controllers.
 	void SetSoftwareCursorPosition(u32 index, float pos_x, float pos_y);
 
+	/// Draws the software cursors into a frame of XRGB8888 pixels, for a frame that is read back to the CPU
+	/// and shown without an ImGui pass. Call on the GS thread.
+	void BlendSoftwareCursors(u32* pixels, u32 width, u32 height);
+
 	/// Strips icon characters from a string.
 	std::string StripIconCharacters(std::string_view str);
 } // namespace ImGuiManager

@@ -4,6 +4,8 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## October 2026
 
+- New option System > Lightgun Crosshair: a crosshair drawn where the GunCon 2 is aiming, in a colour of your choice, with the software renderer too. Off by default (cubatilles, #47).
+- GunCon 2: the calibration shot, which the calibration screen of the Time Crisis games waits for, is on Gun Trigger and Gun Reload held together, and on R3 of the gun's port. It was not on any input, so those screens could not be passed (cubatilles, #47).
 - Windows: the core loads again where dxcompiler.dll is not installed. Since the merge of upstream v2.9.78 it needed that DLL just to load ("Failed to open libretro core", error 126), though only the Direct3D 12 renderer uses it; it is now looked for only when that renderer compiles a shader (cubatilles, #47).
 - Linux: the core is built without the X11 and Wayland backends, which were for the standalone's own window, and no longer links libX11, libXrandr and libXi; it loads where X11 is not installed.
 - Merged up to upstream PCSX2 v2.9.81-22. The core reports upstream's version, and logs it at start with the commit it was built from.

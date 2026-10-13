@@ -35,6 +35,7 @@
 #include "common/Error.h"
 #include "common/HostSys.h"
 #include "common/FileSystem.h"
+#include "common/Image.h"
 #include "common/MemorySettingsInterface.h"
 #include "common/Path.h"
 #include "common/ProgressCallback.h"
@@ -359,6 +360,8 @@ namespace LibretroHost
 				dst[x] = (px & 0xFF00FF00u) | ((px & 0xFFu) << 16) | ((px >> 16) & 0xFFu);
 			}
 		}
+		// The lightgun crosshair: this frame had no ImGui pass to draw it
+		ImGuiManager::BlendSoftwareCursors(s_frame_pixels.data(), width, height);
 		s_frame_width = width;
 		s_frame_height = height;
 		s_frame_serial++;
@@ -786,6 +789,48 @@ void LibretroHost::RegisterCoreOptions()
 	libretro_set_core_options(s_environ_cb, &categories_supported);
 }
 
+// A crosshair drawn into <system>/pcsx2/crosshair.png: a white cross with a
+// gap in the middle and a dark edge, so it shows on any background and takes
+// the colour the option names. Empty when the file cannot be written.
+static std::string LibretroCrosshairImage()
+{
+	static constexpr u32 SIZE = 33;
+	static constexpr u32 WHITE = 0xFFFFFFFFu;
+	static constexpr u32 EDGE = 0xFF000000u;
+
+	const std::string path = Path::Combine(LibretroHost::s_system_dir, "crosshair.png");
+	if (FileSystem::FileExists(path.c_str()))
+		return path;
+
+	std::vector<u32> pixels(SIZE * SIZE, 0);
+	const auto arm = [](u32 along, u32 across) {
+		// On an arm: within one pixel of the centre line, away from the middle
+		const u32 centre = SIZE / 2;
+		const u32 off = (across > centre) ? (across - centre) : (centre - across);
+		const u32 from_middle = (along > centre) ? (along - centre) : (centre - along);
+		if (from_middle < 4 || off > 2)
+			return 0u;
+		return (off <= 1 && from_middle >= 5 && along != 0 && along != SIZE - 1) ? WHITE : EDGE;
+	};
+	for (u32 y = 0; y < SIZE; y++)
+	{
+		for (u32 x = 0; x < SIZE; x++)
+		{
+			const u32 horizontal = arm(x, y);
+			const u32 vertical = arm(y, x);
+			pixels[y * SIZE + x] = (horizontal == WHITE || vertical == WHITE) ? WHITE : (horizontal | vertical);
+		}
+	}
+
+	const RGBA8Image image(SIZE, SIZE, std::move(pixels));
+	if (!image.SaveToFile(path.c_str()))
+	{
+		Console.Error("Could not write the lightgun crosshair to %s", path.c_str());
+		return {};
+	}
+	return path;
+}
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -1022,6 +1067,25 @@ void LibretroHost::ReadCoreOptions(bool startup)
 				s_settings_interface.SetStringValue(section.c_str(), "Type", "guncon2");
 				for (const char* bind : {"RelativeLeft", "RelativeRight", "RelativeUp", "RelativeDown"})
 					s_settings_interface.SetStringValue(section.c_str(), fmt::format("guncon2_{}", bind).c_str(), "None");
+
+				// The crosshair: PCSX2's own software cursor, which it draws
+				// over the picture where the gun aims, from an image the user
+				// picks in its settings. The core brings the image itself
+				// (written into the system folder) and sizes it with the
+				// internal resolution, which is the size of the frame it is
+				// drawn into.
+				const char* crosshair = get_option("pcsx2_lightgun_crosshair", "disabled");
+				const std::string cursor_path = LibretroCrosshairImage();
+				if (std::strcmp(crosshair, "disabled") != 0 && !cursor_path.empty())
+				{
+					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_path", cursor_path.c_str());
+					s_settings_interface.SetFloatValue(section.c_str(), "guncon2_cursor_scale", static_cast<float>(s_opt_upscale));
+					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_color", crosshair);
+				}
+				else
+				{
+					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_path", "");
+				}
 			}
 			else
 			{
@@ -2424,6 +2488,15 @@ static void UpdateInput()
 		};
 		for (const auto& [retro_id, bid] : gun_buttons)
 			USB::SetDeviceBindValue(usb_port, bid, gun(retro_id) ? 1.0f : 0.0f);
+
+		// The calibration shot, which the calibration screen of the Time
+		// Crisis games needs and no other button gives (cubatilles, #47). A
+		// frontend lightgun has no button left for it, so it is the
+		// RetroPad's R3 on the gun's port, or trigger and reload held
+		// together - an offscreen shot with the trigger down is nothing else.
+		const bool calibrate = s_input_state_cb(usb_port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3) ||
+							   (gun(RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) && gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD));
+		USB::SetDeviceBindValue(usb_port, 17 /* BID_RECALIBRATE */, calibrate ? 1.0f : 0.0f);
 	}
 }
 

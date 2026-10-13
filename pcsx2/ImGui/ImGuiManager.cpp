@@ -47,6 +47,9 @@ namespace ImGuiManager
 	{
 		std::string image_path;
 		std::unique_ptr<GSTexture> texture;
+		// The image's pixels, for a frame that is read back and gets no ImGui
+		// pass (BlendSoftwareCursors)
+		RGBA8Image image;
 		u32 color;
 		float scale;
 		float extent_x;
@@ -1380,9 +1383,12 @@ bool ImGuiManager::IsGamepadNorthWestSwapped()
 	return s_gamepad_swap_noth_west;
 }
 
+// Every cursor, the ones of devices aimed by relative axes too (a GunCon 2
+// fed from the frontend's lightgun): left out, those kept a texture of a
+// device that was gone and had none on the new one.
 void ImGuiManager::CreateSoftwareCursorTextures()
 {
-	for (u32 i = 0; i < InputManager::MAX_POINTER_DEVICES; i++)
+	for (u32 i = 0; i < InputManager::MAX_SOFTWARE_CURSORS; i++)
 	{
 		if (!s_software_cursors[i].image_path.empty())
 			UpdateSoftwareCursorTexture(i);
@@ -1391,7 +1397,7 @@ void ImGuiManager::CreateSoftwareCursorTextures()
 
 void ImGuiManager::DestroySoftwareCursorTextures()
 {
-	for (u32 i = 0; i < InputManager::MAX_POINTER_DEVICES; i++)
+	for (u32 i = 0; i < InputManager::MAX_SOFTWARE_CURSORS; i++)
 	{
 		s_software_cursors[i].texture.reset();
 	}
@@ -1403,6 +1409,7 @@ void ImGuiManager::UpdateSoftwareCursorTexture(u32 index)
 	if (sc.image_path.empty())
 	{
 		sc.texture.reset();
+		sc.image = RGBA8Image();
 		return;
 	}
 
@@ -1423,6 +1430,66 @@ void ImGuiManager::UpdateSoftwareCursorTexture(u32 index)
 
 	sc.extent_x = std::ceil(static_cast<float>(image.GetWidth()) * sc.scale * s_global_scale) / 2.0f;
 	sc.extent_y = std::ceil(static_cast<float>(image.GetHeight()) * sc.scale * s_global_scale) / 2.0f;
+	sc.image = std::move(image);
+}
+
+void ImGuiManager::BlendSoftwareCursors(u32* pixels, u32 width, u32 height)
+{
+	if (s_window_width <= 0.0f || s_window_height <= 0.0f)
+		return;
+
+	// Cursor positions and sizes are in window pixels; the frame may be of
+	// another size
+	const float scale_x = static_cast<float>(width) / s_window_width;
+	const float scale_y = static_cast<float>(height) / s_window_height;
+
+	for (u32 i = 0; i < InputManager::MAX_SOFTWARE_CURSORS; i++)
+	{
+		const SoftwareCursor& sc = s_software_cursors[i];
+		if (sc.image_path.empty() || !sc.image.IsValid() || sc.extent_x <= 0.0f || sc.extent_y <= 0.0f)
+			continue;
+
+		const std::pair<float, float> pos =
+			(i < InputManager::MAX_POINTER_DEVICES) ? InputManager::GetPointerAbsolutePosition(i) : sc.pos;
+		const float left = (pos.first - sc.extent_x) * scale_x;
+		const float top = (pos.second - sc.extent_y) * scale_y;
+		const float draw_w = sc.extent_x * 2.0f * scale_x;
+		const float draw_h = sc.extent_y * 2.0f * scale_y;
+		if (draw_w < 1.0f || draw_h < 1.0f)
+			continue;
+
+		const s32 x0 = std::max<s32>(static_cast<s32>(std::floor(left)), 0);
+		const s32 y0 = std::max<s32>(static_cast<s32>(std::floor(top)), 0);
+		const s32 x1 = std::min<s32>(static_cast<s32>(std::ceil(left + draw_w)), static_cast<s32>(width));
+		const s32 y1 = std::min<s32>(static_cast<s32>(std::ceil(top + draw_h)), static_cast<s32>(height));
+		const u32 image_w = sc.image.GetWidth();
+		const u32 image_h = sc.image.GetHeight();
+		// The multiply colour is ImGui's: red in the low byte
+		const u32 mul_r = sc.color & 0xFFu, mul_g = (sc.color >> 8) & 0xFFu, mul_b = (sc.color >> 16) & 0xFFu;
+
+		for (s32 y = y0; y < y1; y++)
+		{
+			const u32 src_y = std::min<u32>(static_cast<u32>(std::max(((static_cast<float>(y) + 0.5f) - top) / draw_h, 0.0f) * image_h), image_h - 1);
+			u32* row = pixels + static_cast<size_t>(y) * width;
+			for (s32 x = x0; x < x1; x++)
+			{
+				const u32 src_x = std::min<u32>(static_cast<u32>(std::max(((static_cast<float>(x) + 0.5f) - left) / draw_w, 0.0f) * image_w), image_w - 1);
+				const u32 src = sc.image.GetPixels()[static_cast<size_t>(src_y) * image_w + src_x];
+				const u32 alpha = src >> 24;
+				if (alpha == 0)
+					continue;
+
+				const u32 r = ((src & 0xFFu) * mul_r) / 255u;
+				const u32 g = (((src >> 8) & 0xFFu) * mul_g) / 255u;
+				const u32 b = (((src >> 16) & 0xFFu) * mul_b) / 255u;
+				const u32 dst = row[x];
+				const u32 out_r = (r * alpha + ((dst >> 16) & 0xFFu) * (255u - alpha)) / 255u;
+				const u32 out_g = (g * alpha + ((dst >> 8) & 0xFFu) * (255u - alpha)) / 255u;
+				const u32 out_b = (b * alpha + (dst & 0xFFu) * (255u - alpha)) / 255u;
+				row[x] = (dst & 0xFF000000u) | (out_r << 16) | (out_g << 8) | out_b;
+			}
+		}
+	}
 }
 
 void ImGuiManager::DrawSoftwareCursor(const SoftwareCursor& sc, const std::pair<float, float>& pos)

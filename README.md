@@ -129,7 +129,8 @@ the exact steps on all three platforms.
 | EE Cycle Rate | 50%–300% | speed hack, may break games |
 | EE Cycle Skip | Disabled–Maximum | speed hack, may break games |
 | Multitap | Disabled / Port 1 / Port 2 / Both | up to 8 players, restart recommended |
-| Lightgun (GunCon 2) | Disabled / USB 1 / USB 2 / Both | aim via frontend lightgun input, restart required |
+| Lightgun (GunCon 2) | Disabled / USB 1 / USB 2 / Both | aim via frontend lightgun input, restart required. Gun Reload shoots offscreen; the calibration shot (Time Crisis calibration screens) is Gun Trigger + Gun Reload together, or R3 |
+| Lightgun Crosshair | Disabled / White / Red / Green / Blue / Yellow | draws a crosshair where the GunCon 2 aims, restart required |
 | Rumble | enabled / disabled | DS2 vibration via frontend rumble |
 | Analog Axis Scale | 100–150% | default 133% (DualShock 2 response) |
 | Analog Deadzone | 0–30% | inside the emulated pad |
