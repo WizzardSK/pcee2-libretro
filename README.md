@@ -32,7 +32,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | PAL (50 Hz) / NTSC av_info | ✅ working |
 | Fast-forward | ✅ working |
 | OpenGL renderer | ✅ working (surfaceless EGL) |
-| D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested |
+| D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested. D3D12 needs `dxcompiler.dll` (from the standalone PCSX2) beside RetroArch's executable; the core loads without it |
 | Metal renderer | ➖ not offered: libretro has no Metal hardware context. On macOS the Vulkan renderer runs on Metal through MoltenVK, sharing the frontend's device |
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
 | Multitap (up to 8 controllers) | ✅ core option |

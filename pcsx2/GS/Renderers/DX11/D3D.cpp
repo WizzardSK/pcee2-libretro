@@ -646,8 +646,19 @@ wil::com_ptr_nothrow<ID3DBlob> D3D::CompileShaderDXIL(D3D::ShaderType type, D3D:
 		arg_ptrs.push_back(arg.c_str());
 
 	// Compile Shader.
+	// dxcompiler.dll is delay-loaded in the libretro core, which cannot ship
+	// it; calling into it when it is not there would end the process
+	static const bool has_dxcompiler = (LoadLibraryW(L"dxcompiler.dll") != nullptr);
+	if (!has_dxcompiler)
+	{
+		Console.Error("dxcompiler.dll was not found; the Direct3D 12 renderer needs it beside RetroArch's executable.");
+		return {};
+	}
+
 	wil::com_ptr_nothrow<IDxcCompiler3> compiler;
 	DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(compiler.put()));
+	if (!compiler)
+		return {};
 
 	const DxcBuffer source{code.data(), code.length(), DXC_CP_UTF8};
 	wil::com_ptr_nothrow<IDxcResult> results;

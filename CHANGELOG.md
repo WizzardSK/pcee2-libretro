@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## October 2026
 
+- Windows: the core loads again where dxcompiler.dll is not installed. Since the merge of upstream v2.9.81 it needed that DLL just to load ("Failed to open libretro core", error 126), though only the Direct3D 12 renderer uses it; it is now looked for only when that renderer compiles a shader (cubatilles, #47).
 - Linux: the core is built without the X11 and Wayland backends, which were for the standalone's own window, and no longer links libX11, libXrandr and libXi; it loads where X11 is not installed.
 - Merged up to upstream PCSX2 v2.9.81-22. The core reports upstream's version, and logs it at start with the commit it was built from.
 - Vulkan: context negotiation v2, with RetroArch's device wrapper.

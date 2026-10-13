@@ -47,6 +47,16 @@ target_link_libraries(pcee2_libretro PRIVATE
 # frontend's process: the core binds its own definitions rather than whatever
 # the frontend already has under the same name, and exports nothing but the
 # libretro entry points. See libretro.map for what went wrong without them.
+# The DirectX shader compiler is not part of Windows: the standalone ships
+# dxcompiler.dll beside its executable, a core is one file. Linked the usual
+# way, the core did not load at all where that DLL is missing (error 126),
+# whichever renderer was chosen. Delay-loaded, it is looked for only when the
+# Direct3D 12 renderer compiles a shader, which checks for it first (D3D.cpp).
+if(MSVC)
+	target_link_options(pcee2_libretro PRIVATE "/DELAYLOAD:dxcompiler.dll")
+	target_link_libraries(pcee2_libretro PRIVATE delayimp.lib)
+endif()
+
 if(UNIX AND NOT APPLE)
 	target_link_options(pcee2_libretro PRIVATE
 		"-Wl,--no-undefined"
