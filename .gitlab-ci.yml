@@ -144,7 +144,8 @@ include:
 .pcee2-setup-android: &pcee2-setup-android
   - export DEBIAN_FRONTEND=noninteractive
   - apt-get update
-  - apt-get install -y --no-install-recommends cmake ninja-build python3 git ca-certificates
+  # ca-certificates comes with the image (since October 2026)
+  - apt-get install -y --no-install-recommends cmake ninja-build python3 git
   # The template's own before_script - the one that sets the NUMPROC its build
   # line passes to -j - is replaced by this one, so set it here, capped by
   # available RAM the same way the Linux jobs do.
