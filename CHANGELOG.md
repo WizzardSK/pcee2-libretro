@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- New option System > USB Mouse: PCSX2's USB mouse on USB port 1 or 2, moved and clicked with the frontend's mouse of the matching controller port, wheel included. For the games that take a mouse, as Police 24/7 for aiming (cubatilles, #50).
 - New option Patches > Cheats, off by default: the `.pnach` cheat files in `system/pcsx2/cheats/`, named after the game's serial and CRC as in standalone PCSX2, are applied. PCSX2 loaded them only with `EnableCheats` set by hand in `PCSX2.ini` (raidenii, issue #49).
 
 ## October 2026

@@ -253,6 +253,11 @@ namespace LibretroHost
 	// GunCon2 lightguns on USB ports (bit 0 = USB1, bit 1 = USB2)
 	static u32 s_lightgun_mask = 0;
 
+	// USB mice (PCSX2's HID mouse) on USB ports, same bits; a port with a gun
+	// keeps the gun. The buttons last sent, as the device queues every event.
+	static u32 s_mouse_mask = 0;
+	static std::array<u32, 2> s_mouse_buttons = {};
+
 	// rumble: written by the InputManager callback (CPU thread), consumed in
 	// retro_run; packed as (large << 16) | small, each 0..65535
 	static std::array<std::atomic<u32>, 8> s_pad_rumble;
@@ -1061,6 +1066,15 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		if (std::strcmp(lightgun, "usb2") == 0 || std::strcmp(lightgun, "both") == 0)
 			s_lightgun_mask |= 2;
 
+		const char* mouse = get_option("pcsx2_usb_mouse", "disabled");
+		s_mouse_mask = 0;
+		if (std::strcmp(mouse, "usb1") == 0)
+			s_mouse_mask = 1;
+		else if (std::strcmp(mouse, "usb2") == 0)
+			s_mouse_mask = 2;
+		s_mouse_mask &= ~s_lightgun_mask;
+		s_mouse_buttons = {};
+
 		for (u32 usb_port = 0; usb_port < 2; usb_port++)
 		{
 			const std::string section = fmt::format("USB{}", usb_port + 1);
@@ -1088,6 +1102,10 @@ void LibretroHost::ReadCoreOptions(bool startup)
 				{
 					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_path", "");
 				}
+			}
+			else if (s_mouse_mask & (1u << usb_port))
+			{
+				s_settings_interface.SetStringValue(section.c_str(), "Type", "hidmouse");
 			}
 			else
 			{
@@ -2499,6 +2517,46 @@ static void UpdateInput()
 		const bool calibrate = s_input_state_cb(usb_port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3) ||
 							   (gun(RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) && gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD));
 		USB::SetDeviceBindValue(usb_port, 17 /* BID_RECALIBRATE */, calibrate ? 1.0f : 0.0f);
+	}
+
+	// USB mice (bind indices from usb-hid/usb-hid.cpp: the buttons are
+	// INPUT_BUTTON_*, the pointer's axes INPUT_BUTTON__MAX + InputPointerAxis).
+	// Each value sent is queued as a report, so only what changed is sent.
+	for (u32 usb_port = 0; usb_port < 2; usb_port++)
+	{
+		if (!(s_mouse_mask & (1u << usb_port)))
+			continue;
+
+		const auto mouse = [&](unsigned id) {
+			return s_input_state_cb(usb_port, RETRO_DEVICE_MOUSE, 0, id);
+		};
+
+		const int16_t dx = mouse(RETRO_DEVICE_ID_MOUSE_X);
+		const int16_t dy = mouse(RETRO_DEVICE_ID_MOUSE_Y);
+		if (dx != 0)
+			USB::SetDeviceBindValue(usb_port, 7 /* INPUT_BUTTON__MAX + X */, static_cast<float>(dx));
+		if (dy != 0)
+			USB::SetDeviceBindValue(usb_port, 8 /* INPUT_BUTTON__MAX + Y */, static_cast<float>(dy));
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELUP))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, 1.0f);
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELDOWN))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, -1.0f);
+
+		static constexpr std::pair<unsigned, u32> mouse_buttons[] = {
+			{RETRO_DEVICE_ID_MOUSE_LEFT, 0 /* INPUT_BUTTON_LEFT */},
+			{RETRO_DEVICE_ID_MOUSE_MIDDLE, 1 /* INPUT_BUTTON_MIDDLE */},
+			{RETRO_DEVICE_ID_MOUSE_RIGHT, 2 /* INPUT_BUTTON_RIGHT */},
+		};
+		for (const auto& [retro_id, bind] : mouse_buttons)
+		{
+			const u32 bit = 1u << bind;
+			const u32 down = mouse(retro_id) ? bit : 0;
+			if ((s_mouse_buttons[usb_port] & bit) != down)
+			{
+				s_mouse_buttons[usb_port] ^= bit;
+				USB::SetDeviceBindValue(usb_port, bind, down ? 1.0f : 0.0f);
+			}
+		}
 	}
 }
 
