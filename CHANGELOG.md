@@ -2,6 +2,10 @@
 
 What changed in the libretro core of this fork, newest first. Changes that come with a merge of upstream PCSX2 are in upstream's own history; a merge is noted here with the upstream version it brought in.
 
+## Unreleased
+
+- New option Patches > Cheats, off by default: the `.pnach` cheat files in `system/pcsx2/cheats/`, named after the game's serial and CRC as in standalone PCSX2, are applied. PCSX2 loaded them only with `EnableCheats` set by hand in `PCSX2.ini` (raidenii, issue #49).
+
 ## October 2026
 
 - Frame Limiter on Frontend (RetroArch): a frame is held back only when the frontend's audio buffer is nearly full and the game is also ahead of the clock. The full buffer alone held frames on setups where it is small, which made games run slow with broken sound. The log has a line on the pacing for each 600 frames in which it had something to do. With low audio latencies the sound can still break up, from the frontend's buffer running empty: a higher Audio Latency in RetroArch and Audio Buffer in the core settle it (cubatilles, #48).

@@ -126,6 +126,7 @@ the exact steps on all three platforms.
 | Aspect Ratio | Auto / 4:3 / 16:9 | Auto follows widescreen patches |
 | Widescreen Patches | enabled / disabled | built-in 16:9 patches |
 | No-Interlacing Patches | enabled / disabled | built-in progressive patches |
+| Cheats | enabled / disabled | `.pnach` cheats from `system/pcsx2/cheats/`, named after the game's serial and CRC |
 | EE Cycle Rate | 50%–300% | speed hack, may break games |
 | EE Cycle Skip | Disabled–Maximum | speed hack, may break games |
 | Multitap | Disabled / Port 1 / Port 2 / Both | up to 8 players, restart recommended |

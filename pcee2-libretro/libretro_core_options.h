@@ -55,7 +55,7 @@ struct retro_core_option_v2_category option_cats_us[] = {
 	{"system", "System", "BIOS and boot behaviour."},
 	{"memory_cards", "Memory Cards", "PS2 memory card slot settings."},
 	{"graphics", "Graphics", "Renderer, resolution and image quality."},
-	{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing)."},
+	{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing) and cheats."},
 	{"performance", "Performance", "Speed hacks. May break games."},
 	{"audio", "Audio", "Sound output and buffering."},
 	{NULL, NULL, NULL},
@@ -189,6 +189,9 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", "No-Interlacing Patches", NULL,
 		"Enable built-in progressive-output patches where available. Best applied before starting a game.", NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", "Cheats", NULL,
+		"Apply the cheats in system/pcsx2/cheats/: .pnach files named after the game's serial and CRC, as in standalone PCSX2. Best applied before starting a game.", NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", "MTVU (Multi-Threaded VU1)", NULL,

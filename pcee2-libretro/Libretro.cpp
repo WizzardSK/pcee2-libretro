@@ -980,6 +980,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	s_settings_interface.SetBoolValue("EmuCore", "EnableWideScreenPatches", widescreen);
 	s_settings_interface.SetBoolValue("EmuCore", "EnableNoInterlacingPatches",
 		std::strcmp(get_option("pcsx2_no_interlacing_patches", "disabled"), "enabled") == 0);
+	s_settings_interface.SetBoolValue("EmuCore", "EnableCheats",
+		std::strcmp(get_option("pcsx2_cheats", "disabled"), "enabled") == 0);
 
 	// reported display aspect
 	const char* aspect = get_option("pcsx2_aspect_ratio", "auto");
