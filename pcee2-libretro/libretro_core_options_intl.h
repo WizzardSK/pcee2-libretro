@@ -144,6 +144,13 @@ extern "C" {
 #define OPTION_VAL_USB1_AR NULL
 #define OPTION_VAL_USB2_AR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_AR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_AR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_AR NULL
+#define OPTION_VAL_FFFFFF_AR NULL
+#define OPTION_VAL_2020FF_AR "أحمر"
+#define OPTION_VAL_20FF20_AR "أخضر"
+#define OPTION_VAL_FFC020_AR "أزرق"
+#define OPTION_VAL_20E0FF_AR "أصفر"
 #define PCSX2_RUMBLE_LABEL_AR NULL
 #define PCSX2_RUMBLE_INFO_0_AR NULL
 #define PCSX2_AXIS_SCALE_LABEL_AR NULL
@@ -164,6 +171,8 @@ extern "C" {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_AR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_AR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_AR NULL
+#define PCSX2_CHEATS_LABEL_AR "شفرات الغش"
+#define PCSX2_CHEATS_INFO_0_AR NULL
 #define PCSX2_MTVU_LABEL_AR NULL
 #define PCSX2_MTVU_INFO_0_AR NULL
 #define PCSX2_INSTANT_VU1_LABEL_AR NULL
@@ -313,6 +322,14 @@ struct retro_core_option_v2_definition option_defs_ar[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_AR}, {"usb2", OPTION_VAL_USB2_AR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_AR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_AR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_AR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_AR}, {"2020FF", OPTION_VAL_2020FF_AR}, {"20FF20", OPTION_VAL_20FF20_AR}, {"FFC020", OPTION_VAL_FFC020_AR},
+			{"20E0FF", OPTION_VAL_20E0FF_AR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_AR, NULL, PCSX2_RUMBLE_INFO_0_AR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_AR, NULL,
@@ -332,6 +349,9 @@ struct retro_core_option_v2_definition option_defs_ar[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_AR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_AR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_AR, NULL,
+		PCSX2_CHEATS_INFO_0_AR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_AR, NULL,
@@ -506,6 +526,13 @@ struct retro_core_options_v2 options_ar = {
 #define OPTION_VAL_USB1_AST NULL
 #define OPTION_VAL_USB2_AST NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_AST NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_AST NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_AST NULL
+#define OPTION_VAL_FFFFFF_AST "Blancu"
+#define OPTION_VAL_2020FF_AST "Coloráu"
+#define OPTION_VAL_20FF20_AST "Verde"
+#define OPTION_VAL_FFC020_AST "Azul"
+#define OPTION_VAL_20E0FF_AST "Mariellu"
 #define PCSX2_RUMBLE_LABEL_AST NULL
 #define PCSX2_RUMBLE_INFO_0_AST NULL
 #define PCSX2_AXIS_SCALE_LABEL_AST NULL
@@ -526,6 +553,8 @@ struct retro_core_options_v2 options_ar = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_AST NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_AST NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_AST NULL
+#define PCSX2_CHEATS_LABEL_AST "Trampes"
+#define PCSX2_CHEATS_INFO_0_AST NULL
 #define PCSX2_MTVU_LABEL_AST NULL
 #define PCSX2_MTVU_INFO_0_AST NULL
 #define PCSX2_INSTANT_VU1_LABEL_AST NULL
@@ -675,6 +704,14 @@ struct retro_core_option_v2_definition option_defs_ast[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_AST}, {"usb2", OPTION_VAL_USB2_AST}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_AST},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_AST, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_AST,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_AST}, {"2020FF", OPTION_VAL_2020FF_AST}, {"20FF20", OPTION_VAL_20FF20_AST}, {"FFC020", OPTION_VAL_FFC020_AST},
+			{"20E0FF", OPTION_VAL_20E0FF_AST}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_AST, NULL, PCSX2_RUMBLE_INFO_0_AST,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_AST, NULL,
@@ -694,6 +731,9 @@ struct retro_core_option_v2_definition option_defs_ast[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_AST, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_AST, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_AST, NULL,
+		PCSX2_CHEATS_INFO_0_AST, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_AST, NULL,
@@ -868,6 +908,13 @@ struct retro_core_options_v2 options_ast = {
 #define OPTION_VAL_USB1_BE NULL
 #define OPTION_VAL_USB2_BE NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_BE NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_BE NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_BE NULL
+#define OPTION_VAL_FFFFFF_BE "Белы"
+#define OPTION_VAL_2020FF_BE "Чырвоная"
+#define OPTION_VAL_20FF20_BE "Зялёная"
+#define OPTION_VAL_FFC020_BE "Блакітная"
+#define OPTION_VAL_20E0FF_BE "Жоўтая"
 #define PCSX2_RUMBLE_LABEL_BE NULL
 #define PCSX2_RUMBLE_INFO_0_BE NULL
 #define PCSX2_AXIS_SCALE_LABEL_BE NULL
@@ -888,6 +935,8 @@ struct retro_core_options_v2 options_ast = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_BE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_BE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_BE NULL
+#define PCSX2_CHEATS_LABEL_BE "Чыт-коды"
+#define PCSX2_CHEATS_INFO_0_BE NULL
 #define PCSX2_MTVU_LABEL_BE NULL
 #define PCSX2_MTVU_INFO_0_BE NULL
 #define PCSX2_INSTANT_VU1_LABEL_BE NULL
@@ -1037,6 +1086,14 @@ struct retro_core_option_v2_definition option_defs_be[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_BE}, {"usb2", OPTION_VAL_USB2_BE}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_BE},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_BE, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_BE,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_BE}, {"2020FF", OPTION_VAL_2020FF_BE}, {"20FF20", OPTION_VAL_20FF20_BE}, {"FFC020", OPTION_VAL_FFC020_BE},
+			{"20E0FF", OPTION_VAL_20E0FF_BE}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_BE, NULL, PCSX2_RUMBLE_INFO_0_BE,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_BE, NULL,
@@ -1056,6 +1113,9 @@ struct retro_core_option_v2_definition option_defs_be[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_BE, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_BE, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_BE, NULL,
+		PCSX2_CHEATS_INFO_0_BE, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_BE, NULL,
@@ -1230,6 +1290,13 @@ struct retro_core_options_v2 options_be = {
 #define OPTION_VAL_USB1_BG NULL
 #define OPTION_VAL_USB2_BG NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_BG NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_BG NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_BG NULL
+#define OPTION_VAL_FFFFFF_BG NULL
+#define OPTION_VAL_2020FF_BG NULL
+#define OPTION_VAL_20FF20_BG NULL
+#define OPTION_VAL_FFC020_BG NULL
+#define OPTION_VAL_20E0FF_BG NULL
 #define PCSX2_RUMBLE_LABEL_BG NULL
 #define PCSX2_RUMBLE_INFO_0_BG NULL
 #define PCSX2_AXIS_SCALE_LABEL_BG NULL
@@ -1250,6 +1317,8 @@ struct retro_core_options_v2 options_be = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_BG NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_BG NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_BG NULL
+#define PCSX2_CHEATS_LABEL_BG NULL
+#define PCSX2_CHEATS_INFO_0_BG NULL
 #define PCSX2_MTVU_LABEL_BG NULL
 #define PCSX2_MTVU_INFO_0_BG NULL
 #define PCSX2_INSTANT_VU1_LABEL_BG NULL
@@ -1399,6 +1468,14 @@ struct retro_core_option_v2_definition option_defs_bg[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_BG}, {"usb2", OPTION_VAL_USB2_BG}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_BG},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_BG, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_BG,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_BG}, {"2020FF", OPTION_VAL_2020FF_BG}, {"20FF20", OPTION_VAL_20FF20_BG}, {"FFC020", OPTION_VAL_FFC020_BG},
+			{"20E0FF", OPTION_VAL_20E0FF_BG}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_BG, NULL, PCSX2_RUMBLE_INFO_0_BG,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_BG, NULL,
@@ -1418,6 +1495,9 @@ struct retro_core_option_v2_definition option_defs_bg[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_BG, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_BG, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_BG, NULL,
+		PCSX2_CHEATS_INFO_0_BG, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_BG, NULL,
@@ -1494,7 +1574,7 @@ struct retro_core_options_v2 options_bg = {
 #define CATEGORY_GRAPHICS_LABEL_CA "Gràfics"
 #define CATEGORY_GRAPHICS_INFO_0_CA "Renderitzador, resolució i qualitat d'imatge."
 #define CATEGORY_PATCHES_LABEL_CA "Correccions"
-#define CATEGORY_PATCHES_INFO_0_CA "Correccions integrades pels jocs (pantalla panòramica, desactivar entrellaçament)."
+#define CATEGORY_PATCHES_INFO_0_CA NULL
 #define CATEGORY_PERFORMANCE_LABEL_CA "Rendiment"
 #define CATEGORY_PERFORMANCE_INFO_0_CA "Correccions de velocitat. Pot fer malbé alguns jocs."
 #define CATEGORY_AUDIO_LABEL_CA "Àudio"
@@ -1588,10 +1668,17 @@ struct retro_core_options_v2 options_bg = {
 #define OPTION_VAL_PORT2_CA "Port 2 (5 jugadors)"
 #define OPTION_VAL_BOTH_CA "Ambdós ports (8 jugadors)"
 #define PCSX2_LIGHTGUN_LABEL_CA NULL
-#define PCSX2_LIGHTGUN_INFO_0_CA "Emula una Namco GunCon 2 en un port USB, apuntant amb la pistola de llum del *frontend* (o amb un ratolí configurat com a pistola de llum) al port de comandament corresponent. Requereix reiniciar."
+#define PCSX2_LIGHTGUN_INFO_0_CA "Emula una Namco GunCon 2 connectada a un port USB, apuntant amb la pistola de llum del *frontend* (o amb un ratolí configurat com a pistola de llum) cap al port de comandament corresponent. L'acció de recàrrega (*Gun Reload*) consisteix a disparar fora de la pantalla; el tret de calibratge que demanen alguns jocs s'executa prement simultàniament el gallet i el botó de recàrrega, o bé prement R3. Requereix reiniciar."
 #define OPTION_VAL_USB1_CA "Port USB 1"
 #define OPTION_VAL_USB2_CA "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CA "Ambdòs ports"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CA "Mira de les pistoles de llum"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CA "Dibuixa una mira on la GunCon 2 està movent-se, amb el color seleccionat. Desactivat per defecte, com passa a la consola. Cal reiniciar."
+#define OPTION_VAL_FFFFFF_CA "Blanc"
+#define OPTION_VAL_2020FF_CA "Vermell"
+#define OPTION_VAL_20FF20_CA "Verd"
+#define OPTION_VAL_FFC020_CA "Blau"
+#define OPTION_VAL_20E0FF_CA "Groc"
 #define PCSX2_RUMBLE_LABEL_CA "Vibració"
 #define PCSX2_RUMBLE_INFO_0_CA "Transmet la vibració del controlador DualShock 2 al suport de vibració del front-end."
 #define PCSX2_AXIS_SCALE_LABEL_CA "Escala de l'eix analògic"
@@ -1612,6 +1699,8 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_CA "Activa els pedaços integrats per a pantalla panoràmica 16:9 quan estiguin disponibles. És millor aplicar-los abans de començar una partida."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_CA "Correccions desentrellaçades"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_CA "Activa els pedaços integrats de sortida progressiva quan estiguin disponibles. És millor aplicar-los abans de començar una partida."
+#define PCSX2_CHEATS_LABEL_CA "Trucs"
+#define PCSX2_CHEATS_INFO_0_CA NULL
 #define PCSX2_MTVU_LABEL_CA "MTVU (Multifil VU1)"
 #define PCSX2_MTVU_INFO_0_CA "Executa la VU1 en el seu propi fil d'execució. Suposa un gran augment de velocitat en CPU multinucli, tot i que un nombre reduït de jocs es bloquegen."
 #define PCSX2_INSTANT_VU1_LABEL_CA "Instàntania VU1"
@@ -1761,6 +1850,14 @@ struct retro_core_option_v2_definition option_defs_ca[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_CA}, {"usb2", OPTION_VAL_USB2_CA}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CA},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CA, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CA,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_CA}, {"2020FF", OPTION_VAL_2020FF_CA}, {"20FF20", OPTION_VAL_20FF20_CA}, {"FFC020", OPTION_VAL_FFC020_CA},
+			{"20E0FF", OPTION_VAL_20E0FF_CA}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_CA, NULL, PCSX2_RUMBLE_INFO_0_CA,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_CA, NULL,
@@ -1780,6 +1877,9 @@ struct retro_core_option_v2_definition option_defs_ca[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_CA, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_CA, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_CA, NULL,
+		PCSX2_CHEATS_INFO_0_CA, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_CA, NULL,
@@ -1856,7 +1956,7 @@ struct retro_core_options_v2 options_ca = {
 #define CATEGORY_GRAPHICS_LABEL_CHS "图形"
 #define CATEGORY_GRAPHICS_INFO_0_CHS "渲染器、分辨率及画质设置。"
 #define CATEGORY_PATCHES_LABEL_CHS "补丁"
-#define CATEGORY_PATCHES_INFO_0_CHS "内置游戏补丁（宽屏、去隔行）。"
+#define CATEGORY_PATCHES_INFO_0_CHS NULL
 #define CATEGORY_PERFORMANCE_LABEL_CHS "性能"
 #define CATEGORY_PERFORMANCE_INFO_0_CHS "速度伪火/加速黑科技。可能会导致游戏异常。"
 #define CATEGORY_AUDIO_LABEL_CHS "音频"
@@ -1950,10 +2050,17 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_PORT2_CHS "接口 2（支持 5 玩家）"
 #define OPTION_VAL_BOTH_CHS "双接口（支持 8 玩家）"
 #define PCSX2_LIGHTGUN_LABEL_CHS "光线枪 (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_CHS "在 USB 接口上模拟 Namco GunCon 2 光线枪，并使用对应手柄接口上映射的前端光枪（或鼠标）进行瞄准。需要重启核心生效。"
+#define PCSX2_LIGHTGUN_INFO_0_CHS NULL
 #define OPTION_VAL_USB1_CHS "USB 接口 1"
 #define OPTION_VAL_USB2_CHS "USB 接口 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CHS "双接口"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CHS NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHS NULL
+#define OPTION_VAL_FFFFFF_CHS "白色"
+#define OPTION_VAL_2020FF_CHS "红色"
+#define OPTION_VAL_20FF20_CHS "绿色"
+#define OPTION_VAL_FFC020_CHS "蓝色"
+#define OPTION_VAL_20E0FF_CHS "黄色"
 #define PCSX2_RUMBLE_LABEL_CHS "手柄震动"
 #define PCSX2_RUMBLE_INFO_0_CHS "将 DualShock 2 手柄的震动信号转发至前端的震动支持系统。"
 #define PCSX2_AXIS_SCALE_LABEL_CHS "摇杆轴向缩放"
@@ -1974,6 +2081,8 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_CHS "开启内置的 16:9 宽屏补丁（若游戏支持）。最好在启动游戏前开启。"
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_CHS "去隔行补丁"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_CHS "开启内置的逐行输出/去隔行补丁（若游戏支持）。最好在启动游戏前开启。"
+#define PCSX2_CHEATS_LABEL_CHS "金手指"
+#define PCSX2_CHEATS_INFO_0_CHS NULL
 #define PCSX2_MTVU_LABEL_CHS "MTVU（多线程 VU1）"
 #define PCSX2_MTVU_INFO_0_CHS "将 VU1（向量单元 1）运行在独立线程上。对多核 CPU 有显著提速，但极少数游戏开启后可能会卡死/死机。"
 #define PCSX2_INSTANT_VU1_LABEL_CHS "Instant VU1 即时向量计算"
@@ -2123,6 +2232,14 @@ struct retro_core_option_v2_definition option_defs_chs[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_CHS}, {"usb2", OPTION_VAL_USB2_CHS}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CHS},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CHS, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHS,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_CHS}, {"2020FF", OPTION_VAL_2020FF_CHS}, {"20FF20", OPTION_VAL_20FF20_CHS}, {"FFC020", OPTION_VAL_FFC020_CHS},
+			{"20E0FF", OPTION_VAL_20E0FF_CHS}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_CHS, NULL, PCSX2_RUMBLE_INFO_0_CHS,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_CHS, NULL,
@@ -2142,6 +2259,9 @@ struct retro_core_option_v2_definition option_defs_chs[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_CHS, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_CHS, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_CHS, NULL,
+		PCSX2_CHEATS_INFO_0_CHS, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_CHS, NULL,
@@ -2316,6 +2436,13 @@ struct retro_core_options_v2 options_chs = {
 #define OPTION_VAL_USB1_CHT NULL
 #define OPTION_VAL_USB2_CHT NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CHT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CHT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHT NULL
+#define OPTION_VAL_FFFFFF_CHT "白色"
+#define OPTION_VAL_2020FF_CHT "亮紅色"
+#define OPTION_VAL_20FF20_CHT "亮綠色"
+#define OPTION_VAL_FFC020_CHT "亮藍色"
+#define OPTION_VAL_20E0FF_CHT "亮黃色"
 #define PCSX2_RUMBLE_LABEL_CHT NULL
 #define PCSX2_RUMBLE_INFO_0_CHT NULL
 #define PCSX2_AXIS_SCALE_LABEL_CHT NULL
@@ -2336,6 +2463,8 @@ struct retro_core_options_v2 options_chs = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_CHT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_CHT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_CHT NULL
+#define PCSX2_CHEATS_LABEL_CHT "金手指"
+#define PCSX2_CHEATS_INFO_0_CHT NULL
 #define PCSX2_MTVU_LABEL_CHT NULL
 #define PCSX2_MTVU_INFO_0_CHT NULL
 #define PCSX2_INSTANT_VU1_LABEL_CHT NULL
@@ -2485,6 +2614,14 @@ struct retro_core_option_v2_definition option_defs_cht[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_CHT}, {"usb2", OPTION_VAL_USB2_CHT}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CHT},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CHT, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHT,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_CHT}, {"2020FF", OPTION_VAL_2020FF_CHT}, {"20FF20", OPTION_VAL_20FF20_CHT}, {"FFC020", OPTION_VAL_FFC020_CHT},
+			{"20E0FF", OPTION_VAL_20E0FF_CHT}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_CHT, NULL, PCSX2_RUMBLE_INFO_0_CHT,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_CHT, NULL,
@@ -2504,6 +2641,9 @@ struct retro_core_option_v2_definition option_defs_cht[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_CHT, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_CHT, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_CHT, NULL,
+		PCSX2_CHEATS_INFO_0_CHT, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_CHT, NULL,
@@ -2678,6 +2818,13 @@ struct retro_core_options_v2 options_cht = {
 #define OPTION_VAL_USB1_CS NULL
 #define OPTION_VAL_USB2_CS NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CS NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CS NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CS NULL
+#define OPTION_VAL_FFFFFF_CS "Bílá"
+#define OPTION_VAL_2020FF_CS "Červený"
+#define OPTION_VAL_20FF20_CS "Zelený"
+#define OPTION_VAL_FFC020_CS "Modrý"
+#define OPTION_VAL_20E0FF_CS "Žlutá"
 #define PCSX2_RUMBLE_LABEL_CS NULL
 #define PCSX2_RUMBLE_INFO_0_CS NULL
 #define PCSX2_AXIS_SCALE_LABEL_CS NULL
@@ -2698,6 +2845,8 @@ struct retro_core_options_v2 options_cht = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_CS NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_CS NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_CS NULL
+#define PCSX2_CHEATS_LABEL_CS "Cheaty"
+#define PCSX2_CHEATS_INFO_0_CS NULL
 #define PCSX2_MTVU_LABEL_CS NULL
 #define PCSX2_MTVU_INFO_0_CS NULL
 #define PCSX2_INSTANT_VU1_LABEL_CS NULL
@@ -2847,6 +2996,14 @@ struct retro_core_option_v2_definition option_defs_cs[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_CS}, {"usb2", OPTION_VAL_USB2_CS}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CS},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CS, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CS,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_CS}, {"2020FF", OPTION_VAL_2020FF_CS}, {"20FF20", OPTION_VAL_20FF20_CS}, {"FFC020", OPTION_VAL_FFC020_CS},
+			{"20E0FF", OPTION_VAL_20E0FF_CS}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_CS, NULL, PCSX2_RUMBLE_INFO_0_CS,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_CS, NULL,
@@ -2866,6 +3023,9 @@ struct retro_core_option_v2_definition option_defs_cs[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_CS, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_CS, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_CS, NULL,
+		PCSX2_CHEATS_INFO_0_CS, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_CS, NULL,
@@ -3040,6 +3200,13 @@ struct retro_core_options_v2 options_cs = {
 #define OPTION_VAL_USB1_CY NULL
 #define OPTION_VAL_USB2_CY NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CY NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CY NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CY NULL
+#define OPTION_VAL_FFFFFF_CY NULL
+#define OPTION_VAL_2020FF_CY "Coch"
+#define OPTION_VAL_20FF20_CY NULL
+#define OPTION_VAL_FFC020_CY NULL
+#define OPTION_VAL_20E0FF_CY NULL
 #define PCSX2_RUMBLE_LABEL_CY NULL
 #define PCSX2_RUMBLE_INFO_0_CY NULL
 #define PCSX2_AXIS_SCALE_LABEL_CY NULL
@@ -3060,6 +3227,8 @@ struct retro_core_options_v2 options_cs = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_CY NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_CY NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_CY NULL
+#define PCSX2_CHEATS_LABEL_CY NULL
+#define PCSX2_CHEATS_INFO_0_CY NULL
 #define PCSX2_MTVU_LABEL_CY NULL
 #define PCSX2_MTVU_INFO_0_CY NULL
 #define PCSX2_INSTANT_VU1_LABEL_CY NULL
@@ -3209,6 +3378,14 @@ struct retro_core_option_v2_definition option_defs_cy[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_CY}, {"usb2", OPTION_VAL_USB2_CY}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CY},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CY, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CY,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_CY}, {"2020FF", OPTION_VAL_2020FF_CY}, {"20FF20", OPTION_VAL_20FF20_CY}, {"FFC020", OPTION_VAL_FFC020_CY},
+			{"20E0FF", OPTION_VAL_20E0FF_CY}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_CY, NULL, PCSX2_RUMBLE_INFO_0_CY,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_CY, NULL,
@@ -3228,6 +3405,9 @@ struct retro_core_option_v2_definition option_defs_cy[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_CY, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_CY, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_CY, NULL,
+		PCSX2_CHEATS_INFO_0_CY, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_CY, NULL,
@@ -3402,6 +3582,13 @@ struct retro_core_options_v2 options_cy = {
 #define OPTION_VAL_USB1_DA NULL
 #define OPTION_VAL_USB2_DA NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DA NULL
+#define OPTION_VAL_FFFFFF_DA NULL
+#define OPTION_VAL_2020FF_DA NULL
+#define OPTION_VAL_20FF20_DA NULL
+#define OPTION_VAL_FFC020_DA NULL
+#define OPTION_VAL_20E0FF_DA NULL
 #define PCSX2_RUMBLE_LABEL_DA NULL
 #define PCSX2_RUMBLE_INFO_0_DA NULL
 #define PCSX2_AXIS_SCALE_LABEL_DA NULL
@@ -3422,6 +3609,8 @@ struct retro_core_options_v2 options_cy = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_DA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_DA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_DA NULL
+#define PCSX2_CHEATS_LABEL_DA NULL
+#define PCSX2_CHEATS_INFO_0_DA NULL
 #define PCSX2_MTVU_LABEL_DA NULL
 #define PCSX2_MTVU_INFO_0_DA NULL
 #define PCSX2_INSTANT_VU1_LABEL_DA NULL
@@ -3571,6 +3760,14 @@ struct retro_core_option_v2_definition option_defs_da[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_DA}, {"usb2", OPTION_VAL_USB2_DA}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DA},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DA, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DA,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_DA}, {"2020FF", OPTION_VAL_2020FF_DA}, {"20FF20", OPTION_VAL_20FF20_DA}, {"FFC020", OPTION_VAL_FFC020_DA},
+			{"20E0FF", OPTION_VAL_20E0FF_DA}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_DA, NULL, PCSX2_RUMBLE_INFO_0_DA,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_DA, NULL,
@@ -3590,6 +3787,9 @@ struct retro_core_option_v2_definition option_defs_da[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_DA, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_DA, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_DA, NULL,
+		PCSX2_CHEATS_INFO_0_DA, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_DA, NULL,
@@ -3666,7 +3866,7 @@ struct retro_core_options_v2 options_da = {
 #define CATEGORY_GRAPHICS_LABEL_DE "Grafik"
 #define CATEGORY_GRAPHICS_INFO_0_DE "Renderer, Auflösung und Bildqualität."
 #define CATEGORY_PATCHES_LABEL_DE NULL
-#define CATEGORY_PATCHES_INFO_0_DE "Integrierte Spielpatches (Breitbild, ohne Interlacing)."
+#define CATEGORY_PATCHES_INFO_0_DE NULL
 #define CATEGORY_PERFORMANCE_LABEL_DE "Leistung"
 #define CATEGORY_PERFORMANCE_INFO_0_DE "Geschwindigkeits-Hacks. Dies kann zu Fehlern bei Spielen führen."
 #define CATEGORY_AUDIO_LABEL_DE NULL
@@ -3735,60 +3935,69 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_CAS_MODE_LABEL_DE "Kontrastadaptives Schärfen"
 #define OPTION_VAL_SHARPEN_DE "Nur schärfen"
 #define PCSX2_AUDIO_BUFFER_MS_LABEL_DE "Audiopuffer"
-#define PCSX2_AUDIO_BUFFER_MS_INFO_0_DE NULL
+#define PCSX2_AUDIO_BUFFER_MS_INFO_0_DE "Wie viele Audiodaten der Emulator für das Frontend vorhält. Ein größerer Puffer überbrückt Aussetzer, die sonst als Tonunterbrechung hörbar wären, führt aber zu einer entsprechend längeren Verzögerung, bevor etwas zu hören ist. Der Standardwert von PCSX2 beträgt 50 ms. Dabei wird davon ausgegangen, dass Audio direkt an ein Audiogerät ausgegeben wird und nicht an ein Frontend, das die Audiodaten einmal pro Frame abruft."
 #define OPTION_VAL_50_DE NULL
 #define OPTION_VAL_75_DE NULL
 #define OPTION_VAL_100_DE NULL
 #define OPTION_VAL_150_DE NULL
 #define OPTION_VAL_200_DE NULL
-#define PCSX2_FRAME_LIMITER_LABEL_DE NULL
+#define PCSX2_FRAME_LIMITER_LABEL_DE "Frame-Limiter"
 #define PCSX2_FRAME_LIMITER_INFO_0_DE "Was den Emulator auf voller Geschwindigkeit hält. Das Frontend überlässt die Taktung RetroArch, das drosselt, indem es den Core auf die von ihm übergebenen Audiodaten warten lässt. „Intern“ verwendet stattdessen den eigenen Begrenzer von PCSX2 – für Geräte, bei denen dieses Warten nie stattfindet, weil der Audiotreiber einen Audio-Unterlauf erzeugt, anstatt zu blockieren. Die Geschwindigkeitsschwankungen des Emulators werden dann als ungleichmäßiges Frame Pacing auf dem Bildschirm sichtbar."
 #define OPTION_VAL_FRONTEND_DE NULL
 #define OPTION_VAL_INTERNAL_DE "Intern (PCSX2)"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE NULL
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE NULL
+#define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE "Doppelte Frames bei der Bildausgabe überspringen"
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE "Frames, die der GS nicht neu gerendert hat, nicht an das Frontend weitergeben. Ein Spiel mit 30 fps liefert dann 30 einzigartige Frames statt 60, bei denen jeder zweite wiederholt wird. Diese Option deaktivieren, wenn ein Frame-Generierungs- oder Interpolationsfilter auf die Übergabe jedes einzelnen Frames angewiesen ist."
 #define PCSX2_CAS_SHARPNESS_LABEL_DE "CAS-Schärfe"
 #define PCSX2_ASPECT_RATIO_LABEL_DE "Bildseitenverhältnis"
-#define PCSX2_ASPECT_RATIO_INFO_0_DE NULL
+#define PCSX2_ASPECT_RATIO_INFO_0_DE "Automatisch: Bei aktivierten Breitbild-Patches wird 16:9 gemeldet, andernfalls 4:3."
 #define OPTION_VAL_AUTO_PCSX2_ASPECT_RATIO_DE "Automatisch"
 #define OPTION_VAL_4_3_DE NULL
 #define OPTION_VAL_16_9_DE NULL
 #define PCSX2_MULTITAP_LABEL_DE NULL
-#define PCSX2_MULTITAP_INFO_0_DE NULL
+#define PCSX2_MULTITAP_INFO_0_DE "Multitap-Adapter aktivieren, um bis zu 8 Controller zu unterstützen. Die Spielerreihenfolge richtet sich nach den physischen Steckplätzen (Port 1: 1A-1D, dann Port 2: 2A-2D). Ein Neustart wird empfohlen."
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_DE "Deaktiviert (2 Spieler)"
 #define OPTION_VAL_PORT1_DE "Port 1 (5 Spieler)"
 #define OPTION_VAL_PORT2_DE "Port 2 (5 Spieler)"
-#define OPTION_VAL_BOTH_DE NULL
+#define OPTION_VAL_BOTH_DE "Beide Ports (8 Spieler)"
 #define PCSX2_LIGHTGUN_LABEL_DE NULL
-#define PCSX2_LIGHTGUN_INFO_0_DE "Eine Namco GunCon 2 über einen USB-Anschluss emulieren, wobei mit der Lightgun des Frontends (oder einer als Lightgun zugewiesenen Maus) auf den entsprechenden Controller-Anschluss gezielt wird. Erfordert einen Neustart."
+#define PCSX2_LIGHTGUN_INFO_0_DE "Eine Namco GunCon 2 an einem USB-Anschluss emulieren. Zielen mit der Lightgun des Frontends (oder einer als Lightgun zugewiesenen Maus) am entsprechenden Controlleranschluss. „Pistole nachladen“ löst einen Schuss außerhalb des Bildschirms aus. Der Kalibrierungsschuss, den manche Spiele verlangen, erfolgt mit „Pistolenabzug“ und „Pistole nachladen“ gleichzeitig oder mit R3. Neustart erforderlich."
 #define OPTION_VAL_USB1_DE "USB-Port 1"
 #define OPTION_VAL_USB2_DE "USB-Port 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DE "Beide Ports"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DE "Lightgun-Fadenkreuz"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE "Ein Fadenkreuz in der ausgewählten Farbe an der Zielposition der GunCon 2 anzeigen. Standardmäßig deaktiviert, wie auf der Konsole. Neustart erforderlich."
+#define OPTION_VAL_FFFFFF_DE "Weiß"
+#define OPTION_VAL_2020FF_DE "Rot"
+#define OPTION_VAL_20FF20_DE "Grün"
+#define OPTION_VAL_FFC020_DE "Blau"
+#define OPTION_VAL_20E0FF_DE "Gelb"
 #define PCSX2_RUMBLE_LABEL_DE "Vibration"
-#define PCSX2_RUMBLE_INFO_0_DE NULL
-#define PCSX2_AXIS_SCALE_LABEL_DE NULL
-#define PCSX2_AXIS_SCALE_INFO_0_DE NULL
+#define PCSX2_RUMBLE_INFO_0_DE "Leitet die Vibration des DualShock 2 an die „Rumble“-Unterstützung des Frontends weiter."
+#define PCSX2_AXIS_SCALE_LABEL_DE "Skalierung der Analogachse"
+#define PCSX2_AXIS_SCALE_INFO_0_DE "Skaliert die Stick-Eingabe wie bei einem echten DualShock 2 (PCSX2-Standard: 133 %). Bei eingeschränkt wirkenden diagonalen Bewegungen den Wert verringern."
 #define OPTION_VAL_100_PCSX2_AXIS_SCALE_DE "100 %"
 #define OPTION_VAL_115_DE "115 %"
 #define OPTION_VAL_133_DE "133 % (Standard)"
 #define OPTION_VAL_150_PCSX2_AXIS_SCALE_DE "150 %"
 #define PCSX2_AXIS_DEADZONE_LABEL_DE "Totzonenregler"
-#define PCSX2_AXIS_DEADZONE_INFO_0_DE NULL
+#define PCSX2_AXIS_DEADZONE_INFO_0_DE "Deadzone des Sticks, die im emulierten Controller angewendet wird – zusätzlich zu einer etwaigen Deadzone des Frontends."
 #define OPTION_VAL_0_DE "0 % (Standard)"
 #define OPTION_VAL_5_PCSX2_AXIS_DEADZONE_DE "5 %"
 #define OPTION_VAL_10_DE "10 %"
 #define OPTION_VAL_15_DE "15 %"
 #define OPTION_VAL_20_DE "20 %"
 #define OPTION_VAL_30_DE "30 %"
-#define PCSX2_WIDESCREEN_PATCHES_LABEL_DE NULL
-#define PCSX2_WIDESCREEN_PATCHES_INFO_0_DE NULL
-#define PCSX2_NO_INTERLACING_PATCHES_LABEL_DE NULL
-#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_DE NULL
+#define PCSX2_WIDESCREEN_PATCHES_LABEL_DE "Breitbild-Patches"
+#define PCSX2_WIDESCREEN_PATCHES_INFO_0_DE "Aktiviert integrierte 16:9-Breitbild-Patches, sofern verfügbar. Die Einstellung sollte vor dem Spielstart vorgenommen werden."
+#define PCSX2_NO_INTERLACING_PATCHES_LABEL_DE "Patches gegen Interlacing"
+#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_DE "Aktiviert integrierte Patches für die progressive Bildausgabe, sofern verfügbar. Die Einstellung sollte vor dem Spielstart vorgenommen werden."
+#define PCSX2_CHEATS_LABEL_DE NULL
+#define PCSX2_CHEATS_INFO_0_DE NULL
 #define PCSX2_MTVU_LABEL_DE NULL
-#define PCSX2_MTVU_INFO_0_DE NULL
-#define PCSX2_INSTANT_VU1_LABEL_DE NULL
-#define PCSX2_INSTANT_VU1_INFO_0_DE NULL
-#define PCSX2_EE_CYCLE_RATE_LABEL_DE NULL
+#define PCSX2_MTVU_INFO_0_DE "Führt VU1 in einem eigenen Thread aus. Kann die Leistung auf Mehrkern-CPUs deutlich steigern; einige wenige Spiele können dadurch einfrieren."
+#define PCSX2_INSTANT_VU1_LABEL_DE "VU1 sofort ausführen"
+#define PCSX2_INSTANT_VU1_INFO_0_DE "Führt VU1 sofort vollständig aus (wird bei aktiviertem MTVU ignoriert). Verbessert normalerweise die Leistung."
+#define PCSX2_EE_CYCLE_RATE_LABEL_DE "EE-Taktrate"
 #define PCSX2_EE_CYCLE_RATE_INFO_0_DE "Die emulierte Emotion Engine unter- oder übertakten. Standardwert: 100 %. Dies kann zu Fehlern bei Spielen führen."
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_DE "50 % (Untertaktung)"
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_DE "60 % (Untertaktung)"
@@ -3799,11 +4008,11 @@ struct retro_core_options_v2 options_da = {
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_0_DE "300 % (Übertaktung)"
 #define PCSX2_EE_CYCLE_SKIP_LABEL_DE "EE-Zyklen überspringen"
 #define PCSX2_EE_CYCLE_SKIP_INFO_0_DE "Lässt die Emotion Engine (EE) Zyklen überspringen. Hilft bei einigen Spielen mit hoher VU-Aktivität, führt bei anderen jedoch zu Fehlern."
-#define OPTION_VAL_0_PCSX2_EE_CYCLE_SKIP_DE NULL
-#define OPTION_VAL_1_PCSX2_EE_CYCLE_SKIP_DE NULL
-#define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_DE NULL
+#define OPTION_VAL_0_PCSX2_EE_CYCLE_SKIP_DE "Deaktiviert (Standard)"
+#define OPTION_VAL_1_PCSX2_EE_CYCLE_SKIP_DE "Gering"
+#define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_DE "Mittel"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_DE NULL
-#define PCSX2_CPU_RECOMPILER_LABEL_DE NULL
+#define PCSX2_CPU_RECOMPILER_LABEL_DE "CPU-Recompiler (JIT)"
 #define PCSX2_CPU_RECOMPILER_INFO_0_DE "Diagnosehauptschalter. Bei „Aktiviert“ werden die Dynarecs für EE, IOP und VU0/VU1 (JIT, schnell, Standard) ausgeführt. Bei „Deaktiviert“ wird jede CPU auf einen Interpreter umgeschaltet, was zwar deutlich langsamer ist, aber JIT-Fehler isoliert: Tritt bei deaktivierter Option weiterhin ein Absturz auf, ist der Recompiler nicht die Ursache. Die vier unten aufgeführten Schalter pro CPU wirken nur, solange diese Option aktiviert ist. Erfordert einen Neustart."
 #define OPTION_VAL_ENABLED_DE "Aktiviert (JIT, Standard)"
 #define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_DE "Deaktiviert (Interpreter)"
@@ -3817,11 +4026,11 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_REC_VU1_LABEL_DE "  - VU1-Recompiler"
 #define PCSX2_REC_VU1_INFO_0_DE "Diagnose. Nur den Dynarec des VU1 microVU deaktivieren, während die anderen aktiviert bleiben, um durch Bisektion festzustellen, welcher Rekompilierer einen Absturz verursacht. Erfordert einen Neustart."
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_DE "Slot 1 aktiviert"
-#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_DE NULL
+#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_DE "Aktiviert die PS2-Speicherkarte in Steckplatz 1. Änderungen werden sofort übernommen, auch während Inhalte ausgeführt werden."
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_DE "Slot 2 aktiviert"
-#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_DE NULL
+#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_DE "Aktiviert die PS2-Speicherkarte in Steckplatz 2. Änderungen werden sofort übernommen, auch während Inhalte ausgeführt werden."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_DE "Karte in Slot 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_DE NULL
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_DE "Eine vorhandene .ps2-Speicherkarte aus <system>/pcsx2/memcards auswählen. Änderungen werden sofort übernommen, auch während Inhalte ausgeführt werden."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_DE "Karte in Slot 2"
 
 struct retro_core_option_v2_category option_cats_de[] = {
@@ -3933,6 +4142,14 @@ struct retro_core_option_v2_definition option_defs_de[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_DE}, {"usb2", OPTION_VAL_USB2_DE}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DE},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DE, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_DE}, {"2020FF", OPTION_VAL_2020FF_DE}, {"20FF20", OPTION_VAL_20FF20_DE}, {"FFC020", OPTION_VAL_FFC020_DE},
+			{"20E0FF", OPTION_VAL_20E0FF_DE}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_DE, NULL, PCSX2_RUMBLE_INFO_0_DE,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_DE, NULL,
@@ -3952,6 +4169,9 @@ struct retro_core_option_v2_definition option_defs_de[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_DE, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_DE, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_DE, NULL,
+		PCSX2_CHEATS_INFO_0_DE, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_DE, NULL,
@@ -4126,6 +4346,13 @@ struct retro_core_options_v2 options_de = {
 #define OPTION_VAL_USB1_EL NULL
 #define OPTION_VAL_USB2_EL NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EL NULL
+#define OPTION_VAL_FFFFFF_EL NULL
+#define OPTION_VAL_2020FF_EL "Κόκκινο"
+#define OPTION_VAL_20FF20_EL "Πράσινο"
+#define OPTION_VAL_FFC020_EL "Μπλε"
+#define OPTION_VAL_20E0FF_EL "Κίτρινο"
 #define PCSX2_RUMBLE_LABEL_EL NULL
 #define PCSX2_RUMBLE_INFO_0_EL NULL
 #define PCSX2_AXIS_SCALE_LABEL_EL NULL
@@ -4146,6 +4373,8 @@ struct retro_core_options_v2 options_de = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_EL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_EL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_EL NULL
+#define PCSX2_CHEATS_LABEL_EL "Απάτες"
+#define PCSX2_CHEATS_INFO_0_EL NULL
 #define PCSX2_MTVU_LABEL_EL NULL
 #define PCSX2_MTVU_INFO_0_EL NULL
 #define PCSX2_INSTANT_VU1_LABEL_EL NULL
@@ -4295,6 +4524,14 @@ struct retro_core_option_v2_definition option_defs_el[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_EL}, {"usb2", OPTION_VAL_USB2_EL}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EL},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EL, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EL,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_EL}, {"2020FF", OPTION_VAL_2020FF_EL}, {"20FF20", OPTION_VAL_20FF20_EL}, {"FFC020", OPTION_VAL_FFC020_EL},
+			{"20E0FF", OPTION_VAL_20E0FF_EL}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_EL, NULL, PCSX2_RUMBLE_INFO_0_EL,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_EL, NULL,
@@ -4314,6 +4551,9 @@ struct retro_core_option_v2_definition option_defs_el[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_EL, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_EL, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_EL, NULL,
+		PCSX2_CHEATS_INFO_0_EL, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_EL, NULL,
@@ -4488,6 +4728,13 @@ struct retro_core_options_v2 options_el = {
 #define OPTION_VAL_USB1_EN NULL
 #define OPTION_VAL_USB2_EN NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EN NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EN NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EN NULL
+#define OPTION_VAL_FFFFFF_EN NULL
+#define OPTION_VAL_2020FF_EN NULL
+#define OPTION_VAL_20FF20_EN NULL
+#define OPTION_VAL_FFC020_EN NULL
+#define OPTION_VAL_20E0FF_EN NULL
 #define PCSX2_RUMBLE_LABEL_EN NULL
 #define PCSX2_RUMBLE_INFO_0_EN NULL
 #define PCSX2_AXIS_SCALE_LABEL_EN NULL
@@ -4508,6 +4755,8 @@ struct retro_core_options_v2 options_el = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_EN NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_EN NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_EN NULL
+#define PCSX2_CHEATS_LABEL_EN NULL
+#define PCSX2_CHEATS_INFO_0_EN NULL
 #define PCSX2_MTVU_LABEL_EN NULL
 #define PCSX2_MTVU_INFO_0_EN NULL
 #define PCSX2_INSTANT_VU1_LABEL_EN NULL
@@ -4657,6 +4906,14 @@ struct retro_core_option_v2_definition option_defs_en[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_EN}, {"usb2", OPTION_VAL_USB2_EN}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EN},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EN, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EN,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_EN}, {"2020FF", OPTION_VAL_2020FF_EN}, {"20FF20", OPTION_VAL_20FF20_EN}, {"FFC020", OPTION_VAL_FFC020_EN},
+			{"20E0FF", OPTION_VAL_20E0FF_EN}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_EN, NULL, PCSX2_RUMBLE_INFO_0_EN,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_EN, NULL,
@@ -4676,6 +4933,9 @@ struct retro_core_option_v2_definition option_defs_en[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_EN, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_EN, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_EN, NULL,
+		PCSX2_CHEATS_INFO_0_EN, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_EN, NULL,
@@ -4850,6 +5110,13 @@ struct retro_core_options_v2 options_en = {
 #define OPTION_VAL_USB1_EO NULL
 #define OPTION_VAL_USB2_EO NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EO NULL
+#define OPTION_VAL_FFFFFF_EO "Blanka"
+#define OPTION_VAL_2020FF_EO "Ruĝa"
+#define OPTION_VAL_20FF20_EO "Verda"
+#define OPTION_VAL_FFC020_EO "Blua"
+#define OPTION_VAL_20E0FF_EO "Flava"
 #define PCSX2_RUMBLE_LABEL_EO NULL
 #define PCSX2_RUMBLE_INFO_0_EO NULL
 #define PCSX2_AXIS_SCALE_LABEL_EO NULL
@@ -4870,6 +5137,8 @@ struct retro_core_options_v2 options_en = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_EO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_EO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_EO NULL
+#define PCSX2_CHEATS_LABEL_EO "Trompoj"
+#define PCSX2_CHEATS_INFO_0_EO NULL
 #define PCSX2_MTVU_LABEL_EO NULL
 #define PCSX2_MTVU_INFO_0_EO NULL
 #define PCSX2_INSTANT_VU1_LABEL_EO NULL
@@ -5019,6 +5288,14 @@ struct retro_core_option_v2_definition option_defs_eo[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_EO}, {"usb2", OPTION_VAL_USB2_EO}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_EO},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_EO, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_EO,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_EO}, {"2020FF", OPTION_VAL_2020FF_EO}, {"20FF20", OPTION_VAL_20FF20_EO}, {"FFC020", OPTION_VAL_FFC020_EO},
+			{"20E0FF", OPTION_VAL_20E0FF_EO}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_EO, NULL, PCSX2_RUMBLE_INFO_0_EO,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_EO, NULL,
@@ -5038,6 +5315,9 @@ struct retro_core_option_v2_definition option_defs_eo[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_EO, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_EO, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_EO, NULL,
+		PCSX2_CHEATS_INFO_0_EO, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_EO, NULL,
@@ -5114,7 +5394,7 @@ struct retro_core_options_v2 options_eo = {
 #define CATEGORY_GRAPHICS_LABEL_ES "Gráficos"
 #define CATEGORY_GRAPHICS_INFO_0_ES "Renderizador, resolución y calidad de imagen."
 #define CATEGORY_PATCHES_LABEL_ES "Parches"
-#define CATEGORY_PATCHES_INFO_0_ES "Parches integrados para juegos (pantalla panorámica, desactivar entrelazado)."
+#define CATEGORY_PATCHES_INFO_0_ES "Parches y trucos integrados para juegos (pantalla panorámica, desactivar entrelazado)."
 #define CATEGORY_PERFORMANCE_LABEL_ES "Rendimiento"
 #define CATEGORY_PERFORMANCE_INFO_0_ES "Arreglos de velocidad. Podrían romper los juegos."
 #define CATEGORY_AUDIO_LABEL_ES NULL
@@ -5208,10 +5488,17 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_PORT2_ES "Puerto 2 (5 jugadores)"
 #define OPTION_VAL_BOTH_ES "Ambos puertos (8 jugadores)"
 #define PCSX2_LIGHTGUN_LABEL_ES NULL
-#define PCSX2_LIGHTGUN_INFO_0_ES "Emula una GunCon 2 de Namco en un puerto USB, apuntado a través de la lightgun del front-end (o de un ratón asignado como lightgun) del puerto de mando correspondiente. Es necesario reiniciar."
+#define PCSX2_LIGHTGUN_INFO_0_ES "Emula una GunCon 2 de Namco conectada a un puerto USB apuntada usando la «lightgun» del front-end (o un ratón asignado como «lightgun») en el puerto de mando correspondiente. Pulsa Arma: Recargar para disparar fuera de la pantalla, para hacer los disparos de calibración que piden algunos juegos, pulsa Arma: Gatillo y Arma: Recargar a la vez o R3. Es necesario reiniciar."
 #define OPTION_VAL_USB1_ES "Puerto USB 1"
 #define OPTION_VAL_USB2_ES "Puerto USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ES "Ambos puertos"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ES "Punto de mira de lightgun"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES "Muestra un punto de mira con el color seleccionado donde esté apuntando la GunCon 2. Esta opción está desactivada por defecto, tal y como ocurriría en la consola. Es necesario reiniciar."
+#define OPTION_VAL_FFFFFF_ES "Blanco"
+#define OPTION_VAL_2020FF_ES "Rojo"
+#define OPTION_VAL_20FF20_ES "Verde"
+#define OPTION_VAL_FFC020_ES "Azul"
+#define OPTION_VAL_20E0FF_ES "Amarillo"
 #define PCSX2_RUMBLE_LABEL_ES "Vibración"
 #define PCSX2_RUMBLE_INFO_0_ES "Transmite las vibraciones de los DualShock 2 al soporte de vibración del front-end."
 #define PCSX2_AXIS_SCALE_LABEL_ES "Escala de ejes analógicos"
@@ -5232,6 +5519,8 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_ES "Activa los parches integrados para pantallas panorámicas a 16:9 si están disponibles. Es mejor aplicar esta opción antes de ejecutar un juego."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_ES "Parches para desactivar el entrelazado"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_ES "Activa los parches integrados para señal progresiva si están disponibles. Es mejor aplicar esta opción antes de ejecutar un juego."
+#define PCSX2_CHEATS_LABEL_ES "Trucos"
+#define PCSX2_CHEATS_INFO_0_ES "Aplica los trucos que haya en la carpeta system/pcsx2/cheats/: archivos .pnach con el nombre del número de serie y el CRC del juego, en el mismo formato de la aplicación independiente. Se recomienda aplicarlos antes de arrancar un juego."
 #define PCSX2_MTVU_LABEL_ES "MTVU (VU1 multihilo)"
 #define PCSX2_MTVU_INFO_0_ES "Ejecuta la VU1 en un hilo propio. Mejorará mucho la velocidad en CPU multinúcleo, unos pocos juegos se quedarán colgados."
 #define PCSX2_INSTANT_VU1_LABEL_ES "VU1 instantánea"
@@ -5381,6 +5670,14 @@ struct retro_core_option_v2_definition option_defs_es[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_ES}, {"usb2", OPTION_VAL_USB2_ES}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ES},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ES, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_ES}, {"2020FF", OPTION_VAL_2020FF_ES}, {"20FF20", OPTION_VAL_20FF20_ES}, {"FFC020", OPTION_VAL_FFC020_ES},
+			{"20E0FF", OPTION_VAL_20E0FF_ES}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_ES, NULL, PCSX2_RUMBLE_INFO_0_ES,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_ES, NULL,
@@ -5400,6 +5697,9 @@ struct retro_core_option_v2_definition option_defs_es[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_ES, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_ES, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_ES, NULL,
+		PCSX2_CHEATS_INFO_0_ES, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_ES, NULL,
@@ -5574,6 +5874,13 @@ struct retro_core_options_v2 options_es = {
 #define OPTION_VAL_USB1_FA NULL
 #define OPTION_VAL_USB2_FA NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FA NULL
+#define OPTION_VAL_FFFFFF_FA NULL
+#define OPTION_VAL_2020FF_FA NULL
+#define OPTION_VAL_20FF20_FA NULL
+#define OPTION_VAL_FFC020_FA NULL
+#define OPTION_VAL_20E0FF_FA NULL
 #define PCSX2_RUMBLE_LABEL_FA NULL
 #define PCSX2_RUMBLE_INFO_0_FA NULL
 #define PCSX2_AXIS_SCALE_LABEL_FA NULL
@@ -5594,6 +5901,8 @@ struct retro_core_options_v2 options_es = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_FA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_FA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_FA NULL
+#define PCSX2_CHEATS_LABEL_FA "تقلب‌ها"
+#define PCSX2_CHEATS_INFO_0_FA NULL
 #define PCSX2_MTVU_LABEL_FA NULL
 #define PCSX2_MTVU_INFO_0_FA NULL
 #define PCSX2_INSTANT_VU1_LABEL_FA NULL
@@ -5743,6 +6052,14 @@ struct retro_core_option_v2_definition option_defs_fa[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_FA}, {"usb2", OPTION_VAL_USB2_FA}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FA},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FA, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FA,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_FA}, {"2020FF", OPTION_VAL_2020FF_FA}, {"20FF20", OPTION_VAL_20FF20_FA}, {"FFC020", OPTION_VAL_FFC020_FA},
+			{"20E0FF", OPTION_VAL_20E0FF_FA}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_FA, NULL, PCSX2_RUMBLE_INFO_0_FA,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_FA, NULL,
@@ -5762,6 +6079,9 @@ struct retro_core_option_v2_definition option_defs_fa[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_FA, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_FA, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_FA, NULL,
+		PCSX2_CHEATS_INFO_0_FA, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_FA, NULL,
@@ -5936,6 +6256,13 @@ struct retro_core_options_v2 options_fa = {
 #define OPTION_VAL_USB1_FI NULL
 #define OPTION_VAL_USB2_FI NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FI NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FI NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FI NULL
+#define OPTION_VAL_FFFFFF_FI "Valkoinen"
+#define OPTION_VAL_2020FF_FI "Punainen"
+#define OPTION_VAL_20FF20_FI "Vihreä"
+#define OPTION_VAL_FFC020_FI "Sininen"
+#define OPTION_VAL_20E0FF_FI "Keltainen"
 #define PCSX2_RUMBLE_LABEL_FI NULL
 #define PCSX2_RUMBLE_INFO_0_FI NULL
 #define PCSX2_AXIS_SCALE_LABEL_FI NULL
@@ -5956,6 +6283,8 @@ struct retro_core_options_v2 options_fa = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_FI NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_FI NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_FI NULL
+#define PCSX2_CHEATS_LABEL_FI "Huijauskoodit"
+#define PCSX2_CHEATS_INFO_0_FI NULL
 #define PCSX2_MTVU_LABEL_FI NULL
 #define PCSX2_MTVU_INFO_0_FI NULL
 #define PCSX2_INSTANT_VU1_LABEL_FI NULL
@@ -6105,6 +6434,14 @@ struct retro_core_option_v2_definition option_defs_fi[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_FI}, {"usb2", OPTION_VAL_USB2_FI}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FI},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FI, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FI,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_FI}, {"2020FF", OPTION_VAL_2020FF_FI}, {"20FF20", OPTION_VAL_20FF20_FI}, {"FFC020", OPTION_VAL_FFC020_FI},
+			{"20E0FF", OPTION_VAL_20E0FF_FI}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_FI, NULL, PCSX2_RUMBLE_INFO_0_FI,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_FI, NULL,
@@ -6124,6 +6461,9 @@ struct retro_core_option_v2_definition option_defs_fi[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_FI, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_FI, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_FI, NULL,
+		PCSX2_CHEATS_INFO_0_FI, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_FI, NULL,
@@ -6200,7 +6540,7 @@ struct retro_core_options_v2 options_fi = {
 #define CATEGORY_GRAPHICS_LABEL_FR "Graphismes"
 #define CATEGORY_GRAPHICS_INFO_0_FR "Moteur de rendu, résolution et qualité d'image."
 #define CATEGORY_PATCHES_LABEL_FR "Correctifs"
-#define CATEGORY_PATCHES_INFO_0_FR "Correctifs de jeu intégrés (écran large, désentrelacement)."
+#define CATEGORY_PATCHES_INFO_0_FR NULL
 #define CATEGORY_PERFORMANCE_LABEL_FR "Performances"
 #define CATEGORY_PERFORMANCE_INFO_0_FR "Hacks de vitesse. Risque de faire planter les jeux."
 #define CATEGORY_AUDIO_LABEL_FR "Audio "
@@ -6294,10 +6634,17 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_PORT2_FR "Port 2 (5 joueurs)"
 #define OPTION_VAL_BOTH_FR "Les deux ports (8 joueurs)"
 #define PCSX2_LIGHTGUN_LABEL_FR "Pistolet (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_FR "Émule un Namco GunCon 2 sur un port USB, en visant avec le pistolet de l'interface graphique (ou une souris mappée comme tel) sur le port manette correspondant. Redémarrage requis."
+#define PCSX2_LIGHTGUN_INFO_0_FR "Émule un Namco GunCon 2 sur un port USB, en visant avec le pistolet de l'interface graphique (ou une souris mappée comme tel) sur le port manette correspondant. Le rechargement s'effectue en tirant hors écran ; le tir de calibration requis par certains jeux s'effectue en appuyant simultanément sur la gâchette et le bouton de rechargement, ou sur R3. Nécessite un redémarrage."
 #define OPTION_VAL_USB1_FR "Port USB 1"
 #define OPTION_VAL_USB2_FR "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FR "Les deux ports"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FR "Réticule du pistolet"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FR "Affiche un réticule à l'endroit visé par le GunCon 2, dans la couleur choisie. Désactivé par défaut, comme sur la console. Nécessite un redémarrage."
+#define OPTION_VAL_FFFFFF_FR "Blanche"
+#define OPTION_VAL_2020FF_FR "Rouge"
+#define OPTION_VAL_20FF20_FR "Vert"
+#define OPTION_VAL_FFC020_FR "Bleu"
+#define OPTION_VAL_20E0FF_FR "Jaune"
 #define PCSX2_RUMBLE_LABEL_FR "Vibration"
 #define PCSX2_RUMBLE_INFO_0_FR "Transmettre les vibrations de la DualShock 2 à la fonction de retour de force de l'interface graphique."
 #define PCSX2_AXIS_SCALE_LABEL_FR "Échelle d'axe analogique"
@@ -6318,6 +6665,8 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_FR "Activer les correctifs intégrés pour le format 16:9 (écran large) lorsqu'ils sont disponibles. Il est préférable de les activer avant de lancer une partie."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_FR "Correctifs de non-entrelacement"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_FR "Activer les correctifs intégrés de sortie progressive lorsqu'ils sont disponibles. Il est préférable de les appliquer avant de lancer une partie."
+#define PCSX2_CHEATS_LABEL_FR NULL
+#define PCSX2_CHEATS_INFO_0_FR NULL
 #define PCSX2_MTVU_LABEL_FR "MTVU (VU1 sur plusieurs fils d'exécution)"
 #define PCSX2_MTVU_INFO_0_FR "Exécute le processeur mathématique VU1 sur son propre fil d'exécution. Cela permet un gain de vitesse important sur les processeurs multicœurs ; bien qu'un petit nombre de jeux se bloquent avec cette option."
 #define PCSX2_INSTANT_VU1_LABEL_FR "VU1 instantané"
@@ -6467,6 +6816,14 @@ struct retro_core_option_v2_definition option_defs_fr[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_FR}, {"usb2", OPTION_VAL_USB2_FR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_FR}, {"2020FF", OPTION_VAL_2020FF_FR}, {"20FF20", OPTION_VAL_20FF20_FR}, {"FFC020", OPTION_VAL_FFC020_FR},
+			{"20E0FF", OPTION_VAL_20E0FF_FR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_FR, NULL, PCSX2_RUMBLE_INFO_0_FR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_FR, NULL,
@@ -6486,6 +6843,9 @@ struct retro_core_option_v2_definition option_defs_fr[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_FR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_FR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_FR, NULL,
+		PCSX2_CHEATS_INFO_0_FR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_FR, NULL,
@@ -6562,7 +6922,7 @@ struct retro_core_options_v2 options_fr = {
 #define CATEGORY_GRAPHICS_LABEL_GA "Grafaicí"
 #define CATEGORY_GRAPHICS_INFO_0_GA "Inneall rindreála, taifeach agus cáilíocht íomhá."
 #define CATEGORY_PATCHES_LABEL_GA "Paistí"
-#define CATEGORY_PATCHES_INFO_0_GA "Paistí cluiche ionsuite (scáileán leathan, gan idir-rianú)."
+#define CATEGORY_PATCHES_INFO_0_GA "Paistí cluiche ionsuite (scáileán leathan, gan idirfháolú) agus cóid chalaoise."
 #define CATEGORY_PERFORMANCE_LABEL_GA "Feidhmíocht"
 #define CATEGORY_PERFORMANCE_INFO_0_GA "Haicanna luais. D’fhéadfadh siad cluichí a bhriseadh."
 #define CATEGORY_AUDIO_LABEL_GA "Fuaim"
@@ -6638,11 +6998,11 @@ struct retro_core_options_v2 options_fr = {
 #define OPTION_VAL_150_GA NULL
 #define OPTION_VAL_200_GA NULL
 #define PCSX2_FRAME_LIMITER_LABEL_GA "Teorantóir Frámaí"
-#define PCSX2_FRAME_LIMITER_INFO_0_GA NULL
+#define PCSX2_FRAME_LIMITER_INFO_0_GA "Cad a choinníonn an t-aithriseoir ag an luas uasta? Fágann an comhéadan tosaigh cúrsaí luas-rialaithe faoi RetroArch, a dhéanann an luas a shrianadh trí chur ar an gcroílár fanacht leis an bhfuaim a sheachadtar chuige. Ina áit sin, baineann an córas inmheánach úsáid as an teorantóir atá ag PCSX2 féin – rud atá fadhbach i gcás gléis nach dtarlaíonn an fanacht sin ann riamh, ós rud é go dtarlaíonn ganntanas sonraí (underrun) ag an tiománaí fuaime seachas go gcuirtear bac ar an bpróiseas; dá bharr sin, léirítear luaineachtaí luais an aithriseora féin ar an scáileán mar luas neamhrialta na bhfrámaí."
 #define OPTION_VAL_FRONTEND_GA "Tosaigh (RetroArch)"
 #define OPTION_VAL_INTERNAL_GA "Inmheánach (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GA "Scipeáil ag taispeáint frámaí dúblacha"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA NULL
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA "Ná seol chuig an droichead tosaigh (frontend) fráma nár ath-tharraing an GS riamh – sa chás sin, sheachadfaí 30 fráma uathúil in ionad 60 (le gach dara fráma á ath ullmhú) i spreag a ritheann ag 30fps. Múch an ghné seo má bhíonn gá ag scagaire giniúna frámaí nó idirshuímh le gach fráma a bheith ina fhráma ar leith."
 #define PCSX2_CAS_SHARPNESS_LABEL_GA "Géire CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_GA "Cóimheas Gnéithe"
 #define PCSX2_ASPECT_RATIO_INFO_0_GA "Tuairiscítear 16:9 go huathoibríoch nuair a bhíonn paistí scáileáin leathain cumasaithe, agus 4:3 murach sin."
@@ -6650,16 +7010,23 @@ struct retro_core_options_v2 options_fr = {
 #define OPTION_VAL_4_3_GA NULL
 #define OPTION_VAL_16_9_GA NULL
 #define PCSX2_MULTITAP_LABEL_GA "Il-thapáil"
-#define PCSX2_MULTITAP_INFO_0_GA NULL
+#define PCSX2_MULTITAP_INFO_0_GA "Cuir an t-adapter ilphort (multitap) i ngníomh chun tacú le suas le 8 rialtóir. Leanann ord na n-imreoirí na sliotáin fhisiciúla (port 1: 1A-1D, ansin port 2: 2A-2D). Moltar an gléas a atosú."
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_GA "Díchumasaithe (2 imreoir)"
 #define OPTION_VAL_PORT1_GA "Port 1 (5 imreoir)"
 #define OPTION_VAL_PORT2_GA "Port 2 (5 imreoir)"
 #define OPTION_VAL_BOTH_GA "An dá phort (8 n-imreoir)"
 #define PCSX2_LIGHTGUN_LABEL_GA "Gunna solais (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_GA "Déan aithris ar Namco GunCon 2 ar chalafort USB, agus é á dhíriú le *lightgun* an chomhéadáin (nó le luch atá mapáilte mar *lightgun*) ar an gcalafort rialaitheora comhfhreagrach. Teastaíonn atosú."
+#define PCSX2_LIGHTGUN_INFO_0_GA "Déan aithris ar Namco GunCon 2 trí chalafort USB, agus é á dhíriú le *lightgun* an chomhéadáin (nó le luch atá cumraithe mar *lightgun*) ag an gcalafort rialaitheora comhfhreagrach. Chun an gunna a athlódáil, scaoiltear an t-urchar lasmuigh den scáileán; maidir leis an urchar calabrúcháin a éilíonn roinnt cluichí, is éard atá i gceist ná an truicear agus an t-athlódáil a úsáid le chéile, nó an cnaipe R3 a bhrú. Teastaíonn atosú."
 #define OPTION_VAL_USB1_GA "Port USB 1"
 #define OPTION_VAL_USB2_GA "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_GA "An Dá Poirt"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_GA "Spriocchros an Ghunna Solais"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GA "Tarraing spriocmharc san dath roghnaithe ag an bpointe a bhfuil an GunCon 2 dírithe air. Bíonn sé múchta de réir réamhshocraithe, díreach mar a bhíonn ar an gconsól. Teastaíonn atosú."
+#define OPTION_VAL_FFFFFF_GA "Bán"
+#define OPTION_VAL_2020FF_GA "Dearg"
+#define OPTION_VAL_20FF20_GA "Glas"
+#define OPTION_VAL_FFC020_GA "Gorm"
+#define OPTION_VAL_20E0FF_GA "Buí"
 #define PCSX2_RUMBLE_LABEL_GA "Tormán"
 #define PCSX2_RUMBLE_INFO_0_GA "Creathadh DualShock 2 ar aghaidh chuig tacaíocht torann an tosaigh."
 #define PCSX2_AXIS_SCALE_LABEL_GA "Scála Ais Analógaí"
@@ -6679,7 +7046,9 @@ struct retro_core_options_v2 options_fr = {
 #define PCSX2_WIDESCREEN_PATCHES_LABEL_GA "Paistí Scáileáin Leathain"
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_GA "Cuir ar chumas na paistí scáileáin leathain 16:9 ionsuite nuair atá siad ar fáil. Is fearr iad a chur i bhfeidhm sula dtosaítear cluiche."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_GA "Paistí Neamh-Idirfhuaite"
-#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_GA NULL
+#define PCSX2_NO_INTERLACING_PATCHES_INFO_0_GA "Cumasaigh paistí ionsuite le haghaidh aschur forásach (progressive output) nuair atá siad ar fáil. Is fearr iad a chur i bhfeidhm sula dtosaítear cluiche."
+#define PCSX2_CHEATS_LABEL_GA "Aicearraí"
+#define PCSX2_CHEATS_INFO_0_GA "Cuir na cóid chalaoise i bhfeidhm in system/pcsx2/cheats/: comhaid .pnach a bhfuil ainmneacha acu bunaithe ar shraithuimhir agus CRC an chluiche, díreach mar a dhéantar i leagan neamhspleách PCSX2. Is fearr iad a chur i bhfeidhm sula dtosaíonn tú ar chluiche."
 #define PCSX2_MTVU_LABEL_GA "MTVU (VU1 Ilshnáitheach)"
 #define PCSX2_MTVU_INFO_0_GA "Ritheann sé VU1 ar a shnáithe féin. Luathaítear go mór é ar LAPanna ilchroíleetacha; bíonn fadhb reo ag líon beag cluichí dá bharr."
 #define PCSX2_INSTANT_VU1_LABEL_GA "VU1 Meandarach"
@@ -6829,6 +7198,14 @@ struct retro_core_option_v2_definition option_defs_ga[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_GA}, {"usb2", OPTION_VAL_USB2_GA}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_GA},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_GA, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GA,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_GA}, {"2020FF", OPTION_VAL_2020FF_GA}, {"20FF20", OPTION_VAL_20FF20_GA}, {"FFC020", OPTION_VAL_FFC020_GA},
+			{"20E0FF", OPTION_VAL_20E0FF_GA}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_GA, NULL, PCSX2_RUMBLE_INFO_0_GA,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_GA, NULL,
@@ -6848,6 +7225,9 @@ struct retro_core_option_v2_definition option_defs_ga[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_GA, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_GA, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_GA, NULL,
+		PCSX2_CHEATS_INFO_0_GA, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_GA, NULL,
@@ -7022,6 +7402,13 @@ struct retro_core_options_v2 options_ga = {
 #define OPTION_VAL_USB1_GL NULL
 #define OPTION_VAL_USB2_GL NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_GL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_GL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GL NULL
+#define OPTION_VAL_FFFFFF_GL "Branco"
+#define OPTION_VAL_2020FF_GL "Vermello"
+#define OPTION_VAL_20FF20_GL "Verde"
+#define OPTION_VAL_FFC020_GL "Azul"
+#define OPTION_VAL_20E0FF_GL "Amarelo"
 #define PCSX2_RUMBLE_LABEL_GL NULL
 #define PCSX2_RUMBLE_INFO_0_GL NULL
 #define PCSX2_AXIS_SCALE_LABEL_GL NULL
@@ -7042,6 +7429,8 @@ struct retro_core_options_v2 options_ga = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_GL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_GL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_GL NULL
+#define PCSX2_CHEATS_LABEL_GL "Trucos"
+#define PCSX2_CHEATS_INFO_0_GL NULL
 #define PCSX2_MTVU_LABEL_GL NULL
 #define PCSX2_MTVU_INFO_0_GL NULL
 #define PCSX2_INSTANT_VU1_LABEL_GL NULL
@@ -7191,6 +7580,14 @@ struct retro_core_option_v2_definition option_defs_gl[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_GL}, {"usb2", OPTION_VAL_USB2_GL}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_GL},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_GL, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GL,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_GL}, {"2020FF", OPTION_VAL_2020FF_GL}, {"20FF20", OPTION_VAL_20FF20_GL}, {"FFC020", OPTION_VAL_FFC020_GL},
+			{"20E0FF", OPTION_VAL_20E0FF_GL}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_GL, NULL, PCSX2_RUMBLE_INFO_0_GL,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_GL, NULL,
@@ -7210,6 +7607,9 @@ struct retro_core_option_v2_definition option_defs_gl[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_GL, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_GL, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_GL, NULL,
+		PCSX2_CHEATS_INFO_0_GL, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_GL, NULL,
@@ -7384,6 +7784,13 @@ struct retro_core_options_v2 options_gl = {
 #define OPTION_VAL_USB1_HE NULL
 #define OPTION_VAL_USB2_HE NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HE NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HE NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HE NULL
+#define OPTION_VAL_FFFFFF_HE NULL
+#define OPTION_VAL_2020FF_HE NULL
+#define OPTION_VAL_20FF20_HE NULL
+#define OPTION_VAL_FFC020_HE NULL
+#define OPTION_VAL_20E0FF_HE NULL
 #define PCSX2_RUMBLE_LABEL_HE NULL
 #define PCSX2_RUMBLE_INFO_0_HE NULL
 #define PCSX2_AXIS_SCALE_LABEL_HE NULL
@@ -7404,6 +7811,8 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_HE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_HE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_HE NULL
+#define PCSX2_CHEATS_LABEL_HE NULL
+#define PCSX2_CHEATS_INFO_0_HE NULL
 #define PCSX2_MTVU_LABEL_HE NULL
 #define PCSX2_MTVU_INFO_0_HE NULL
 #define PCSX2_INSTANT_VU1_LABEL_HE NULL
@@ -7553,6 +7962,14 @@ struct retro_core_option_v2_definition option_defs_he[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_HE}, {"usb2", OPTION_VAL_USB2_HE}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HE},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HE, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HE,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_HE}, {"2020FF", OPTION_VAL_2020FF_HE}, {"20FF20", OPTION_VAL_20FF20_HE}, {"FFC020", OPTION_VAL_FFC020_HE},
+			{"20E0FF", OPTION_VAL_20E0FF_HE}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_HE, NULL, PCSX2_RUMBLE_INFO_0_HE,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_HE, NULL,
@@ -7572,6 +7989,9 @@ struct retro_core_option_v2_definition option_defs_he[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_HE, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_HE, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_HE, NULL,
+		PCSX2_CHEATS_INFO_0_HE, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_HE, NULL,
@@ -7746,6 +8166,13 @@ struct retro_core_options_v2 options_he = {
 #define OPTION_VAL_USB1_HR NULL
 #define OPTION_VAL_USB2_HR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HR NULL
+#define OPTION_VAL_FFFFFF_HR NULL
+#define OPTION_VAL_2020FF_HR NULL
+#define OPTION_VAL_20FF20_HR NULL
+#define OPTION_VAL_FFC020_HR NULL
+#define OPTION_VAL_20E0FF_HR NULL
 #define PCSX2_RUMBLE_LABEL_HR NULL
 #define PCSX2_RUMBLE_INFO_0_HR NULL
 #define PCSX2_AXIS_SCALE_LABEL_HR NULL
@@ -7766,6 +8193,8 @@ struct retro_core_options_v2 options_he = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_HR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_HR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_HR NULL
+#define PCSX2_CHEATS_LABEL_HR NULL
+#define PCSX2_CHEATS_INFO_0_HR NULL
 #define PCSX2_MTVU_LABEL_HR NULL
 #define PCSX2_MTVU_INFO_0_HR NULL
 #define PCSX2_INSTANT_VU1_LABEL_HR NULL
@@ -7915,6 +8344,14 @@ struct retro_core_option_v2_definition option_defs_hr[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_HR}, {"usb2", OPTION_VAL_USB2_HR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_HR}, {"2020FF", OPTION_VAL_2020FF_HR}, {"20FF20", OPTION_VAL_20FF20_HR}, {"FFC020", OPTION_VAL_FFC020_HR},
+			{"20E0FF", OPTION_VAL_20E0FF_HR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_HR, NULL, PCSX2_RUMBLE_INFO_0_HR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_HR, NULL,
@@ -7934,6 +8371,9 @@ struct retro_core_option_v2_definition option_defs_hr[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_HR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_HR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_HR, NULL,
+		PCSX2_CHEATS_INFO_0_HR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_HR, NULL,
@@ -8108,6 +8548,13 @@ struct retro_core_options_v2 options_hr = {
 #define OPTION_VAL_USB1_HU NULL
 #define OPTION_VAL_USB2_HU NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HU NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HU NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HU NULL
+#define OPTION_VAL_FFFFFF_HU "Fehér"
+#define OPTION_VAL_2020FF_HU "Vörös"
+#define OPTION_VAL_20FF20_HU "Zöld"
+#define OPTION_VAL_FFC020_HU "Kék"
+#define OPTION_VAL_20E0FF_HU "Sárga"
 #define PCSX2_RUMBLE_LABEL_HU NULL
 #define PCSX2_RUMBLE_INFO_0_HU NULL
 #define PCSX2_AXIS_SCALE_LABEL_HU NULL
@@ -8128,6 +8575,8 @@ struct retro_core_options_v2 options_hr = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_HU NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_HU NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_HU NULL
+#define PCSX2_CHEATS_LABEL_HU "Csalások"
+#define PCSX2_CHEATS_INFO_0_HU NULL
 #define PCSX2_MTVU_LABEL_HU NULL
 #define PCSX2_MTVU_INFO_0_HU NULL
 #define PCSX2_INSTANT_VU1_LABEL_HU NULL
@@ -8277,6 +8726,14 @@ struct retro_core_option_v2_definition option_defs_hu[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_HU}, {"usb2", OPTION_VAL_USB2_HU}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_HU},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HU, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HU,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_HU}, {"2020FF", OPTION_VAL_2020FF_HU}, {"20FF20", OPTION_VAL_20FF20_HU}, {"FFC020", OPTION_VAL_FFC020_HU},
+			{"20E0FF", OPTION_VAL_20E0FF_HU}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_HU, NULL, PCSX2_RUMBLE_INFO_0_HU,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_HU, NULL,
@@ -8296,6 +8753,9 @@ struct retro_core_option_v2_definition option_defs_hu[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_HU, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_HU, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_HU, NULL,
+		PCSX2_CHEATS_INFO_0_HU, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_HU, NULL,
@@ -8470,6 +8930,13 @@ struct retro_core_options_v2 options_hu = {
 #define OPTION_VAL_USB1_ID NULL
 #define OPTION_VAL_USB2_ID NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ID NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ID NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ID NULL
+#define OPTION_VAL_FFFFFF_ID "Putih"
+#define OPTION_VAL_2020FF_ID NULL
+#define OPTION_VAL_20FF20_ID NULL
+#define OPTION_VAL_FFC020_ID NULL
+#define OPTION_VAL_20E0FF_ID NULL
 #define PCSX2_RUMBLE_LABEL_ID NULL
 #define PCSX2_RUMBLE_INFO_0_ID NULL
 #define PCSX2_AXIS_SCALE_LABEL_ID NULL
@@ -8490,6 +8957,8 @@ struct retro_core_options_v2 options_hu = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_ID NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_ID NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_ID NULL
+#define PCSX2_CHEATS_LABEL_ID NULL
+#define PCSX2_CHEATS_INFO_0_ID NULL
 #define PCSX2_MTVU_LABEL_ID NULL
 #define PCSX2_MTVU_INFO_0_ID NULL
 #define PCSX2_INSTANT_VU1_LABEL_ID NULL
@@ -8639,6 +9108,14 @@ struct retro_core_option_v2_definition option_defs_id[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_ID}, {"usb2", OPTION_VAL_USB2_ID}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ID},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ID, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ID,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_ID}, {"2020FF", OPTION_VAL_2020FF_ID}, {"20FF20", OPTION_VAL_20FF20_ID}, {"FFC020", OPTION_VAL_FFC020_ID},
+			{"20E0FF", OPTION_VAL_20E0FF_ID}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_ID, NULL, PCSX2_RUMBLE_INFO_0_ID,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_ID, NULL,
@@ -8658,6 +9135,9 @@ struct retro_core_option_v2_definition option_defs_id[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_ID, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_ID, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_ID, NULL,
+		PCSX2_CHEATS_INFO_0_ID, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_ID, NULL,
@@ -8832,6 +9312,13 @@ struct retro_core_options_v2 options_id = {
 #define OPTION_VAL_USB1_IT NULL
 #define OPTION_VAL_USB2_IT NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_IT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_IT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_IT NULL
+#define OPTION_VAL_FFFFFF_IT "Bianco"
+#define OPTION_VAL_2020FF_IT "Rosso"
+#define OPTION_VAL_20FF20_IT "Verde"
+#define OPTION_VAL_FFC020_IT "Blu"
+#define OPTION_VAL_20E0FF_IT "Giallo"
 #define PCSX2_RUMBLE_LABEL_IT NULL
 #define PCSX2_RUMBLE_INFO_0_IT NULL
 #define PCSX2_AXIS_SCALE_LABEL_IT NULL
@@ -8852,6 +9339,8 @@ struct retro_core_options_v2 options_id = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_IT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_IT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_IT NULL
+#define PCSX2_CHEATS_LABEL_IT "Trucchi"
+#define PCSX2_CHEATS_INFO_0_IT NULL
 #define PCSX2_MTVU_LABEL_IT NULL
 #define PCSX2_MTVU_INFO_0_IT NULL
 #define PCSX2_INSTANT_VU1_LABEL_IT NULL
@@ -9001,6 +9490,14 @@ struct retro_core_option_v2_definition option_defs_it[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_IT}, {"usb2", OPTION_VAL_USB2_IT}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_IT},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_IT, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_IT,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_IT}, {"2020FF", OPTION_VAL_2020FF_IT}, {"20FF20", OPTION_VAL_20FF20_IT}, {"FFC020", OPTION_VAL_FFC020_IT},
+			{"20E0FF", OPTION_VAL_20E0FF_IT}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_IT, NULL, PCSX2_RUMBLE_INFO_0_IT,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_IT, NULL,
@@ -9020,6 +9517,9 @@ struct retro_core_option_v2_definition option_defs_it[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_IT, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_IT, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_IT, NULL,
+		PCSX2_CHEATS_INFO_0_IT, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_IT, NULL,
@@ -9194,6 +9694,13 @@ struct retro_core_options_v2 options_it = {
 #define OPTION_VAL_USB1_JA NULL
 #define OPTION_VAL_USB2_JA NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_JA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_JA NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_JA NULL
+#define OPTION_VAL_FFFFFF_JA "白"
+#define OPTION_VAL_2020FF_JA "レッド"
+#define OPTION_VAL_20FF20_JA "グリーン"
+#define OPTION_VAL_FFC020_JA "ブルー"
+#define OPTION_VAL_20E0FF_JA "イエロー"
 #define PCSX2_RUMBLE_LABEL_JA NULL
 #define PCSX2_RUMBLE_INFO_0_JA NULL
 #define PCSX2_AXIS_SCALE_LABEL_JA NULL
@@ -9214,6 +9721,8 @@ struct retro_core_options_v2 options_it = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_JA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_JA NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_JA NULL
+#define PCSX2_CHEATS_LABEL_JA "チート"
+#define PCSX2_CHEATS_INFO_0_JA NULL
 #define PCSX2_MTVU_LABEL_JA NULL
 #define PCSX2_MTVU_INFO_0_JA NULL
 #define PCSX2_INSTANT_VU1_LABEL_JA NULL
@@ -9363,6 +9872,14 @@ struct retro_core_option_v2_definition option_defs_ja[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_JA}, {"usb2", OPTION_VAL_USB2_JA}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_JA},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_JA, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_JA,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_JA}, {"2020FF", OPTION_VAL_2020FF_JA}, {"20FF20", OPTION_VAL_20FF20_JA}, {"FFC020", OPTION_VAL_FFC020_JA},
+			{"20E0FF", OPTION_VAL_20E0FF_JA}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_JA, NULL, PCSX2_RUMBLE_INFO_0_JA,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_JA, NULL,
@@ -9382,6 +9899,9 @@ struct retro_core_option_v2_definition option_defs_ja[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_JA, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_JA, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_JA, NULL,
+		PCSX2_CHEATS_INFO_0_JA, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_JA, NULL,
@@ -9556,6 +10076,13 @@ struct retro_core_options_v2 options_ja = {
 #define OPTION_VAL_USB1_KO NULL
 #define OPTION_VAL_USB2_KO NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_KO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_KO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_KO NULL
+#define OPTION_VAL_FFFFFF_KO "흰색"
+#define OPTION_VAL_2020FF_KO "빨간색"
+#define OPTION_VAL_20FF20_KO "녹색"
+#define OPTION_VAL_FFC020_KO "파란색"
+#define OPTION_VAL_20E0FF_KO "노란색"
 #define PCSX2_RUMBLE_LABEL_KO NULL
 #define PCSX2_RUMBLE_INFO_0_KO NULL
 #define PCSX2_AXIS_SCALE_LABEL_KO NULL
@@ -9576,6 +10103,8 @@ struct retro_core_options_v2 options_ja = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_KO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_KO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_KO NULL
+#define PCSX2_CHEATS_LABEL_KO "치트"
+#define PCSX2_CHEATS_INFO_0_KO NULL
 #define PCSX2_MTVU_LABEL_KO NULL
 #define PCSX2_MTVU_INFO_0_KO NULL
 #define PCSX2_INSTANT_VU1_LABEL_KO NULL
@@ -9725,6 +10254,14 @@ struct retro_core_option_v2_definition option_defs_ko[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_KO}, {"usb2", OPTION_VAL_USB2_KO}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_KO},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_KO, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_KO,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_KO}, {"2020FF", OPTION_VAL_2020FF_KO}, {"20FF20", OPTION_VAL_20FF20_KO}, {"FFC020", OPTION_VAL_FFC020_KO},
+			{"20E0FF", OPTION_VAL_20E0FF_KO}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_KO, NULL, PCSX2_RUMBLE_INFO_0_KO,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_KO, NULL,
@@ -9744,6 +10281,9 @@ struct retro_core_option_v2_definition option_defs_ko[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_KO, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_KO, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_KO, NULL,
+		PCSX2_CHEATS_INFO_0_KO, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_KO, NULL,
@@ -9918,6 +10458,13 @@ struct retro_core_options_v2 options_ko = {
 #define OPTION_VAL_USB1_NL NULL
 #define OPTION_VAL_USB2_NL NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_NL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_NL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_NL NULL
+#define OPTION_VAL_FFFFFF_NL NULL
+#define OPTION_VAL_2020FF_NL "Rood"
+#define OPTION_VAL_20FF20_NL "Groen"
+#define OPTION_VAL_FFC020_NL "Blauw"
+#define OPTION_VAL_20E0FF_NL "Geel"
 #define PCSX2_RUMBLE_LABEL_NL NULL
 #define PCSX2_RUMBLE_INFO_0_NL NULL
 #define PCSX2_AXIS_SCALE_LABEL_NL NULL
@@ -9938,6 +10485,8 @@ struct retro_core_options_v2 options_ko = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_NL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_NL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_NL NULL
+#define PCSX2_CHEATS_LABEL_NL NULL
+#define PCSX2_CHEATS_INFO_0_NL NULL
 #define PCSX2_MTVU_LABEL_NL NULL
 #define PCSX2_MTVU_INFO_0_NL NULL
 #define PCSX2_INSTANT_VU1_LABEL_NL NULL
@@ -10087,6 +10636,14 @@ struct retro_core_option_v2_definition option_defs_nl[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_NL}, {"usb2", OPTION_VAL_USB2_NL}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_NL},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_NL, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_NL,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_NL}, {"2020FF", OPTION_VAL_2020FF_NL}, {"20FF20", OPTION_VAL_20FF20_NL}, {"FFC020", OPTION_VAL_FFC020_NL},
+			{"20E0FF", OPTION_VAL_20E0FF_NL}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_NL, NULL, PCSX2_RUMBLE_INFO_0_NL,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_NL, NULL,
@@ -10106,6 +10663,9 @@ struct retro_core_option_v2_definition option_defs_nl[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_NL, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_NL, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_NL, NULL,
+		PCSX2_CHEATS_INFO_0_NL, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_NL, NULL,
@@ -10280,6 +10840,13 @@ struct retro_core_options_v2 options_nl = {
 #define OPTION_VAL_USB1_NO NULL
 #define OPTION_VAL_USB2_NO NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_NO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_NO NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_NO NULL
+#define OPTION_VAL_FFFFFF_NO NULL
+#define OPTION_VAL_2020FF_NO "Rød"
+#define OPTION_VAL_20FF20_NO "Grønn"
+#define OPTION_VAL_FFC020_NO "Blå"
+#define OPTION_VAL_20E0FF_NO "Gul"
 #define PCSX2_RUMBLE_LABEL_NO NULL
 #define PCSX2_RUMBLE_INFO_0_NO NULL
 #define PCSX2_AXIS_SCALE_LABEL_NO NULL
@@ -10300,6 +10867,8 @@ struct retro_core_options_v2 options_nl = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_NO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_NO NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_NO NULL
+#define PCSX2_CHEATS_LABEL_NO "Juksekoder"
+#define PCSX2_CHEATS_INFO_0_NO NULL
 #define PCSX2_MTVU_LABEL_NO NULL
 #define PCSX2_MTVU_INFO_0_NO NULL
 #define PCSX2_INSTANT_VU1_LABEL_NO NULL
@@ -10449,6 +11018,14 @@ struct retro_core_option_v2_definition option_defs_no[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_NO}, {"usb2", OPTION_VAL_USB2_NO}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_NO},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_NO, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_NO,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_NO}, {"2020FF", OPTION_VAL_2020FF_NO}, {"20FF20", OPTION_VAL_20FF20_NO}, {"FFC020", OPTION_VAL_FFC020_NO},
+			{"20E0FF", OPTION_VAL_20E0FF_NO}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_NO, NULL, PCSX2_RUMBLE_INFO_0_NO,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_NO, NULL,
@@ -10468,6 +11045,9 @@ struct retro_core_option_v2_definition option_defs_no[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_NO, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_NO, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_NO, NULL,
+		PCSX2_CHEATS_INFO_0_NO, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_NO, NULL,
@@ -10642,6 +11222,13 @@ struct retro_core_options_v2 options_no = {
 #define OPTION_VAL_USB1_OR NULL
 #define OPTION_VAL_USB2_OR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_OR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_OR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_OR NULL
+#define OPTION_VAL_FFFFFF_OR NULL
+#define OPTION_VAL_2020FF_OR NULL
+#define OPTION_VAL_20FF20_OR NULL
+#define OPTION_VAL_FFC020_OR NULL
+#define OPTION_VAL_20E0FF_OR NULL
 #define PCSX2_RUMBLE_LABEL_OR NULL
 #define PCSX2_RUMBLE_INFO_0_OR NULL
 #define PCSX2_AXIS_SCALE_LABEL_OR NULL
@@ -10662,6 +11249,8 @@ struct retro_core_options_v2 options_no = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_OR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_OR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_OR NULL
+#define PCSX2_CHEATS_LABEL_OR NULL
+#define PCSX2_CHEATS_INFO_0_OR NULL
 #define PCSX2_MTVU_LABEL_OR NULL
 #define PCSX2_MTVU_INFO_0_OR NULL
 #define PCSX2_INSTANT_VU1_LABEL_OR NULL
@@ -10811,6 +11400,14 @@ struct retro_core_option_v2_definition option_defs_or[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_OR}, {"usb2", OPTION_VAL_USB2_OR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_OR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_OR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_OR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_OR}, {"2020FF", OPTION_VAL_2020FF_OR}, {"20FF20", OPTION_VAL_20FF20_OR}, {"FFC020", OPTION_VAL_FFC020_OR},
+			{"20E0FF", OPTION_VAL_20E0FF_OR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_OR, NULL, PCSX2_RUMBLE_INFO_0_OR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_OR, NULL,
@@ -10830,6 +11427,9 @@ struct retro_core_option_v2_definition option_defs_or[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_OR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_OR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_OR, NULL,
+		PCSX2_CHEATS_INFO_0_OR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_OR, NULL,
@@ -11004,6 +11604,13 @@ struct retro_core_options_v2 options_or = {
 #define OPTION_VAL_USB1_PL NULL
 #define OPTION_VAL_USB2_PL NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PL NULL
+#define OPTION_VAL_FFFFFF_PL "Biały"
+#define OPTION_VAL_2020FF_PL "Czerwony"
+#define OPTION_VAL_20FF20_PL "Zielony"
+#define OPTION_VAL_FFC020_PL "Niebieski"
+#define OPTION_VAL_20E0FF_PL "Żółty"
 #define PCSX2_RUMBLE_LABEL_PL NULL
 #define PCSX2_RUMBLE_INFO_0_PL NULL
 #define PCSX2_AXIS_SCALE_LABEL_PL NULL
@@ -11024,6 +11631,8 @@ struct retro_core_options_v2 options_or = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_PL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_PL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_PL NULL
+#define PCSX2_CHEATS_LABEL_PL "Kody"
+#define PCSX2_CHEATS_INFO_0_PL NULL
 #define PCSX2_MTVU_LABEL_PL NULL
 #define PCSX2_MTVU_INFO_0_PL NULL
 #define PCSX2_INSTANT_VU1_LABEL_PL NULL
@@ -11173,6 +11782,14 @@ struct retro_core_option_v2_definition option_defs_pl[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_PL}, {"usb2", OPTION_VAL_USB2_PL}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PL},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PL, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PL,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_PL}, {"2020FF", OPTION_VAL_2020FF_PL}, {"20FF20", OPTION_VAL_20FF20_PL}, {"FFC020", OPTION_VAL_FFC020_PL},
+			{"20E0FF", OPTION_VAL_20E0FF_PL}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_PL, NULL, PCSX2_RUMBLE_INFO_0_PL,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_PL, NULL,
@@ -11192,6 +11809,9 @@ struct retro_core_option_v2_definition option_defs_pl[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_PL, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_PL, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_PL, NULL,
+		PCSX2_CHEATS_INFO_0_PL, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_PL, NULL,
@@ -11366,6 +11986,13 @@ struct retro_core_options_v2 options_pl = {
 #define OPTION_VAL_USB1_PT_BR NULL
 #define OPTION_VAL_USB2_PT_BR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PT_BR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PT_BR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PT_BR NULL
+#define OPTION_VAL_FFFFFF_PT_BR "Branca"
+#define OPTION_VAL_2020FF_PT_BR "Vermelho"
+#define OPTION_VAL_20FF20_PT_BR "Verde"
+#define OPTION_VAL_FFC020_PT_BR "Azul"
+#define OPTION_VAL_20E0FF_PT_BR "Amarelo"
 #define PCSX2_RUMBLE_LABEL_PT_BR NULL
 #define PCSX2_RUMBLE_INFO_0_PT_BR NULL
 #define PCSX2_AXIS_SCALE_LABEL_PT_BR NULL
@@ -11386,6 +12013,8 @@ struct retro_core_options_v2 options_pl = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_PT_BR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_PT_BR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_PT_BR NULL
+#define PCSX2_CHEATS_LABEL_PT_BR "Trapaças"
+#define PCSX2_CHEATS_INFO_0_PT_BR NULL
 #define PCSX2_MTVU_LABEL_PT_BR NULL
 #define PCSX2_MTVU_INFO_0_PT_BR NULL
 #define PCSX2_INSTANT_VU1_LABEL_PT_BR NULL
@@ -11535,6 +12164,14 @@ struct retro_core_option_v2_definition option_defs_pt_br[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_PT_BR}, {"usb2", OPTION_VAL_USB2_PT_BR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PT_BR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PT_BR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PT_BR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_PT_BR}, {"2020FF", OPTION_VAL_2020FF_PT_BR}, {"20FF20", OPTION_VAL_20FF20_PT_BR}, {"FFC020", OPTION_VAL_FFC020_PT_BR},
+			{"20E0FF", OPTION_VAL_20E0FF_PT_BR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_PT_BR, NULL, PCSX2_RUMBLE_INFO_0_PT_BR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_PT_BR, NULL,
@@ -11554,6 +12191,9 @@ struct retro_core_option_v2_definition option_defs_pt_br[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_PT_BR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_PT_BR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_PT_BR, NULL,
+		PCSX2_CHEATS_INFO_0_PT_BR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_PT_BR, NULL,
@@ -11728,6 +12368,13 @@ struct retro_core_options_v2 options_pt_br = {
 #define OPTION_VAL_USB1_PT_PT NULL
 #define OPTION_VAL_USB2_PT_PT NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PT_PT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PT_PT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PT_PT NULL
+#define OPTION_VAL_FFFFFF_PT_PT NULL
+#define OPTION_VAL_2020FF_PT_PT "Vermelho"
+#define OPTION_VAL_20FF20_PT_PT "Verde"
+#define OPTION_VAL_FFC020_PT_PT "Azul"
+#define OPTION_VAL_20E0FF_PT_PT "Amarelo"
 #define PCSX2_RUMBLE_LABEL_PT_PT NULL
 #define PCSX2_RUMBLE_INFO_0_PT_PT NULL
 #define PCSX2_AXIS_SCALE_LABEL_PT_PT NULL
@@ -11748,6 +12395,8 @@ struct retro_core_options_v2 options_pt_br = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_PT_PT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_PT_PT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_PT_PT NULL
+#define PCSX2_CHEATS_LABEL_PT_PT "Batota"
+#define PCSX2_CHEATS_INFO_0_PT_PT NULL
 #define PCSX2_MTVU_LABEL_PT_PT NULL
 #define PCSX2_MTVU_INFO_0_PT_PT NULL
 #define PCSX2_INSTANT_VU1_LABEL_PT_PT NULL
@@ -11897,6 +12546,14 @@ struct retro_core_option_v2_definition option_defs_pt_pt[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_PT_PT}, {"usb2", OPTION_VAL_USB2_PT_PT}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_PT_PT},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_PT_PT, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_PT_PT,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_PT_PT}, {"2020FF", OPTION_VAL_2020FF_PT_PT}, {"20FF20", OPTION_VAL_20FF20_PT_PT}, {"FFC020", OPTION_VAL_FFC020_PT_PT},
+			{"20E0FF", OPTION_VAL_20E0FF_PT_PT}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_PT_PT, NULL, PCSX2_RUMBLE_INFO_0_PT_PT,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_PT_PT, NULL,
@@ -11916,6 +12573,9 @@ struct retro_core_option_v2_definition option_defs_pt_pt[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_PT_PT, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_PT_PT, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_PT_PT, NULL,
+		PCSX2_CHEATS_INFO_0_PT_PT, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_PT_PT, NULL,
@@ -12090,6 +12750,13 @@ struct retro_core_options_v2 options_pt_pt = {
 #define OPTION_VAL_USB1_RU NULL
 #define OPTION_VAL_USB2_RU NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_RU NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_RU NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_RU NULL
+#define OPTION_VAL_FFFFFF_RU "Белый"
+#define OPTION_VAL_2020FF_RU "Красная"
+#define OPTION_VAL_20FF20_RU "Зелёная"
+#define OPTION_VAL_FFC020_RU "Голубая"
+#define OPTION_VAL_20E0FF_RU "Жёлтая"
 #define PCSX2_RUMBLE_LABEL_RU NULL
 #define PCSX2_RUMBLE_INFO_0_RU NULL
 #define PCSX2_AXIS_SCALE_LABEL_RU NULL
@@ -12110,6 +12777,8 @@ struct retro_core_options_v2 options_pt_pt = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_RU NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_RU NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_RU NULL
+#define PCSX2_CHEATS_LABEL_RU "Чит-коды"
+#define PCSX2_CHEATS_INFO_0_RU NULL
 #define PCSX2_MTVU_LABEL_RU NULL
 #define PCSX2_MTVU_INFO_0_RU NULL
 #define PCSX2_INSTANT_VU1_LABEL_RU NULL
@@ -12259,6 +12928,14 @@ struct retro_core_option_v2_definition option_defs_ru[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_RU}, {"usb2", OPTION_VAL_USB2_RU}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_RU},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_RU, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_RU,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_RU}, {"2020FF", OPTION_VAL_2020FF_RU}, {"20FF20", OPTION_VAL_20FF20_RU}, {"FFC020", OPTION_VAL_FFC020_RU},
+			{"20E0FF", OPTION_VAL_20E0FF_RU}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_RU, NULL, PCSX2_RUMBLE_INFO_0_RU,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_RU, NULL,
@@ -12278,6 +12955,9 @@ struct retro_core_option_v2_definition option_defs_ru[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_RU, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_RU, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_RU, NULL,
+		PCSX2_CHEATS_INFO_0_RU, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_RU, NULL,
@@ -12354,7 +13034,7 @@ struct retro_core_options_v2 options_ru = {
 #define CATEGORY_GRAPHICS_LABEL_SK "Grafika"
 #define CATEGORY_GRAPHICS_INFO_0_SK "Vykresľovač, rozlíšenie a kvalita obrazu."
 #define CATEGORY_PATCHES_LABEL_SK "Záplaty"
-#define CATEGORY_PATCHES_INFO_0_SK "Vstavané záplaty hier (širokouhlý obraz, bez prekladania)."
+#define CATEGORY_PATCHES_INFO_0_SK NULL
 #define CATEGORY_PERFORMANCE_LABEL_SK "Výkon"
 #define CATEGORY_PERFORMANCE_INFO_0_SK "Zrýchľujúce hacky. Môžu pokaziť hry."
 #define CATEGORY_AUDIO_LABEL_SK "Zvuk"
@@ -12448,10 +13128,17 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_PORT2_SK "Port 2 (5 hráčov)"
 #define OPTION_VAL_BOTH_SK "Oba porty (8 hráčov)"
 #define PCSX2_LIGHTGUN_LABEL_SK "Svetelná pištoľ (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_SK "Emuluje Namco GunCon 2 na porte USB, ovládaný svetelnou pištoľou frontendu (alebo myšou namapovanou ako svetelná pištoľ) na zodpovedajúcom porte ovládača. Vyžaduje reštart."
+#define PCSX2_LIGHTGUN_INFO_0_SK "Emuluje Namco GunCon 2 na porte USB, mieri sa svetelnou pištoľou frontendu (alebo myšou nastavenou ako svetelná pištoľ) na zodpovedajúcom porte ovládača. Gun Reload strieľa mimo obrazovky; kalibračný výstrel, ktorý niektoré hry žiadajú, je Gun Trigger a Gun Reload naraz, alebo R3. Vyžaduje reštart."
 #define OPTION_VAL_USB1_SK "Port USB 1"
 #define OPTION_VAL_USB2_SK "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SK "Oba porty"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SK "Zameriavač svetelnej pištole"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SK "Vykreslí zameriavač tam, kam GunCon 2 mieri, vo zvolenej farbe. Predvolene vypnuté, ako na konzole. Vyžaduje reštart."
+#define OPTION_VAL_FFFFFF_SK "Biela"
+#define OPTION_VAL_2020FF_SK "Červená"
+#define OPTION_VAL_20FF20_SK "Zelená"
+#define OPTION_VAL_FFC020_SK "Modrá"
+#define OPTION_VAL_20E0FF_SK "Žltá"
 #define PCSX2_RUMBLE_LABEL_SK "Vibrácie"
 #define PCSX2_RUMBLE_INFO_0_SK "Posiela vibrácie DualShock 2 do podpory vibrácií vo frontende."
 #define PCSX2_AXIS_SCALE_LABEL_SK "Mierka analógových osí"
@@ -12472,6 +13159,8 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_SK "Zapne vstavané širokouhlé záplaty 16:9, kde sú k dispozícii. Najlepšie je zapnúť ich pred spustením hry."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_SK "Záplaty bez prekladania"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_SK "Zapne vstavané záplaty pre progresívny výstup, kde sú k dispozícii. Najlepšie je zapnúť ich pred spustením hry."
+#define PCSX2_CHEATS_LABEL_SK "Cheaty"
+#define PCSX2_CHEATS_INFO_0_SK NULL
 #define PCSX2_MTVU_LABEL_SK "MTVU (viacvláknová VU1)"
 #define PCSX2_MTVU_INFO_0_SK "Spúšťa VU1 v samostatnom vlákne. Veľké zrýchlenie na viacjadrových CPU; malý počet hier sa s ním zasekne."
 #define PCSX2_INSTANT_VU1_LABEL_SK "Okamžitá VU1"
@@ -12621,6 +13310,14 @@ struct retro_core_option_v2_definition option_defs_sk[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_SK}, {"usb2", OPTION_VAL_USB2_SK}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SK},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SK, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SK,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_SK}, {"2020FF", OPTION_VAL_2020FF_SK}, {"20FF20", OPTION_VAL_20FF20_SK}, {"FFC020", OPTION_VAL_FFC020_SK},
+			{"20E0FF", OPTION_VAL_20E0FF_SK}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_SK, NULL, PCSX2_RUMBLE_INFO_0_SK,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_SK, NULL,
@@ -12640,6 +13337,9 @@ struct retro_core_option_v2_definition option_defs_sk[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_SK, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_SK, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_SK, NULL,
+		PCSX2_CHEATS_INFO_0_SK, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_SK, NULL,
@@ -12814,6 +13514,13 @@ struct retro_core_options_v2 options_sk = {
 #define OPTION_VAL_USB1_SR NULL
 #define OPTION_VAL_USB2_SR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SR NULL
+#define OPTION_VAL_FFFFFF_SR NULL
+#define OPTION_VAL_2020FF_SR NULL
+#define OPTION_VAL_20FF20_SR NULL
+#define OPTION_VAL_FFC020_SR NULL
+#define OPTION_VAL_20E0FF_SR NULL
 #define PCSX2_RUMBLE_LABEL_SR NULL
 #define PCSX2_RUMBLE_INFO_0_SR NULL
 #define PCSX2_AXIS_SCALE_LABEL_SR NULL
@@ -12834,6 +13541,8 @@ struct retro_core_options_v2 options_sk = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_SR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_SR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_SR NULL
+#define PCSX2_CHEATS_LABEL_SR NULL
+#define PCSX2_CHEATS_INFO_0_SR NULL
 #define PCSX2_MTVU_LABEL_SR NULL
 #define PCSX2_MTVU_INFO_0_SR NULL
 #define PCSX2_INSTANT_VU1_LABEL_SR NULL
@@ -12983,6 +13692,14 @@ struct retro_core_option_v2_definition option_defs_sr[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_SR}, {"usb2", OPTION_VAL_USB2_SR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_SR}, {"2020FF", OPTION_VAL_2020FF_SR}, {"20FF20", OPTION_VAL_20FF20_SR}, {"FFC020", OPTION_VAL_FFC020_SR},
+			{"20E0FF", OPTION_VAL_20E0FF_SR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_SR, NULL, PCSX2_RUMBLE_INFO_0_SR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_SR, NULL,
@@ -13002,6 +13719,9 @@ struct retro_core_option_v2_definition option_defs_sr[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_SR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_SR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_SR, NULL,
+		PCSX2_CHEATS_INFO_0_SR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_SR, NULL,
@@ -13078,7 +13798,7 @@ struct retro_core_options_v2 options_sr = {
 #define CATEGORY_GRAPHICS_LABEL_SV "Grafik"
 #define CATEGORY_GRAPHICS_INFO_0_SV "Renderare, upplösning och bildkvalitet."
 #define CATEGORY_PATCHES_LABEL_SV "Patchar"
-#define CATEGORY_PATCHES_INFO_0_SV "Inbyggda spelpatchar (bredbild, ingen sammanflätning)."
+#define CATEGORY_PATCHES_INFO_0_SV NULL
 #define CATEGORY_PERFORMANCE_LABEL_SV "Prestanda"
 #define CATEGORY_PERFORMANCE_INFO_0_SV "Hastighetshack. Kan förstöra spel."
 #define CATEGORY_AUDIO_LABEL_SV "Ljud"
@@ -13172,10 +13892,17 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_PORT2_SV "Port 2 (5 spelare)"
 #define OPTION_VAL_BOTH_SV "Båda portarna (8 spelare)"
 #define PCSX2_LIGHTGUN_LABEL_SV "Mätning av bildtaktning"
-#define PCSX2_LIGHTGUN_INFO_0_SV "Emulera en Namco GunCon 2 på en USB-port som siktas med gränssnittets ljuspistol (eller en mus mappad som ljuspistol) på motsvarande handkontrollport. Kräver omstart."
+#define PCSX2_LIGHTGUN_INFO_0_SV "Emulera en Namco GunCon 2 på en USB-port, som siktas med gränssnittets ljuspistol (eller en mus som mappats som ljuspistol) på motsvarande kontrollport. Gun Reload skjuter utanför skärmen; kalibreringsskottet som vissa spel begär utförs med Gun Trigger och Gun Reload samtidigt, eller R3. Kräver omstart."
 #define OPTION_VAL_USB1_SV "Stöd för förbättrad upplösning"
 #define OPTION_VAL_USB2_SV "Aktiverar stöd för högre interna upplösningar i spel som kräver det."
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SV "Vulkanrenderare"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SV "Hårkors för ljuspistol"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SV "Rita ett hårkors där GunCon 2 siktar i den valda färgen. Av som standard, precis som på konsolen. Kräver omstart."
+#define OPTION_VAL_FFFFFF_SV "Vit"
+#define OPTION_VAL_2020FF_SV "Röd"
+#define OPTION_VAL_20FF20_SV "Grön"
+#define OPTION_VAL_FFC020_SV "Blå"
+#define OPTION_VAL_20E0FF_SV "Gul"
 #define PCSX2_RUMBLE_LABEL_SV "Starta i felsökningsläge"
 #define PCSX2_RUMBLE_INFO_0_SV "Startar PCSX2 med felsökningsloggning aktiverad."
 #define PCSX2_AXIS_SCALE_LABEL_SV "Skala för analog axel"
@@ -13196,6 +13923,8 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_SV "Aktivera inbyggda bredbildspatchar för 16:9 där de finns. Tillämpas bäst innan ett spel startas."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_SV "Patchar för ingen sammanflätning"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_SV "Aktivera inbyggda patchar för progressiv utdata där de finns. Tillämpas bäst innan ett spel startas."
+#define PCSX2_CHEATS_LABEL_SV "Fusk"
+#define PCSX2_CHEATS_INFO_0_SV NULL
 #define PCSX2_MTVU_LABEL_SV "MTVU (flertrådad VU1)"
 #define PCSX2_MTVU_INFO_0_SV "Kör VU1 på en egen tråd. Ger stor hastighetsökning på flerkärniga processorer; ett litet antal spel låser sig med den."
 #define PCSX2_INSTANT_VU1_LABEL_SV "Omedelbar VU1"
@@ -13345,6 +14074,14 @@ struct retro_core_option_v2_definition option_defs_sv[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_SV}, {"usb2", OPTION_VAL_USB2_SV}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SV},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SV, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SV,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_SV}, {"2020FF", OPTION_VAL_2020FF_SV}, {"20FF20", OPTION_VAL_20FF20_SV}, {"FFC020", OPTION_VAL_FFC020_SV},
+			{"20E0FF", OPTION_VAL_20E0FF_SV}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_SV, NULL, PCSX2_RUMBLE_INFO_0_SV,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_SV, NULL,
@@ -13364,6 +14101,9 @@ struct retro_core_option_v2_definition option_defs_sv[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_SV, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_SV, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_SV, NULL,
+		PCSX2_CHEATS_INFO_0_SV, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_SV, NULL,
@@ -13538,6 +14278,13 @@ struct retro_core_options_v2 options_sv = {
 #define OPTION_VAL_USB1_TH NULL
 #define OPTION_VAL_USB2_TH NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TH NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TH NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TH NULL
+#define OPTION_VAL_FFFFFF_TH "ขาว"
+#define OPTION_VAL_2020FF_TH NULL
+#define OPTION_VAL_20FF20_TH "เขียว"
+#define OPTION_VAL_FFC020_TH "น้ำเงิน"
+#define OPTION_VAL_20E0FF_TH NULL
 #define PCSX2_RUMBLE_LABEL_TH NULL
 #define PCSX2_RUMBLE_INFO_0_TH NULL
 #define PCSX2_AXIS_SCALE_LABEL_TH NULL
@@ -13558,6 +14305,8 @@ struct retro_core_options_v2 options_sv = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_TH NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_TH NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_TH NULL
+#define PCSX2_CHEATS_LABEL_TH "สูตรโกง"
+#define PCSX2_CHEATS_INFO_0_TH NULL
 #define PCSX2_MTVU_LABEL_TH NULL
 #define PCSX2_MTVU_INFO_0_TH NULL
 #define PCSX2_INSTANT_VU1_LABEL_TH NULL
@@ -13707,6 +14456,14 @@ struct retro_core_option_v2_definition option_defs_th[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_TH}, {"usb2", OPTION_VAL_USB2_TH}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TH},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TH, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TH,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_TH}, {"2020FF", OPTION_VAL_2020FF_TH}, {"20FF20", OPTION_VAL_20FF20_TH}, {"FFC020", OPTION_VAL_FFC020_TH},
+			{"20E0FF", OPTION_VAL_20E0FF_TH}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_TH, NULL, PCSX2_RUMBLE_INFO_0_TH,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_TH, NULL,
@@ -13726,6 +14483,9 @@ struct retro_core_option_v2_definition option_defs_th[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_TH, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_TH, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_TH, NULL,
+		PCSX2_CHEATS_INFO_0_TH, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_TH, NULL,
@@ -13900,6 +14660,13 @@ struct retro_core_options_v2 options_th = {
 #define OPTION_VAL_USB1_TR NULL
 #define OPTION_VAL_USB2_TR NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TR NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TR NULL
+#define OPTION_VAL_FFFFFF_TR "Beyaz"
+#define OPTION_VAL_2020FF_TR "Kırmızı"
+#define OPTION_VAL_20FF20_TR "Yeşil"
+#define OPTION_VAL_FFC020_TR "Mavi"
+#define OPTION_VAL_20E0FF_TR "Sarı"
 #define PCSX2_RUMBLE_LABEL_TR NULL
 #define PCSX2_RUMBLE_INFO_0_TR NULL
 #define PCSX2_AXIS_SCALE_LABEL_TR NULL
@@ -13920,6 +14687,8 @@ struct retro_core_options_v2 options_th = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_TR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_TR NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_TR NULL
+#define PCSX2_CHEATS_LABEL_TR "Hileler"
+#define PCSX2_CHEATS_INFO_0_TR NULL
 #define PCSX2_MTVU_LABEL_TR NULL
 #define PCSX2_MTVU_INFO_0_TR NULL
 #define PCSX2_INSTANT_VU1_LABEL_TR NULL
@@ -14069,6 +14838,14 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_TR}, {"usb2", OPTION_VAL_USB2_TR}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TR},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TR, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TR,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_TR}, {"2020FF", OPTION_VAL_2020FF_TR}, {"20FF20", OPTION_VAL_20FF20_TR}, {"FFC020", OPTION_VAL_FFC020_TR},
+			{"20E0FF", OPTION_VAL_20E0FF_TR}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_TR, NULL, PCSX2_RUMBLE_INFO_0_TR,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_TR, NULL,
@@ -14088,6 +14865,9 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_TR, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_TR, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_TR, NULL,
+		PCSX2_CHEATS_INFO_0_TR, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_TR, NULL,
@@ -14262,6 +15042,13 @@ struct retro_core_options_v2 options_tr = {
 #define OPTION_VAL_USB1_TT NULL
 #define OPTION_VAL_USB2_TT NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TT NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TT NULL
+#define OPTION_VAL_FFFFFF_TT "Ак"
+#define OPTION_VAL_2020FF_TT "Кызыл"
+#define OPTION_VAL_20FF20_TT NULL
+#define OPTION_VAL_FFC020_TT NULL
+#define OPTION_VAL_20E0FF_TT NULL
 #define PCSX2_RUMBLE_LABEL_TT NULL
 #define PCSX2_RUMBLE_INFO_0_TT NULL
 #define PCSX2_AXIS_SCALE_LABEL_TT NULL
@@ -14282,6 +15069,8 @@ struct retro_core_options_v2 options_tr = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_TT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_TT NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_TT NULL
+#define PCSX2_CHEATS_LABEL_TT NULL
+#define PCSX2_CHEATS_INFO_0_TT NULL
 #define PCSX2_MTVU_LABEL_TT NULL
 #define PCSX2_MTVU_INFO_0_TT NULL
 #define PCSX2_INSTANT_VU1_LABEL_TT NULL
@@ -14431,6 +15220,14 @@ struct retro_core_option_v2_definition option_defs_tt[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_TT}, {"usb2", OPTION_VAL_USB2_TT}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_TT},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_TT, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_TT,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_TT}, {"2020FF", OPTION_VAL_2020FF_TT}, {"20FF20", OPTION_VAL_20FF20_TT}, {"FFC020", OPTION_VAL_FFC020_TT},
+			{"20E0FF", OPTION_VAL_20E0FF_TT}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_TT, NULL, PCSX2_RUMBLE_INFO_0_TT,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_TT, NULL,
@@ -14450,6 +15247,9 @@ struct retro_core_option_v2_definition option_defs_tt[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_TT, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_TT, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_TT, NULL,
+		PCSX2_CHEATS_INFO_0_TT, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_TT, NULL,
@@ -14624,6 +15424,13 @@ struct retro_core_options_v2 options_tt = {
 #define OPTION_VAL_USB1_UK NULL
 #define OPTION_VAL_USB2_UK NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_UK NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_UK NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_UK NULL
+#define OPTION_VAL_FFFFFF_UK "Білі"
+#define OPTION_VAL_2020FF_UK "Червоний"
+#define OPTION_VAL_20FF20_UK "Зелений"
+#define OPTION_VAL_FFC020_UK "Синій"
+#define OPTION_VAL_20E0FF_UK "Жовтий"
 #define PCSX2_RUMBLE_LABEL_UK NULL
 #define PCSX2_RUMBLE_INFO_0_UK NULL
 #define PCSX2_AXIS_SCALE_LABEL_UK NULL
@@ -14644,6 +15451,8 @@ struct retro_core_options_v2 options_tt = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_UK NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_UK NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_UK NULL
+#define PCSX2_CHEATS_LABEL_UK "Чіти"
+#define PCSX2_CHEATS_INFO_0_UK NULL
 #define PCSX2_MTVU_LABEL_UK NULL
 #define PCSX2_MTVU_INFO_0_UK NULL
 #define PCSX2_INSTANT_VU1_LABEL_UK NULL
@@ -14793,6 +15602,14 @@ struct retro_core_option_v2_definition option_defs_uk[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_UK}, {"usb2", OPTION_VAL_USB2_UK}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_UK},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_UK, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_UK,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_UK}, {"2020FF", OPTION_VAL_2020FF_UK}, {"20FF20", OPTION_VAL_20FF20_UK}, {"FFC020", OPTION_VAL_FFC020_UK},
+			{"20E0FF", OPTION_VAL_20E0FF_UK}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_UK, NULL, PCSX2_RUMBLE_INFO_0_UK,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_UK, NULL,
@@ -14812,6 +15629,9 @@ struct retro_core_option_v2_definition option_defs_uk[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_UK, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_UK, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_UK, NULL,
+		PCSX2_CHEATS_INFO_0_UK, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_UK, NULL,
@@ -14986,6 +15806,13 @@ struct retro_core_options_v2 options_uk = {
 #define OPTION_VAL_USB1_VAL NULL
 #define OPTION_VAL_USB2_VAL NULL
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VAL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_VAL NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VAL NULL
+#define OPTION_VAL_FFFFFF_VAL NULL
+#define OPTION_VAL_2020FF_VAL NULL
+#define OPTION_VAL_20FF20_VAL NULL
+#define OPTION_VAL_FFC020_VAL NULL
+#define OPTION_VAL_20E0FF_VAL NULL
 #define PCSX2_RUMBLE_LABEL_VAL NULL
 #define PCSX2_RUMBLE_INFO_0_VAL NULL
 #define PCSX2_AXIS_SCALE_LABEL_VAL NULL
@@ -15006,6 +15833,8 @@ struct retro_core_options_v2 options_uk = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_VAL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_VAL NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_VAL NULL
+#define PCSX2_CHEATS_LABEL_VAL NULL
+#define PCSX2_CHEATS_INFO_0_VAL NULL
 #define PCSX2_MTVU_LABEL_VAL NULL
 #define PCSX2_MTVU_INFO_0_VAL NULL
 #define PCSX2_INSTANT_VU1_LABEL_VAL NULL
@@ -15155,6 +15984,14 @@ struct retro_core_option_v2_definition option_defs_val[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_VAL}, {"usb2", OPTION_VAL_USB2_VAL}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VAL},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_VAL, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VAL,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_VAL}, {"2020FF", OPTION_VAL_2020FF_VAL}, {"20FF20", OPTION_VAL_20FF20_VAL}, {"FFC020", OPTION_VAL_FFC020_VAL},
+			{"20E0FF", OPTION_VAL_20E0FF_VAL}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_VAL, NULL, PCSX2_RUMBLE_INFO_0_VAL,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_VAL, NULL,
@@ -15174,6 +16011,9 @@ struct retro_core_option_v2_definition option_defs_val[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_VAL, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_VAL, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_VAL, NULL,
+		PCSX2_CHEATS_INFO_0_VAL, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_VAL, NULL,
@@ -15250,7 +16090,7 @@ struct retro_core_options_v2 options_val = {
 #define CATEGORY_GRAPHICS_LABEL_VN "Đồ họa"
 #define CATEGORY_GRAPHICS_INFO_0_VN "Trình kết xuất, độ phân giải và chất lượng hình ảnh."
 #define CATEGORY_PATCHES_LABEL_VN "Bản vá"
-#define CATEGORY_PATCHES_INFO_0_VN "Các bản vá tích hợp cho trò chơi (màn hình rộng, bỏ xen kẽ)."
+#define CATEGORY_PATCHES_INFO_0_VN "Các bản vá trò chơi tích hợp sẵn (màn hình rộng, loại bỏ xen kẽ) và mã gian lận."
 #define CATEGORY_PERFORMANCE_LABEL_VN "Hiệu năng"
 #define CATEGORY_PERFORMANCE_INFO_0_VN "Các thủ thuật tăng tốc. Có thể khiến trò chơi bị lỗi."
 #define CATEGORY_AUDIO_LABEL_VN "Âm thanh"
@@ -15344,10 +16184,17 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_PORT2_VN "Cổng 2 (5 người chơi)"
 #define OPTION_VAL_BOTH_VN "Cả hai cổng (8 người chơi)"
 #define PCSX2_LIGHTGUN_LABEL_VN "Súng quang (GunCon 2)"
-#define PCSX2_LIGHTGUN_INFO_0_VN "Mô phỏng súng Namco GunCon 2 trên một cổng USB, ngắm bằng súng ánh sáng của giao diện chính (hoặc chuột được gán làm súng ánh sáng) trên cổng tay cầm tương ứng. Yêu cầu khởi động lại."
+#define PCSX2_LIGHTGUN_INFO_0_VN "Mô phỏng súng Namco GunCon 2 trên cổng USB, ngắm bằng súng quang của giao diện điều khiển (hoặc chuột được gán làm súng quang) trên cổng tay cầm tương ứng. Nút Nạp đạn bắn ra ngoài màn hình; phát bắn hiệu chỉnh mà một số trò chơi yêu cầu được thực hiện bằng cách nhấn đồng thời nút Cò súng và nút Nạp đạn, hoặc nút R3. Cần khởi động lại."
 #define OPTION_VAL_USB1_VN "Cổng USB 1"
 #define OPTION_VAL_USB2_VN "Cổng USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VN "Cả hai cổng"
+#define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_VN "Tâm ngắm súng quang"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VN "Hiển thị tâm ngắm tại vị trí GunCon 2 đang ngắm, với màu đã chọn. Mặc định tắt, giống như trên máy chơi game. Cần khởi động lại."
+#define OPTION_VAL_FFFFFF_VN "Trắng"
+#define OPTION_VAL_2020FF_VN "Đỏ"
+#define OPTION_VAL_20FF20_VN "Xanh Lá"
+#define OPTION_VAL_FFC020_VN "Xanh dương"
+#define OPTION_VAL_20E0FF_VN "Vàng"
 #define PCSX2_RUMBLE_LABEL_VN "Rung"
 #define PCSX2_RUMBLE_INFO_0_VN "Chuyển độ rung DualShock 2 sang tính năng rung của giao diện chính."
 #define PCSX2_AXIS_SCALE_LABEL_VN "Tỷ lệ trục analog"
@@ -15368,6 +16215,8 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_VN "Bật các bản vá màn hình rộng 16:9 được tích hợp sẵn khi có hỗ trợ. Tốt nhất nên áp dụng trước khi bắt đầu trò chơi."
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_VN "Bản vá khử xen kẽ"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_VN "Bật các bản vá xuất hình liên tục tích hợp sẵn khi có hỗ trợ. Tốt nhất nên áp dụng trước khi bắt đầu trò chơi."
+#define PCSX2_CHEATS_LABEL_VN "Mã gian lận"
+#define PCSX2_CHEATS_INFO_0_VN "Áp dụng mã gian lận trong system/pcsx2/cheats/: các tệp .pnach được đặt tên theo mã sê-ri và mã kiểm tra CRC của trò chơi, giống như PCSX2 độc lập. Nên áp dụng trước khi khởi chạy trò chơi."
 #define PCSX2_MTVU_LABEL_VN "MTVU (VU1 đa luồng)"
 #define PCSX2_MTVU_INFO_0_VN "Chạy VU1 trên một luồng riêng. Tăng tốc đáng kể trên CPU đa lõi; một số ít trò chơi có thể bị treo khi bật tính năng này."
 #define PCSX2_INSTANT_VU1_LABEL_VN "VU1 tức thời"
@@ -15517,6 +16366,14 @@ struct retro_core_option_v2_definition option_defs_vn[] = {
 		{{"disabled", NULL}, {"usb1", OPTION_VAL_USB1_VN}, {"usb2", OPTION_VAL_USB2_VN}, {"both", OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VN},
 			{NULL, NULL}},
 		"disabled"},
+	{"pcsx2_lightgun_crosshair", PCSX2_LIGHTGUN_CROSSHAIR_LABEL_VN, NULL,
+		PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VN,
+		NULL, "system",
+		/* The values are what PCSX2's cursor colour setting takes, which it
+		 * hands to the overlay as it is: blue, green, red */
+		{{"disabled", NULL}, {"FFFFFF", OPTION_VAL_FFFFFF_VN}, {"2020FF", OPTION_VAL_2020FF_VN}, {"20FF20", OPTION_VAL_20FF20_VN}, {"FFC020", OPTION_VAL_FFC020_VN},
+			{"20E0FF", OPTION_VAL_20E0FF_VN}, {NULL, NULL}},
+		"disabled"},
 	{"pcsx2_rumble", PCSX2_RUMBLE_LABEL_VN, NULL, PCSX2_RUMBLE_INFO_0_VN,
 		NULL, "system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_axis_scale", PCSX2_AXIS_SCALE_LABEL_VN, NULL,
@@ -15536,6 +16393,9 @@ struct retro_core_option_v2_definition option_defs_vn[] = {
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_no_interlacing_patches", PCSX2_NO_INTERLACING_PATCHES_LABEL_VN, NULL,
 		PCSX2_NO_INTERLACING_PATCHES_INFO_0_VN, NULL,
+		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_cheats", PCSX2_CHEATS_LABEL_VN, NULL,
+		PCSX2_CHEATS_INFO_0_VN, NULL,
 		"patches", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	// performance
 	{"pcsx2_mtvu", PCSX2_MTVU_LABEL_VN, NULL,
