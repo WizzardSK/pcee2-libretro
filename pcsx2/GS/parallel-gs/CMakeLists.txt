@@ -75,6 +75,17 @@ set(GRANITE_SHADER_COMPILER_OPTIMIZE OFF CACHE BOOL "" FORCE)
 set(GRANITE_SHIPPING ON CACHE BOOL "" FORCE)
 set(GRANITE_PLATFORM "libretro" CACHE STRING "" FORCE)
 
+# The part of libretro-common Granite and paraLLEl-GS are written against:
+# rthreads and retro_atomic for threading, memalign, and the CPU core count.
+add_library(pgs-libretro-common STATIC
+        libretro-common/rthreads/rthreads.c
+        libretro-common/memmap/memalign.c
+        libretro-common/features/features_cpu.c)
+target_include_directories(pgs-libretro-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libretro-common/include)
+set_target_properties(pgs-libretro-common PROPERTIES POSITION_INDEPENDENT_CODE ON)
+find_package(Threads REQUIRED)
+target_link_libraries(pgs-libretro-common PUBLIC Threads::Threads)
+
 add_subdirectory(Granite EXCLUDE_FROM_ALL)
 
 # Vendored libretro subset: only the gs library is built. The analog, dump,
