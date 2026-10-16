@@ -65,6 +65,9 @@
 #include "pcsx2/GS/Renderers/Vulkan/GSDeviceVK.h"
 #include "pcsx2/GS/Renderers/Vulkan/VKLibretro.h"
 #include "pcsx2/GS/Renderers/Vulkan/VKLoader.h"
+#ifdef HAVE_PARALLEL_GS
+#include "pcsx2/GS/Renderers/parallel-gs/GSParallelGS.h"
+#endif
 #endif
 #ifdef ENABLE_OPENGL
 #include "pcsx2/GS/Renderers/OpenGL/GLLibretro.h"
@@ -182,6 +185,11 @@ namespace LibretroHost
 	};
 	static HWRender s_hw_render = HWRender::None;
 	static bool HWRenderActive() { return s_hw_render != HWRender::None; }
+	// The paraLLEl-GS renderer: on the Vulkan path, with a device of its own
+	// that the frontend creates through paraLLEl-GS's negotiation interface
+	// rather than this file's. Chosen at retro_load_game like the API, and
+	// like it, fixed for the session.
+	static bool s_parallel_gs = false;
 	// Set by the frontend's context_reset once the retro_hw_render_interface is
 	// available; the CPU thread parks on it before booting the VM so GSDeviceVK
 	// adopts the shared instance during negotiation rather than creating its own.
@@ -412,6 +420,31 @@ namespace LibretroHost
 } // namespace LibretroHost
 
 using namespace LibretroHost;
+
+#ifdef HAVE_PARALLEL_GS
+void PGSLibretro::Log(int level, const char* text)
+{
+	if (!s_log_cb)
+		return;
+	const retro_log_level rl = (level >= RETRO_LOG_DEBUG && level <= RETRO_LOG_ERROR) ?
+		static_cast<retro_log_level>(level) : RETRO_LOG_DEBUG;
+	s_log_cb(rl, "[paraLLEl-GS] %s", text);
+}
+
+float PGSLibretro::AspectRatio()
+{
+	const u32 aspect_bits = s_aspect_bits.load(std::memory_order_acquire);
+	return aspect_bits ? std::bit_cast<float>(aspect_bits) : (4.0f / 3.0f);
+}
+
+void PGSLibretro::SetDisplay(float aspect, u32 width, u32 height)
+{
+	// What GSRenderer reports for the other renderers, for SyncHWRenderGeometry
+	GSLibretro::DisplayAspect.store(aspect, std::memory_order_release);
+	GSLibretro::NativeSize.store((static_cast<u64>(std::max<u32>(width, 1)) << 32) | std::max<u32>(height, 1),
+		std::memory_order_release);
+}
+#endif
 
 // Which API the GS is allowed to build a device on. Called by GS.cpp for any
 // renderer that does not name one itself - which is the software renderer, the
@@ -860,12 +893,26 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		renderer_type = GSRendererType::OGL;
 #endif
 
+#ifdef HAVE_PARALLEL_GS
+	else if (std::strcmp(renderer, "parallel-gs") == 0)
+		renderer_type = GSRendererType::ParallelGS;
+	// paraLLEl-GS's device is the frontend's whole Vulkan context, made at load
+	// through its own negotiation interface: the session stays on it, and a
+	// session that was not started on it cannot switch to it. Neither can a
+	// paraLLEl-GS session switch to Software, which presents through the GS
+	// device paraLLEl-GS does not have.
+	if (s_parallel_gs)
+		renderer_type = GSRendererType::ParallelGS;
+	else if (renderer_type == GSRendererType::ParallelGS)
+		renderer_type = (s_hw_render == HWRender::OpenGL) ? GSRendererType::OGL : GSRendererType::VK;
+#endif
+
 	// The frontend's HW-render context type is negotiated once, when the
 	// content loads, and cannot change under a running session — so on a
 	// HW-render path the graphics API is fixed for the session even though the
 	// option can still be changed. Switching to and from the software renderer
 	// stays live: it presents through whichever device is already up.
-	if (HWRenderActive() && renderer_type != GSRendererType::SW)
+	if (HWRenderActive() && renderer_type != GSRendererType::SW && renderer_type != GSRendererType::ParallelGS)
 	{
 		const GSRendererType hw_type =
 			(s_hw_render == HWRender::Vulkan) ? GSRendererType::VK : GSRendererType::OGL;
@@ -884,6 +931,22 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	}
 
 	s_settings_interface.SetIntValue("EmuCore/GS", "Renderer", static_cast<int>(renderer_type));
+
+#ifdef HAVE_PARALLEL_GS
+	// paraLLEl-GS. Super sampling: 0 native, 1 2x, 2 4x sparse, 3 4x ordered,
+	// 4 8x, 5 16x, 6 16x ordered, 7 32x ordered (4x8). High-res scanout: 0 off,
+	// 1 2x, 2 4x, 3 4x tent-filtered, 4 4x at the full field height, 5 both.
+	s_settings_interface.SetIntValue("EmuCore/GS", "pgsSuperSampling",
+		std::clamp(StringUtil::FromChars<int>(get_option("pcsx2_pgs_super_sampling", "0")).value_or(0), 0, 7));
+	s_settings_interface.SetIntValue("EmuCore/GS", "pgsHighResScanout",
+		std::clamp(StringUtil::FromChars<int>(get_option("pcsx2_pgs_high_res_scanout", "0")).value_or(0), 0, 5));
+	s_settings_interface.SetIntValue("EmuCore/GS", "pgsSuperSampleTextures",
+		std::strcmp(get_option("pcsx2_pgs_super_sample_textures", "disabled"), "enabled") == 0);
+	s_settings_interface.SetIntValue("EmuCore/GS", "pgsSharpBackbuffer",
+		std::strcmp(get_option("pcsx2_pgs_sharp_backbuffer", "disabled"), "enabled") == 0);
+	s_settings_interface.SetIntValue("EmuCore/GS", "pgsDisableMipmaps",
+		std::strcmp(get_option("pcsx2_pgs_disable_mipmaps", "disabled"), "enabled") == 0);
+#endif
 
 	const u32 upscale = std::clamp<u32>(StringUtil::FromChars<u32>(get_option("pcsx2_upscale_multiplier", "1")).value_or(1), 1, MAX_UPSCALE);
 	s_settings_interface.SetFloatValue("EmuCore/GS", "upscale_multiplier", static_cast<float>(upscale));
@@ -1376,6 +1439,10 @@ static void OnContextReset(void)
 		return;
 	}
 	VKLibretro::SetHWRenderInterface(iface);
+#ifdef HAVE_PARALLEL_GS
+	if (s_parallel_gs)
+		ParallelGSRenderer::SetHWRenderInterface(reinterpret_cast<retro_hw_render_interface_vulkan*>(iface));
+#endif
 #endif
 
 	s_context_ready.store(true, std::memory_order_release);
@@ -1403,6 +1470,10 @@ static void OnContextDestroy(void)
 	}
 #ifdef ENABLE_VULKAN
 	VKLibretro::SetHWRenderInterface(nullptr);
+#ifdef HAVE_PARALLEL_GS
+	if (s_parallel_gs)
+		ParallelGSRenderer::SetHWRenderInterface(nullptr);
+#endif
 #endif
 }
 
@@ -2073,6 +2144,9 @@ bool retro_load_game(const struct retro_game_info* game)
 			s_hw_render = HWRender::OpenGL;
 		else if (std::strcmp(renderer, "software") != 0)
 			s_hw_render = HWRender::Vulkan;
+#ifdef HAVE_PARALLEL_GS
+		s_parallel_gs = s_hw_render == HWRender::Vulkan && std::strcmp(renderer, "parallel-gs") == 0;
+#endif
 	}
 
 #ifndef ENABLE_OPENGL
@@ -2112,26 +2186,47 @@ bool retro_load_game(const struct retro_game_info* game)
 			if (s_environ_cb(RETRO_ENVIRONMENT_GET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_SUPPORT, &support) &&
 				support.interface_version >= 2)
 				version = 2;
-			static struct retro_hw_render_context_negotiation_interface_vulkan neg_iface = {};
-			neg_iface.interface_type = RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN;
-			neg_iface.interface_version = version;
-			neg_iface.get_application_info = GetVulkanApplicationInfo;
-			neg_iface.create_device = CreateVulkanDevice;
-			neg_iface.destroy_device = nullptr;
-			neg_iface.create_instance = nullptr;
-			neg_iface.create_device2 = version >= 2 ? CreateVulkanDevice2 : nullptr;
-			Console.WriteLn("Vulkan context negotiation interface v%u", version);
-			s_environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE, (void*)&neg_iface);
-
-			Error vk_error;
-			if (!Vulkan::IsVulkanLibraryLoaded() && !Vulkan::LoadVulkanLibrary(&vk_error))
+#ifdef HAVE_PARALLEL_GS
+			// paraLLEl-GS makes the instance and the device itself, through
+			// create_instance and create_device2, so it needs v2.
+			if (s_parallel_gs && version < 2)
 			{
-				Console.Error(fmt::format("LoadVulkanLibrary: {}", vk_error.GetDescription()));
-				return false;
+				Console.Warning("paraLLEl-GS needs Vulkan context negotiation v2, which the frontend does not have; "
+								"using the Vulkan renderer.");
+				s_parallel_gs = false;
 			}
-			VKLibretro::InstallWraps();
-			VKLibretro::Active = true;
-			s_context_ready.store(false, std::memory_order_release);
+			if (s_parallel_gs)
+			{
+				Console.WriteLn("Vulkan context negotiation interface v2 (paraLLEl-GS)");
+				s_environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE,
+					(void*)ParallelGSRenderer::NegotiationInterface());
+				VKLibretro::Active = true;
+				s_context_ready.store(false, std::memory_order_release);
+			}
+			else
+#endif
+			{
+				static struct retro_hw_render_context_negotiation_interface_vulkan neg_iface = {};
+				neg_iface.interface_type = RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN;
+				neg_iface.interface_version = version;
+				neg_iface.get_application_info = GetVulkanApplicationInfo;
+				neg_iface.create_device = CreateVulkanDevice;
+				neg_iface.destroy_device = nullptr;
+				neg_iface.create_instance = nullptr;
+				neg_iface.create_device2 = version >= 2 ? CreateVulkanDevice2 : nullptr;
+				Console.WriteLn("Vulkan context negotiation interface v%u", version);
+				s_environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE, (void*)&neg_iface);
+
+				Error vk_error;
+				if (!Vulkan::IsVulkanLibraryLoaded() && !Vulkan::LoadVulkanLibrary(&vk_error))
+				{
+					Console.Error(fmt::format("LoadVulkanLibrary: {}", vk_error.GetDescription()));
+					return false;
+				}
+				VKLibretro::InstallWraps();
+				VKLibretro::Active = true;
+				s_context_ready.store(false, std::memory_order_release);
+			}
 		}
 	}
 #endif
@@ -2951,8 +3046,37 @@ void retro_run(void)
 		// Keep the GS thread's copy in step: it takes the frontend's queue lock
 		// through this same interface on every submit.
 		if (vulkan != VKLibretro::GetHWRenderInterface())
+		{
 			VKLibretro::SetHWRenderInterface(vulkan);
+#ifdef HAVE_PARALLEL_GS
+			if (s_parallel_gs)
+				ParallelGSRenderer::SetHWRenderInterface(vulkan);
+#endif
+		}
 
+#ifdef HAVE_PARALLEL_GS
+		unsigned pgs_width = 0, pgs_height = 0;
+		// paraLLEl-GS hands its frame over itself (it holds the image), at
+		// the slot the frontend says, from here rather than from the GS thread
+		if (s_parallel_gs)
+		{
+			if (vulkan && vulkan->set_image && ParallelGSRenderer::PresentFrame(vulkan, &pgs_width, &pgs_height))
+			{
+				s_hw_frame_seen = true;
+				s_hw_last_width = pgs_width;
+				s_hw_last_height = pgs_height;
+				SyncHWRenderGeometry(pgs_width, pgs_height);
+				if (s_video_cb)
+					s_video_cb(RETRO_HW_FRAME_BUFFER_VALID, pgs_width, pgs_height, 0);
+			}
+			else if (s_video_cb)
+			{
+				s_video_cb(nullptr, s_hw_last_width ? s_hw_last_width : DEFAULT_WIDTH,
+					s_hw_last_height ? s_hw_last_height : DEFAULT_HEIGHT, 0);
+			}
+		}
+		else
+#endif
 		if (vulkan && vulkan->set_image && VKLibretro::ConsumeFrame(&frame))
 		{
 			s_hw_frame_seen = true;

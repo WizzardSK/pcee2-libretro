@@ -10,6 +10,11 @@
 #include "GS/GSExtra.h"
 #include "GS/GSGL.h"
 #include "GS/GSLzma.h"
+#ifdef HAVE_PARALLEL_GS
+// paraLLEl-GS (GSRendererType::ParallelGS): device and renderer in one, beside
+// g_gs_device and g_gs_renderer, which stay empty while it is open
+#include "GS/Renderers/parallel-gs/GSParallelGS.h"
+#endif
 #include "GS/GSPerfMon.h"
 #include "GS/GSUtil.h"
 #include "GS/MultiISA.h"
@@ -108,6 +113,10 @@ static RenderAPI GetAPIForRenderer(GSRendererType renderer)
 
 		case GSRendererType::VK:
 			return RenderAPI::Vulkan;
+#ifdef HAVE_PARALLEL_GS
+		case GSRendererType::ParallelGS:
+			return RenderAPI::Vulkan;
+#endif
 
 #ifdef _WIN32
 		case GSRendererType::DX11:
@@ -145,6 +154,10 @@ static GSRendererType LibretroClampRenderer(GSRendererType renderer)
 	switch (LibretroGetRenderAPI())
 	{
 		case RenderAPI::Vulkan:
+#ifdef HAVE_PARALLEL_GS
+			if (renderer == GSRendererType::ParallelGS)
+				return renderer;
+#endif
 			return GSRendererType::VK;
 		case RenderAPI::OpenGL:
 			return GSRendererType::OGL;
@@ -302,6 +315,9 @@ static bool OpenGSRenderer(GSRendererType renderer, u8* basemem)
 static void CloseGSRenderer()
 {
 	GSTextureReplacements::Shutdown();
+#ifdef HAVE_PARALLEL_GS
+	ParallelGSRenderer::Close();
+#endif
 
 	if (g_gs_renderer)
 	{
@@ -322,6 +338,12 @@ bool GSreopen(bool recreate_device, bool recreate_renderer, GSRendererType new_r
 	if (new_renderer == GSRendererType::Auto)
 		new_renderer = GSUtil::GetPreferredRenderer();
 	new_renderer = LibretroClampRenderer(new_renderer);
+#endif
+
+#ifdef HAVE_PARALLEL_GS
+	// Nothing of PCSX2's to reopen: paraLLEl-GS takes its settings as they come
+	if (ParallelGSRenderer::IsOpen())
+		return true;
 #endif
 
 	g_gs_renderer->Flush(GSState::GSFlushReason::GSREOPEN);
@@ -437,6 +459,17 @@ bool GSopen(const Pcsx2Config::GSOptions& config, GSRendererType renderer, u8* b
 	GSConfig.Renderer = renderer;
 #endif
 
+#ifdef HAVE_PARALLEL_GS
+	// paraLLEl-GS is its own device: the one it made with the frontend at negotiation
+	if (renderer == GSRendererType::ParallelGS)
+	{
+		if (ParallelGSRenderer::Open(basemem))
+			return true;
+		Host::ReportErrorAsync("Error", "paraLLEl-GS could not start: it needs RetroArch's Vulkan driver.");
+		return false;
+	}
+#endif
+
 	bool res = OpenGSDevice(renderer, true, false, vsync_mode, allow_present_throttle);
 	if (res)
 	{
@@ -469,6 +502,13 @@ void GSclose()
 
 void GSreset(bool hardware_reset)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::Reset(hardware_reset);
+		return;
+	}
+#endif
 	g_gs_renderer->Reset(hardware_reset);
 
 	// Restart video capture if it's been started.
@@ -485,16 +525,31 @@ void GSreset(bool hardware_reset)
 
 void GSgifSoftReset(u32 mask)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // taken from the GIF stream
+#endif
 	g_gs_renderer->SoftReset(mask);
 }
 
 void GSwriteCSR(u32 csr)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return;
+#endif
 	g_gs_renderer->WriteCSR(csr);
 }
 
 void GSInitAndReadFIFO(u8* mem, u32 size)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::ReadFIFO(mem, size);
+		return;
+	}
+#endif
 	GL_PERF("Init and read FIFO %u qwc", size);
 	g_gs_renderer->InitReadFIFO(mem, size);
 	g_gs_renderer->ReadFIFO(mem, size);
@@ -502,31 +557,61 @@ void GSInitAndReadFIFO(u8* mem, u32 size)
 
 void GSReadLocalMemoryUnsync(u8* mem, u32 qwc, u64 BITBLITBUF, u64 TRXPOS, u64 TRXREG)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // its own copy of GS memory
+#endif
 	g_gs_renderer->ReadLocalMemoryUnsync(mem, qwc, GIFRegBITBLTBUF{BITBLITBUF}, GIFRegTRXPOS{TRXPOS}, GIFRegTRXREG{TRXREG});
 }
 
 void GSgifTransfer(const u8* mem, u32 size)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::Transfer(mem, size);
+		return;
+	}
+#endif
 	g_gs_renderer->Transfer<3>(mem, size);
 }
 
 void GSgifTransfer1(u8* mem, u32 addr)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // GS dumps only
+#endif
 	g_gs_renderer->Transfer<0>(const_cast<u8*>(mem) + addr, (0x4000 - addr) / 16);
 }
 
 void GSgifTransfer2(u8* mem, u32 size)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // GS dumps only
+#endif
 	g_gs_renderer->Transfer<1>(const_cast<u8*>(mem), size);
 }
 
 void GSgifTransfer3(u8* mem, u32 size)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // GS dumps only
+#endif
 	g_gs_renderer->Transfer<2>(const_cast<u8*>(mem), size);
 }
 
 void GSvsync(u32 field, bool registers_written)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::VSync(field, registers_written);
+		return;
+	}
+#endif
 	// Update this here because we need to check if the pending draw affects the current frame, so our regs need to be updated.
 	g_gs_renderer->PCRTCDisplays.SetVideoMode(g_gs_renderer->GetVideoMode());
 	g_gs_renderer->PCRTCDisplays.EnableDisplays(g_gs_renderer->m_regs->PMODE, g_gs_renderer->m_regs->SMODE2, g_gs_renderer->isReallyInterlaced());
@@ -544,6 +629,12 @@ void GSvsync(u32 field, bool registers_written)
 
 int GSfreeze(FreezeAction mode, freezeData* data)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		return ParallelGSRenderer::Freeze(static_cast<int>(mode), data);
+	}
+#endif
 	if (mode == FreezeAction::Save)
 	{
 		return g_gs_renderer->Freeze(data, false);
@@ -628,11 +719,19 @@ void GSToggleVideoCapture()
 
 void GSPresentCurrentFrame()
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return; // presented at its VSync
+#endif
 	g_gs_renderer->PresentCurrentFrame();
 }
 
 void GSThrottlePresentation()
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return;
+#endif
 	if (g_gs_device->GetVSyncMode() == GSVSyncMode::FIFO)
 	{
 		// Let vsync take care of throttling.
@@ -653,6 +752,10 @@ void GSGameChanged()
 
 bool GSHasDisplayWindow()
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return false;
+#endif
 	pxAssert(g_gs_device);
 	return (g_gs_device->GetWindowInfo().type != WindowInfo::Type::Surfaceless);
 }
@@ -775,6 +878,13 @@ GSVideoMode GSgetDisplayMode()
 
 void GSgetInternalResolution(int* width, int* height)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::GetInternalResolution(width, height);
+		return;
+	}
+#endif
 	GSRenderer* gs = g_gs_renderer.get();
 	if (!gs)
 	{
@@ -790,6 +900,13 @@ void GSgetInternalResolution(int* width, int* height)
 
 void GSgetStats(SmallStringBase& info)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		info.assign("paraLLEl-GS");
+		return;
+	}
+#endif
 	GSPerfMon& pm = g_perfmon;
 	const char* api_name = GSDevice::RenderAPIToString(g_gs_device->GetRenderAPI());
 	if (GSCurrentRenderer == GSRendererType::SW)
@@ -926,6 +1043,13 @@ void GSUpdateConfig(const Pcsx2Config::GSOptions& new_config)
 {
 	Pcsx2Config::GSOptions old_config(std::move(GSConfig));
 	GSConfig = new_config;
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+	{
+		ParallelGSRenderer::UpdateConfig();
+		return;
+	}
+#endif
 	if (!g_gs_renderer)
 		return;
 

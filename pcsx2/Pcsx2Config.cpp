@@ -703,6 +703,7 @@ const char* Pcsx2Config::GSOptions::GetRendererName(GSRendererType type)
 		case GSRendererType::OGL:   return "OpenGL";
 		case GSRendererType::VK:    return "Vulkan";
 		case GSRendererType::SW:    return "Software";
+		case GSRendererType::ParallelGS: return "paraLLEl-GS";
 		case GSRendererType::Null:  return "Null";
 		default:                    return "";
 			// clang-format on
@@ -879,6 +880,11 @@ bool Pcsx2Config::GSOptions::OptionsAreEqual(const GSOptions& right) const
 		OpEqu(ShadeBoost_Saturation) &&
 		OpEqu(ShadeBoost_Gamma) &&
 		OpEqu(PNGCompressionLevel) &&
+		OpEqu(PGSSuperSampling) &&
+		OpEqu(PGSHighResScanout) &&
+		OpEqu(PGSDisableMipmaps) &&
+		OpEqu(PGSSuperSampleTextures) &&
+		OpEqu(PGSSharpBackbuffer) &&
 		OpEqu(SaveDrawStart) &&
 		OpEqu(SaveDrawCount) &&
 		OpEqu(SaveDrawBy) &&
@@ -1076,6 +1082,11 @@ void Pcsx2Config::GSOptions::LoadSave(SettingsWrapper& wrap)
 	SettingsWrapIntEnumEx(CASMode, "CASMode");
 	SettingsWrapIntEnumEx(Upscaler, "Upscaler");
 	SettingsWrapBitfieldEx(CAS_Sharpness, "CASSharpness");
+	SettingsWrapIntEnumEx(PGSSuperSampling, "pgsSuperSampling");
+	SettingsWrapIntEnumEx(PGSHighResScanout, "pgsHighResScanout");
+	SettingsWrapIntEnumEx(PGSDisableMipmaps, "pgsDisableMipmaps");
+	SettingsWrapIntEnumEx(PGSSuperSampleTextures, "pgsSuperSampleTextures");
+	SettingsWrapIntEnumEx(PGSSharpBackbuffer, "pgsSharpBackbuffer");
 	SettingsWrapBitfieldEx(Dithering, "dithering_ps2");
 	SettingsWrapBitfieldEx(MaxAnisotropy, "MaxAnisotropy");
 	SettingsWrapBitfieldEx(SWExtraThreads, "extrathreads");

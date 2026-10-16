@@ -278,6 +278,8 @@ enum class GSRendererType : s8
 	VK = 14,
 	Metal = 17,
 	DX12 = 15,
+	// paraLLEl-GS (pcee2's libretro core, Vulkan only), as LRPS2 numbers it
+	ParallelGS = 18,
 };
 
 enum class GSVSyncMode : u8
@@ -913,6 +915,13 @@ struct Pcsx2Config
 		u8 ShadeBoost_Saturation = DEFAULT_SHADEBOOST_SATURATION;
 		u8 ShadeBoost_Gamma = DEFAULT_SHADEBOOST_GAMMA;
 		u8 PNGCompressionLevel = 1;
+
+		// paraLLEl-GS (GSRendererType::ParallelGS)
+		u8 PGSSuperSampling = 0;
+		u8 PGSHighResScanout = 0;
+		u8 PGSDisableMipmaps = 0;
+		u8 PGSSuperSampleTextures = 0;
+		u8 PGSSharpBackbuffer = 0;
 
 		u16 SWExtraThreads = 2;
 		u16 SWExtraThreadsHeight = 4;

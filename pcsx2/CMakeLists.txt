@@ -686,6 +686,25 @@ if(USE_VULKAN)
 		GS/Renderers/Vulkan/VKSwapChain.h
 	)
 	target_link_libraries(PCSX2_FLAGS INTERFACE vulkan-headers)
+
+	# paraLLEl-GS (from LRPS2): a Vulkan compute renderer of the GS, with its own device
+	# made through the frontend's context negotiation; libretro core only
+	if(ENABLE_LIBRETRO AND ENABLE_PARALLEL_GS)
+		set(PARALLEL_GS_STANDALONE ON CACHE BOOL "" FORCE)
+		set(GRANITE_POSITION_INDEPENDENT ON CACHE BOOL "" FORCE)
+		message("Adding the paraLLEl-GS renderer")
+		add_subdirectory(GS/parallel-gs EXCLUDE_FROM_ALL)
+		target_link_libraries(PCSX2_FLAGS INTERFACE parallel-gs)
+		target_compile_definitions(PCSX2_FLAGS INTERFACE HAVE_PARALLEL_GS)
+		list(APPEND pcsx2GSSources GS/Renderers/parallel-gs/GSRendererPGS.cpp)
+		# libretro_vulkan.h, for the frontend's Vulkan interface
+		set_property(SOURCE GS/Renderers/parallel-gs/GSRendererPGS.cpp APPEND PROPERTY
+			INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/pcee2-libretro")
+		list(APPEND pcsx2GSHeaders
+			GS/Renderers/parallel-gs/GSRendererPGS.h
+			GS/Renderers/parallel-gs/GSParallelGS.h
+		)
+	endif()
 	target_include_directories(PCSX2_FLAGS INTERFACE ${SHADERC_INCLUDE_DIR})
 	if(SHADERC_STATIC)
 		target_link_libraries(PCSX2_FLAGS INTERFACE ${SHADERC_LIBRARY})

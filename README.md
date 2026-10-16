@@ -32,6 +32,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | PAL (50 Hz) / NTSC av_info | ✅ working |
 | Fast-forward | ✅ working |
 | OpenGL renderer | ✅ working (surfaceless EGL) |
+| paraLLEl-GS renderer (from LRPS2) | 🧪 in testing: a Vulkan compute renderer of the GS, with super sampling and high-res scanout. Needs a frontend with Vulkan context negotiation v2, as RetroArch has |
 | D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested. D3D12 needs `dxcompiler.dll` (from the standalone PCSX2) beside RetroArch's executable; the core loads without it |
 | Metal renderer | ➖ not offered: libretro has no Metal hardware context. On macOS the Vulkan renderer runs on Metal through MoltenVK, sharing the frontend's device |
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
@@ -112,7 +113,8 @@ the exact steps on all three platforms.
 | BIOS | auto / discovered images | restart required |
 | Fast Boot | enabled / disabled | restart required |
 | Memory Cards | Slot 1/2 enabled / disabled + discovered `.ps2` cards | applies immediately; scanned from `<system>/pcsx2/memcards` |
-| Renderer | Vulkan / OpenGL / Software | applies on the fly |
+| Renderer | Vulkan / paraLLEl-GS / OpenGL / Software | applies on the fly; between the hardware APIs, and to or from paraLLEl-GS, at the next start of the content |
+| paraLLEl-GS options | Super Sampling, High-Res Scanout, Super-Sampled Textures, Sharp Backbuffer, Force Texture LOD0 | paraLLEl-GS only, apply on the fly |
 | Internal Resolution | 1x–4x | applies on the fly, scales output too |
 | Blending Accuracy | Minimum–Maximum | default Basic |
 | Texture Filtering | Nearest / Bilinear (PS2/Forced/Forced-no-sprites) | default PS2 |
