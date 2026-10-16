@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- Sound no longer stutters where a frame's samples fall on the next frame: the core padded a frame of silence into the running stream each time, meant only for the boot (in Ace Combat 04 some 23 times a second, about 37% silence on top of the game's sound), and the surplus kept RetroArch's buffer full so frames were held too. Now it pads only until the game's first sound (nobz226, #46).
 - New option Patches > Cheats, off by default: the `.pnach` cheat files in `system/pcsx2/cheats/`, named after the game's serial and CRC as in standalone PCSX2, are applied. PCSX2 loaded them only with `EnableCheats` set by hand in `PCSX2.ini` (raidenii, issue #49).
 
 ## October 2026

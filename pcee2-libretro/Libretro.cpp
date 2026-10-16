@@ -2025,6 +2025,9 @@ static void RETRO_CALLCONV AudioBufferStatus(bool active, unsigned occupancy, bo
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+	// Each game pads with silence until its own first sound (see OutputAudio).
+	s_audio_frames_output.store(0, std::memory_order_relaxed);
+
 	// No content means boot the BIOS. A frontend signals that with a null
 	// info pointer, but not every one of them does: some hand over a zeroed
 	// retro_game_info instead, and an empty path there means the same thing,
@@ -2611,10 +2614,16 @@ static void OutputAudio(bool pad_when_empty = true)
 
 	if (frames == 0)
 	{
-		if (!pad_when_empty)
+		// Keep the frontend's audio pipeline fed during boot, before the game has
+		// produced any sound - and only then. Once it has, a call that finds nothing
+		// buffered is just one where the samples land on the next call (SPU2 output
+		// doesn't line up with frames exactly); padding there inserted a frame of
+		// silence into a stream that was running fine - in Ace Combat 04, ~37% on
+		// top of the real 48kHz, heard as stutter, and the surplus pinned the
+		// frontend's buffer full so frames got held and audio withheld as well.
+		if (!pad_when_empty || s_audio_frames_output.load(std::memory_order_relaxed) > 0)
 			return;
 
-		// keep the frontend's audio pipeline fed during boot
 		std::memset(s16_buffer, 0, (SAMPLE_RATE / 60) * 2 * sizeof(int16_t));
 		s_audio_batch_cb(s16_buffer, SAMPLE_RATE / 60);
 		return;
