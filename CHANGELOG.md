@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- OpenGL ES without dual-source blending (no `GL_EXT_blend_func_extended`, as on webOS and Mali): the hardware renderer runs, blending in the shader what needs a second colour output; it refused to start before (cscd98, #52).
 - Frame Limiter on Frontend: the core hands RetroArch one frame's worth of sound per frame, and holds it back only when RetroArch's buffer is completely full. It handed over whatever was queued, in bursts, and held it back already at 90%, where RetroArch's macOS CoreAudio driver normally sits; its buffer swung between empty and full and the picture stuttered (spencersmitty, #46).
 - Sound no longer stutters where a frame's samples fall on the next frame: the core padded a frame of silence into the running stream each time, meant only for the boot (in Ace Combat 04 some 23 times a second, about 37% silence on top of the game's sound), and the surplus kept RetroArch's buffer full so frames were held too. Now it pads only until the game's first sound (nobz226, #46).
 - New option Patches > Cheats, off by default: the `.pnach` cheat files in `system/pcsx2/cheats/`, named after the game's serial and CRC as in standalone PCSX2, are applied. PCSX2 loaded them only with `EnableCheats` set by hand in `PCSX2.ini` (raidenii, issue #49).
