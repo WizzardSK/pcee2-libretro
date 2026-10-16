@@ -840,6 +840,56 @@ static std::string LibretroCrosshairImage()
 	return path;
 }
 
+// The DualShock 2's names for the RetroPad's buttons and sticks, for every
+// controller port the pads are read from (UpdateInput). RetroArch labels its
+// Quick Menu > Controls with them, where a button can be remapped or unbound
+// per game; without them, with Hide Unbound Core Input Descriptors on, that
+// list was empty and nothing could be changed there (cubatilles, #50).
+static void SetInputDescriptors()
+{
+	static constexpr std::pair<unsigned, const char*> buttons[] = {
+		{RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
+		{RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
+		{RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
+		{RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
+		{RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
+		{RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
+		{RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
+		{RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
+		{RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
+		{RETRO_DEVICE_ID_JOYPAD_START, "Start"},
+		{RETRO_DEVICE_ID_JOYPAD_L, "L1"},
+		{RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
+		{RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
+		{RETRO_DEVICE_ID_JOYPAD_R, "R1"},
+		{RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
+		{RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+	};
+	static constexpr struct
+	{
+		unsigned index, id;
+		const char* name;
+	} sticks[] = {
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "Left Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "Left Stick Y"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "Right Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "Right Stick Y"},
+	};
+
+	static std::vector<retro_input_descriptor> descriptors;
+	descriptors.clear();
+	for (unsigned port = 0; port < static_cast<unsigned>(s_pad_map.size()); port++)
+	{
+		for (const auto& [id, name] : buttons)
+			descriptors.push_back({port, RETRO_DEVICE_JOYPAD, 0, id, name});
+		for (const auto& stick : sticks)
+			descriptors.push_back({port, RETRO_DEVICE_ANALOG, stick.index, stick.id, stick.name});
+	}
+	descriptors.push_back({0, 0, 0, 0, nullptr});
+	if (s_environ_cb)
+		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
+}
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -1043,6 +1093,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			s_pad_map.push_back(6); // 2C
 			s_pad_map.push_back(7); // 2D
 		}
+
+		SetInputDescriptors();
 
 		// all mapped pads are DualShock 2s, with the configured analog response
 		const float axis_scale = static_cast<float>(get_int_option("pcsx2_axis_scale", "133")) / 100.0f;
