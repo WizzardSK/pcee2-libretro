@@ -302,8 +302,14 @@ static ParsedSuperSampling parse_super_sampling_options(u8 super_sampling)
 
 bool GSRendererPGS::Init()
 {
+	/* Granite's log goes through a per-thread interface: this is the GS
+	 * thread, not the frontend's that made the context. */
+	Util::set_thread_logging_interface(&logging_iface);
 	if (!vulkan_ctx)
+	{
+		Console.Error("paraLLEl-GS: no Vulkan context; the frontend did not create the device through paraLLEl-GS.");
 		return false;
+	}
 
 	dev.set_context(*vulkan_ctx);
 	// We'll cycle through a lot of these.
@@ -326,7 +332,10 @@ bool GSRendererPGS::Init()
 	opts.dynamic_super_sampling = true;
 	opts.super_sampled_textures = GSConfig.PGSSuperSampleTextures != 0;
 	if (!iface.init(&dev, opts))
+	{
+		Console.Error("paraLLEl-GS: the renderer did not start on this GPU (see the requirements above).");
 		return false;
+	}
 
 	current_super_sampling         = opts.super_sampling;
 	current_ordered_super_sampling = opts.ordered_super_sampling;
