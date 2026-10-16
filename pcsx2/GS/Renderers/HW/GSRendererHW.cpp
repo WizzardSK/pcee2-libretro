@@ -6964,7 +6964,8 @@ void GSRendererHW::EmulateBlending(int rt_alpha_min, int rt_alpha_max, DATEOptio
 	// HW blend can be done in multiple passes when there's no overlap.
 	// Blend multi pass is only useful when texture barriers aren't supported.
 	// Speed wise Texture barriers > blend multi pass > texture copies.
-	const bool blend_multi_pass_support = !features.texture_barrier && no_prim_overlap && is_basic_blend && COLCLAMP.CLAMP;
+	// Several of the passes hand the blend unit an SRC1 factor, so not without dual source.
+	const bool blend_multi_pass_support = !features.texture_barrier && no_prim_overlap && is_basic_blend && COLCLAMP.CLAMP && features.dual_source_blend;
 	const bool bmix1_multi_pass1 = blend_multi_pass_support && blend_mix1 && (alpha_c0_high_max_one || alpha_c2_high_one) && m_conf.ps.blend_d == 2;
 	const bool bmix1_multi_pass2 = blend_multi_pass_support && (blend_flag & BLEND_MIX1) && m_conf.ps.blend_b == m_conf.ps.blend_d && !m_conf.ps.dither && alpha_high_one;
 	const bool bmix3_multi_pass = blend_multi_pass_support && blend_mix3 && !m_conf.ps.dither && alpha_high_one;
@@ -7060,6 +7061,22 @@ void GSRendererHW::EmulateBlending(int rt_alpha_min, int rt_alpha_max, DATEOptio
 		color_dest_blend = false;
 		accumulation_blend = false;
 		blend_mix = false;
+		color_dest_blend2 = false;
+		blend_zero_to_one_range = false;
+	}
+
+	// Without a second fragment output (OpenGL ES lacking GL_EXT_blend_func_extended) the
+	// blend unit cannot be handed an SRC1 factor, so an equation that needs one is blended
+	// in the shader. A device with no barrier reads the target from a copy taken before
+	// the draw, which is exact where the primitives do not overlap.
+	if (!features.dual_source_blend && !color_dest_blend &&
+		(GSDevice::IsDualSourceBlendFactor(blend.src) || GSDevice::IsDualSourceBlendFactor(blend.dst) || blend_mix || PABE))
+	{
+		sw_blending = true;
+		blend_mix = false;
+		// PABE on top of an accumulation blend takes Cd through SRC1.
+		accumulation_blend &= !PABE;
+		// These keep the hardware blend through colour clipping.
 		color_dest_blend2 = false;
 		blend_zero_to_one_range = false;
 	}
@@ -8976,7 +8993,9 @@ void GSRendererHW::EmulateAlphaTest(DATEOptions& date_options)
 
 	// Flags to determine if we can achieve full accuracy with less passes.
 	const bool simple_fb_only = (afail == AFAIL_FB_ONLY) && independent_z;
-	const bool simple_rgb_only = (afail == AFAIL_RGB_ONLY) && independent_z && independent_rgb;
+	// The alpha test's verdict reaches the blend unit as SRC1_ALPHA.
+	const bool simple_rgb_only = (afail == AFAIL_RGB_ONLY) && independent_z && independent_rgb &&
+		g_gs_device->Features().dual_source_blend;
 	const bool simple_zb_only = (afail == AFAIL_ZB_ONLY) && independent_z;
 
 	// Determine where RT and/or depth are needed for the feedback methods.

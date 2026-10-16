@@ -972,19 +972,14 @@ bool GSDeviceOGL::CheckFeatures()
 
 	// Don't use PBOs when we don't have ARB_buffer_storage, orphaning buffers probably ends up worse than just
 	// using the normal texture update routines and letting the driver take care of it.
-	// Desktop GL always has dual-source blending; on ES it is an extension. The
-	// renderer has no in-shader emulation of SRC1 blend equations here yet, so
-	// a driver without it cannot run the hardware renderer at all — say which
-	// one is missing rather than failing later in shader compilation.
+	// Desktop GL always has dual-source blending; on ES it is an extension. Without
+	// it (Mali, for one) the renderer blends anything that needs SRC1 in the shader
+	// instead, and the shaders drop the second colour output (DISABLE_DUAL_SOURCE).
 	m_dual_source_blend =
 		!m_is_gles || GLAD_GL_EXT_blend_func_extended || GLAD_GL_ARB_blend_func_extended;
+	m_features.dual_source_blend = m_dual_source_blend;
 	if (!m_dual_source_blend)
-	{
-		Host::ReportFormattedErrorAsync("GS",
-			"This GL ES driver has neither GL_EXT_blend_func_extended nor GL_ARB_blend_func_extended. "
-			"The hardware renderer needs dual-source blending; use the software renderer.");
-		return false;
-	}
+		Console.Warning("GL: No GL_EXT_blend_func_extended; blends that need dual source are done in the shader.");
 
 	// PBOs only pay off when buffer_storage can pin a persistently-mapped staging
 	// region; without it the orphaning fallback loses to just letting the driver
