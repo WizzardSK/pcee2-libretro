@@ -375,7 +375,7 @@ void GSRendererPGS::UpdateConfig()
 
 int GSRendererPGS::GetSaveStateSize()
 {
-	return GSState::GetSaveStateSize(GSState::STATE_VERSION);
+	return GSState::GetCurrentSaveStateSize();
 }
 
 static void write_data(u8*& dst, const void* src, size_t size)

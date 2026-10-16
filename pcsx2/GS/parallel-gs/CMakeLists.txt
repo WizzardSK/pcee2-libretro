@@ -80,7 +80,8 @@ set(GRANITE_PLATFORM "libretro" CACHE STRING "" FORCE)
 add_library(pgs-libretro-common STATIC
         libretro-common/rthreads/rthreads.c
         libretro-common/memmap/memalign.c
-        libretro-common/features/features_cpu.c)
+        libretro-common/features/features_cpu.c
+        libretro-common/compat/compat_strl.c)
 target_include_directories(pgs-libretro-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libretro-common/include)
 set_target_properties(pgs-libretro-common PROPERTIES POSITION_INDEPENDENT_CODE ON)
 find_package(Threads REQUIRED)

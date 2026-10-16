@@ -94,6 +94,11 @@ constexpr int GSState::GetSaveStateSize(int version)
 	return size;
 }
 
+int GSState::GetCurrentSaveStateSize()
+{
+	return GetSaveStateSize(STATE_VERSION);
+}
+
 GSState::GSState()
 	: m_vt(this)
 {
