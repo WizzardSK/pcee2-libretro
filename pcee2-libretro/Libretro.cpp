@@ -342,6 +342,10 @@ namespace LibretroHost
 	// observer only; the stream is owned by SPU2 (s_output_stream)
 	static LibretroAudioStream* s_audio_stream = nullptr;
 	static std::atomic<u64> s_audio_frames_output{0};
+	// Audio frames owed to the frontend, fractions included: one emulated
+	// frame's worth (sample rate / the VM's frame rate) is added per
+	// OutputAudio() call. retro_run()'s thread only.
+	static double s_audio_owed = 0.0;
 
 	// Runs on the GS thread once per vsync with the previous frame's pixels
 	// (see GSSetFramebufferReadback). Swizzles RGBA -> XRGB8888 into the
@@ -2027,6 +2031,7 @@ bool retro_load_game(const struct retro_game_info* game)
 {
 	// Each game pads with silence until its own first sound (see OutputAudio).
 	s_audio_frames_output.store(0, std::memory_order_relaxed);
+	s_audio_owed = 0.0;
 
 	// No content means boot the BIOS. A frontend signals that with a null
 	// info pointer, but not every one of them does: some hand over a zeroed
@@ -2588,14 +2593,33 @@ static bool FrontendAheadOfAudio()
 	return held;
 }
 
+// Called once per emulated frame (and once per retro_run() that only repeats
+// the image). Hands over one frame's worth of audio, never whatever is queued:
+// SPU2's output does not line up with frames, and handing the frontend the
+// backlog in bursts swung its buffer between empty and full, which with a
+// synchronous driver is the pacing itself going uneven - the stutter on macOS's
+// CoreAudio in #46. What is not handed over stays in the stream for the next
+// frame.
 static void OutputAudio(bool pad_when_empty = true)
 {
-	// Leave the frontend alone while its buffer is nearly full: what it does
-	// with an over-full one is block, and on some drivers block for good.
+	const u32 fps_bits = s_vm_fps_bits.load(std::memory_order_acquire);
+	const double fps = fps_bits ? std::bit_cast<float>(fps_bits) : 59.94f;
+	const double quantum = s_audio_sample_rate.load(std::memory_order_acquire) / fps;
+	// A frame that came up short is made up on the next one, but no more than
+	// that: the owed audio never grows past two frames' worth.
+	s_audio_owed = std::min(s_audio_owed, quantum) + quantum;
+
+	// Leave the frontend alone while its buffer is full: a synchronous driver
+	// waits on a write into it until it drains, which is what paces the core,
+	// but RetroArch's CoreAudio3 waits without a timeout, and with a device
+	// that stopped draining it never returned (#36). Only at a full buffer:
+	// holding back already at 90% took that wait away from where a synchronous
+	// driver always sits, and the pacing with it (#46).
 	if (s_audio_status_known.load(std::memory_order_acquire) &&
-		s_audio_occupancy.load(std::memory_order_acquire) >= 90)
+		s_audio_occupancy.load(std::memory_order_acquire) >= 100)
 	{
 		s_pace_stats.audio_refused++;
+		s_audio_owed = std::min(s_audio_owed, quantum);
 		return;
 	}
 
@@ -2605,12 +2629,14 @@ static void OutputAudio(bool pad_when_empty = true)
 	static float float_buffer[MAX_AUDIO_FRAMES_PER_RUN * 2];
 	static int16_t s16_buffer[MAX_AUDIO_FRAMES_PER_RUN * 2];
 
+	const u32 wanted = std::min<u32>(static_cast<u32>(s_audio_owed), MAX_AUDIO_FRAMES_PER_RUN);
 	u32 frames = 0;
 	{
 		std::unique_lock lock(s_audio_stream_mutex);
 		if (s_audio_stream)
-			frames = s_audio_stream->PullFrames(float_buffer, MAX_AUDIO_FRAMES_PER_RUN);
+			frames = s_audio_stream->PullFrames(float_buffer, wanted);
 	}
+	s_audio_owed -= frames;
 
 	if (frames == 0)
 	{
@@ -2891,13 +2917,13 @@ void retro_run(void)
 	// handed, the same as it already is for this core - nothing here limits by
 	// wall clock, and SettingsOverride() turns the VM's own limiter off.
 	// That blocking is also why the frontend may not run a frame here at all.
-	// OutputAudio() never writes into a nearly full buffer, because on some
-	// drivers the write then blocks for good - but that also takes away the
-	// block that holds the speed. On a display faster than the game,
-	// RetroArch calls retro_run() once per refresh, and every call ran a
-	// frame: three times too fast at 180Hz, and a 30fps game kept rushing
-	// ahead between its own frames (issue #44). So while the frontend's audio
-	// buffer is that full and the VM is ahead of the wall clock as well, this
+	// OutputAudio() never writes into a full buffer, because on some drivers
+	// the write then blocks for good - but that also takes away the block
+	// that holds the speed. On a display faster than the game, RetroArch
+	// calls retro_run() once per refresh, and every call ran a frame: three
+	// times too fast at 180Hz, and a 30fps game kept rushing ahead between
+	// its own frames (issue #44). So while the frontend's audio buffer is
+	// nearly full and the VM is ahead of the wall clock as well, this
 	// call only repeats the last image and the audio catches up; the speed is
 	// then held by the audio playing, as the block would have held it. Not
 	// while fast-forwarding, where a full buffer is the point.
