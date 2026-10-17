@@ -762,12 +762,20 @@ bool GSHasDisplayWindow()
 
 void GSResizeDisplayWindow(u32 width, u32 height, float scale)
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return;
+#endif
 	g_gs_device->ResizeWindow(width, height, scale);
 	ImGuiManager::WindowResized();
 }
 
 void GSUpdateDisplayWindow()
 {
+#ifdef HAVE_PARALLEL_GS
+	if (ParallelGSRenderer::IsOpen())
+		return;
+#endif
 	if (!g_gs_device->UpdateWindow())
 	{
 		Host::ReportErrorAsync("Error", TRANSLATE_SV("GS", "Failed to change window after update. The log may contain more information."));
@@ -786,6 +794,11 @@ void GSSetVSyncMode(GSVSyncMode mode, bool allow_present_throttle)
 	}};
 	Console.WriteLnFmt(Color_StrongCyan, "Setting vsync mode: {}{}", modes[static_cast<size_t>(mode)],
 		allow_present_throttle ? " (throttle allowed)" : "");
+#ifdef HAVE_PARALLEL_GS
+	// paraLLEl-GS presents through the frontend, which owns vsync
+	if (ParallelGSRenderer::IsOpen())
+		return;
+#endif
 	g_gs_device->SetVSyncMode(mode, allow_present_throttle);
 }
 
