@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- One frame less input lag, the same as standalone PCSX2: each frame is handed to RetroArch once the GS has drawn it. The core handed over the frame drawn before, one frame behind the input it was run with (Immersion95, issue #53).
 - The core names the DualShock 2's buttons and sticks to RetroArch (Cross, Circle, L1 and so on, on every controller port in use). Quick Menu > Controls lists and labels them, so a button can be remapped or left unbound (---) per game or per core; with Hide Unbound Core Input Descriptors on, that list was empty (cubatilles, #50).
 - New option System > USB Mouse: PCSX2's USB mouse on USB port 1 or 2, moved and clicked with the frontend's mouse of the matching controller port, wheel included. For the games that take a mouse, as Police 24/7 for aiming (cubatilles, #50).
 - OpenGL ES without dual-source blending (no `GL_EXT_blend_func_extended`, as on webOS and Mali): the hardware renderer runs, blending in the shader what needs a second colour output; it refused to start before (cscd98, #52).
