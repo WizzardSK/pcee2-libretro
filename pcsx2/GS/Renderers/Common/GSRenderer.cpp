@@ -456,16 +456,15 @@ static GSVector4i CalculateDrawSrcRect(const GSTexture* src, const GSVector2i re
 // --------------------------------------------------------------------------------------
 // Continuous framebuffer readback (libretro-style frontends).
 //
-// Double-buffered: each vsync queues a GPU copy of the current frame into one
-// download buffer, and maps + delivers the copy queued at the previous vsync.
-// The one-frame delay means Map() almost never stalls on the GPU.
+// Each vsync copies the current frame into a download buffer and delivers it
+// at once. It used to deliver the copy queued at the previous vsync, so that
+// Map() would almost never wait on the GPU, but that frame is one behind the
+// input it was run with: a frame more input lag than standalone (issue #53).
 // --------------------------------------------------------------------------------------
 static GSFramebufferReadbackCallback s_fb_readback_cb = nullptr;
 static std::atomic<u64> s_fb_readback_size{0}; // (width << 32) | height, set from any thread
 static GSTexture* s_fb_readback_rt = nullptr;
-static std::unique_ptr<GSDownloadTexture> s_fb_readback_dl[2];
-static bool s_fb_readback_pending[2] = {};
-static u32 s_fb_readback_slot = 0;
+static std::unique_ptr<GSDownloadTexture> s_fb_readback_dl;
 
 void GSSetFramebufferReadback(GSFramebufferReadbackCallback callback, u32 width, u32 height)
 {
@@ -483,11 +482,7 @@ void GSSetDuplicateFrameCallback(GSDuplicateFrameCallback callback)
 
 void GSReleaseFramebufferReadbackResources()
 {
-	for (u32 i = 0; i < 2; i++)
-	{
-		s_fb_readback_dl[i].reset();
-		s_fb_readback_pending[i] = false;
-	}
+	s_fb_readback_dl.reset();
 	if (s_fb_readback_rt)
 	{
 		g_gs_device->Recycle(s_fb_readback_rt);
@@ -516,16 +511,13 @@ static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src
 		if (!s_fb_readback_rt)
 			return;
 	}
-	if (!s_fb_readback_dl[0])
+	if (!s_fb_readback_dl)
 	{
-		for (u32 i = 0; i < 2; i++)
+		s_fb_readback_dl = g_gs_device->CreateDownloadTexture(width, height, GSTexture::Format::Color);
+		if (!s_fb_readback_dl)
 		{
-			s_fb_readback_dl[i] = g_gs_device->CreateDownloadTexture(width, height, GSTexture::Format::Color);
-			if (!s_fb_readback_dl[i])
-			{
-				GSReleaseFramebufferReadbackResources();
-				return;
-			}
+			GSReleaseFramebufferReadbackResources();
+			return;
 		}
 	}
 
@@ -537,24 +529,14 @@ static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src
 		BilnIf(GSConfig.LinearPresent != GSPostBilinearMode::Off));
 
 	const GSVector4i rc(0, 0, width, height);
-	const u32 idx = s_fb_readback_slot;
-	s_fb_readback_dl[idx]->CopyFromTexture(rc, s_fb_readback_rt, rc, 0);
-	s_fb_readback_pending[idx] = true;
-
-	// deliver the frame queued at the previous vsync
-	const u32 prev = idx ^ 1;
-	if (s_fb_readback_pending[prev])
+	s_fb_readback_dl->CopyFromTexture(rc, s_fb_readback_rt, rc, 0);
+	s_fb_readback_dl->Flush();
+	if (s_fb_readback_dl->Map(rc))
 	{
-		s_fb_readback_dl[prev]->Flush();
-		if (s_fb_readback_dl[prev]->Map(rc))
-		{
-			s_fb_readback_cb(reinterpret_cast<const u32*>(s_fb_readback_dl[prev]->GetMapPointer()),
-				s_fb_readback_dl[prev]->GetMapPitch() / sizeof(u32), width, height);
-			s_fb_readback_dl[prev]->Unmap();
-		}
-		s_fb_readback_pending[prev] = false;
+		s_fb_readback_cb(reinterpret_cast<const u32*>(s_fb_readback_dl->GetMapPointer()),
+			s_fb_readback_dl->GetMapPitch() / sizeof(u32), width, height);
+		s_fb_readback_dl->Unmap();
 	}
-	s_fb_readback_slot = prev;
 }
 
 static const char* GetScreenshotSuffix()
