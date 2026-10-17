@@ -17,7 +17,10 @@ static void* GetProcAddressCallback(const char* name)
 	// MSVC lets PROC/FARPROC convert to void* implicitly; GCC does not, so the
 	// casts are spelled out here for MinGW's sake.
 	void* addr = reinterpret_cast<void*>(wglGetProcAddress(name));
-	if (addr)
+	// Some drivers answer 1, 2, 3 or -1 instead of null for a function they
+	// do not export this way
+	const intptr_t value = reinterpret_cast<intptr_t>(addr);
+	if (addr && value != 1 && value != 2 && value != 3 && value != -1)
 		return addr;
 
 	// try opengl32.dll
@@ -215,6 +218,15 @@ std::unique_ptr<GLContext> GLContextWGL::CreateShared(const WindowInfo& wi, HGLR
 	{
 		if (context->CreateVersionContext(cv, share_context, true, error))
 		{
+			// CreateVersionContext only makes a context current when it
+			// replaces one, and this is the first: without this, GLAD was
+			// loaded with no context current and failed, so the OpenGL
+			// renderer never started on Windows (issue #53)
+			if (!wglMakeCurrent(context->m_dc, context->m_rc))
+			{
+				Error::SetWin32(error, "wglMakeCurrent() failed: ", GetLastError());
+				return nullptr;
+			}
 			Console.WriteLnFmt("WGL: Created a shared {}.{} context for the GS thread.",
 				cv.major_version, cv.minor_version);
 			context->m_version = cv;

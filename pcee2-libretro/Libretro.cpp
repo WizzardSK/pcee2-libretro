@@ -261,6 +261,11 @@ namespace LibretroHost
 	// GunCon2 lightguns on USB ports (bit 0 = USB1, bit 1 = USB2)
 	static u32 s_lightgun_mask = 0;
 
+	// USB mice (PCSX2's HID mouse) on USB ports, same bits; a port with a gun
+	// keeps the gun. The buttons last sent, as the device queues every event.
+	static u32 s_mouse_mask = 0;
+	static std::array<u32, 2> s_mouse_buttons = {};
+
 	// rumble: written by the InputManager callback (CPU thread), consumed in
 	// retro_run; packed as (large << 16) | small, each 0..65535
 	static std::array<std::atomic<u32>, 8> s_pad_rumble;
@@ -350,6 +355,10 @@ namespace LibretroHost
 	// observer only; the stream is owned by SPU2 (s_output_stream)
 	static LibretroAudioStream* s_audio_stream = nullptr;
 	static std::atomic<u64> s_audio_frames_output{0};
+	// Audio frames owed to the frontend, fractions included: one emulated
+	// frame's worth (sample rate / the VM's frame rate) is added per
+	// OutputAudio() call. retro_run()'s thread only.
+	static double s_audio_owed = 0.0;
 
 	// Runs on the GS thread once per vsync with the previous frame's pixels
 	// (see GSSetFramebufferReadback). Swizzles RGBA -> XRGB8888 into the
@@ -864,6 +873,56 @@ static std::string LibretroCrosshairImage()
 	return path;
 }
 
+// The DualShock 2's names for the RetroPad's buttons and sticks, for every
+// controller port the pads are read from (UpdateInput). RetroArch labels its
+// Quick Menu > Controls with them, where a button can be remapped or unbound
+// per game; without them, with Hide Unbound Core Input Descriptors on, that
+// list was empty and nothing could be changed there (cubatilles, #50).
+static void SetInputDescriptors()
+{
+	static constexpr std::pair<unsigned, const char*> buttons[] = {
+		{RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
+		{RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
+		{RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
+		{RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
+		{RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
+		{RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
+		{RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
+		{RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
+		{RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
+		{RETRO_DEVICE_ID_JOYPAD_START, "Start"},
+		{RETRO_DEVICE_ID_JOYPAD_L, "L1"},
+		{RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
+		{RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
+		{RETRO_DEVICE_ID_JOYPAD_R, "R1"},
+		{RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
+		{RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+	};
+	static constexpr struct
+	{
+		unsigned index, id;
+		const char* name;
+	} sticks[] = {
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "Left Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "Left Stick Y"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "Right Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "Right Stick Y"},
+	};
+
+	static std::vector<retro_input_descriptor> descriptors;
+	descriptors.clear();
+	for (unsigned port = 0; port < static_cast<unsigned>(s_pad_map.size()); port++)
+	{
+		for (const auto& [id, name] : buttons)
+			descriptors.push_back({port, RETRO_DEVICE_JOYPAD, 0, id, name});
+		for (const auto& stick : sticks)
+			descriptors.push_back({port, RETRO_DEVICE_ANALOG, stick.index, stick.id, stick.name});
+	}
+	descriptors.push_back({0, 0, 0, 0, nullptr});
+	if (s_environ_cb)
+		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
+}
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -1098,6 +1157,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			s_pad_map.push_back(7); // 2D
 		}
 
+		SetInputDescriptors();
+
 		// all mapped pads are DualShock 2s, with the configured analog response
 		const float axis_scale = static_cast<float>(get_int_option("pcsx2_axis_scale", "133")) / 100.0f;
 		const float axis_deadzone = static_cast<float>(get_int_option("pcsx2_axis_deadzone", "0")) / 100.0f;
@@ -1123,6 +1184,15 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			s_lightgun_mask |= 1;
 		if (std::strcmp(lightgun, "usb2") == 0 || std::strcmp(lightgun, "both") == 0)
 			s_lightgun_mask |= 2;
+
+		const char* mouse = get_option("pcsx2_usb_mouse", "disabled");
+		s_mouse_mask = 0;
+		if (std::strcmp(mouse, "usb1") == 0)
+			s_mouse_mask = 1;
+		else if (std::strcmp(mouse, "usb2") == 0)
+			s_mouse_mask = 2;
+		s_mouse_mask &= ~s_lightgun_mask;
+		s_mouse_buttons = {};
 
 		for (u32 usb_port = 0; usb_port < 2; usb_port++)
 		{
@@ -1151,6 +1221,10 @@ void LibretroHost::ReadCoreOptions(bool startup)
 				{
 					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_path", "");
 				}
+			}
+			else if (s_mouse_mask & (1u << usb_port))
+			{
+				s_settings_interface.SetStringValue(section.c_str(), "Type", "hidmouse");
 			}
 			else
 			{
@@ -2096,6 +2170,10 @@ static void RETRO_CALLCONV AudioBufferStatus(bool active, unsigned occupancy, bo
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+	// Each game pads with silence until its own first sound (see OutputAudio).
+	s_audio_frames_output.store(0, std::memory_order_relaxed);
+	s_audio_owed = 0.0;
+
 	// No content means boot the BIOS. A frontend signals that with a null
 	// info pointer, but not every one of them does: some hand over a zeroed
 	// retro_game_info instead, and an empty path there means the same thing,
@@ -2595,6 +2673,46 @@ static void UpdateInput()
 							   (gun(RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) && gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD));
 		USB::SetDeviceBindValue(usb_port, 17 /* BID_RECALIBRATE */, calibrate ? 1.0f : 0.0f);
 	}
+
+	// USB mice (bind indices from usb-hid/usb-hid.cpp: the buttons are
+	// INPUT_BUTTON_*, the pointer's axes INPUT_BUTTON__MAX + InputPointerAxis).
+	// Each value sent is queued as a report, so only what changed is sent.
+	for (u32 usb_port = 0; usb_port < 2; usb_port++)
+	{
+		if (!(s_mouse_mask & (1u << usb_port)))
+			continue;
+
+		const auto mouse = [&](unsigned id) {
+			return s_input_state_cb(usb_port, RETRO_DEVICE_MOUSE, 0, id);
+		};
+
+		const int16_t dx = mouse(RETRO_DEVICE_ID_MOUSE_X);
+		const int16_t dy = mouse(RETRO_DEVICE_ID_MOUSE_Y);
+		if (dx != 0)
+			USB::SetDeviceBindValue(usb_port, 7 /* INPUT_BUTTON__MAX + X */, static_cast<float>(dx));
+		if (dy != 0)
+			USB::SetDeviceBindValue(usb_port, 8 /* INPUT_BUTTON__MAX + Y */, static_cast<float>(dy));
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELUP))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, 1.0f);
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELDOWN))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, -1.0f);
+
+		static constexpr std::pair<unsigned, u32> mouse_buttons[] = {
+			{RETRO_DEVICE_ID_MOUSE_LEFT, 0 /* INPUT_BUTTON_LEFT */},
+			{RETRO_DEVICE_ID_MOUSE_MIDDLE, 1 /* INPUT_BUTTON_MIDDLE */},
+			{RETRO_DEVICE_ID_MOUSE_RIGHT, 2 /* INPUT_BUTTON_RIGHT */},
+		};
+		for (const auto& [retro_id, bind] : mouse_buttons)
+		{
+			const u32 bit = 1u << bind;
+			const u32 down = mouse(retro_id) ? bit : 0;
+			if ((s_mouse_buttons[usb_port] & bit) != down)
+			{
+				s_mouse_buttons[usb_port] ^= bit;
+				USB::SetDeviceBindValue(usb_port, bind, down ? 1.0f : 0.0f);
+			}
+		}
+	}
 }
 
 // pad_when_empty keeps the frontend's pipeline fed while nothing is being
@@ -2680,14 +2798,33 @@ static bool FrontendAheadOfAudio()
 	return held;
 }
 
+// Called once per emulated frame (and once per retro_run() that only repeats
+// the image). Hands over one frame's worth of audio, never whatever is queued:
+// SPU2's output does not line up with frames, and handing the frontend the
+// backlog in bursts swung its buffer between empty and full, which with a
+// synchronous driver is the pacing itself going uneven - the stutter on macOS's
+// CoreAudio in #46. What is not handed over stays in the stream for the next
+// frame.
 static void OutputAudio(bool pad_when_empty = true)
 {
-	// Leave the frontend alone while its buffer is nearly full: what it does
-	// with an over-full one is block, and on some drivers block for good.
+	const u32 fps_bits = s_vm_fps_bits.load(std::memory_order_acquire);
+	const double fps = fps_bits ? std::bit_cast<float>(fps_bits) : 59.94f;
+	const double quantum = s_audio_sample_rate.load(std::memory_order_acquire) / fps;
+	// A frame that came up short is made up on the next one, but no more than
+	// that: the owed audio never grows past two frames' worth.
+	s_audio_owed = std::min(s_audio_owed, quantum) + quantum;
+
+	// Leave the frontend alone while its buffer is full: a synchronous driver
+	// waits on a write into it until it drains, which is what paces the core,
+	// but RetroArch's CoreAudio3 waits without a timeout, and with a device
+	// that stopped draining it never returned (#36). Only at a full buffer:
+	// holding back already at 90% took that wait away from where a synchronous
+	// driver always sits, and the pacing with it (#46).
 	if (s_audio_status_known.load(std::memory_order_acquire) &&
-		s_audio_occupancy.load(std::memory_order_acquire) >= 90)
+		s_audio_occupancy.load(std::memory_order_acquire) >= 100)
 	{
 		s_pace_stats.audio_refused++;
+		s_audio_owed = std::min(s_audio_owed, quantum);
 		return;
 	}
 
@@ -2697,19 +2834,27 @@ static void OutputAudio(bool pad_when_empty = true)
 	static float float_buffer[MAX_AUDIO_FRAMES_PER_RUN * 2];
 	static int16_t s16_buffer[MAX_AUDIO_FRAMES_PER_RUN * 2];
 
+	const u32 wanted = std::min<u32>(static_cast<u32>(s_audio_owed), MAX_AUDIO_FRAMES_PER_RUN);
 	u32 frames = 0;
 	{
 		std::unique_lock lock(s_audio_stream_mutex);
 		if (s_audio_stream)
-			frames = s_audio_stream->PullFrames(float_buffer, MAX_AUDIO_FRAMES_PER_RUN);
+			frames = s_audio_stream->PullFrames(float_buffer, wanted);
 	}
+	s_audio_owed -= frames;
 
 	if (frames == 0)
 	{
-		if (!pad_when_empty)
+		// Keep the frontend's audio pipeline fed during boot, before the game has
+		// produced any sound - and only then. Once it has, a call that finds nothing
+		// buffered is just one where the samples land on the next call (SPU2 output
+		// doesn't line up with frames exactly); padding there inserted a frame of
+		// silence into a stream that was running fine - in Ace Combat 04, ~37% on
+		// top of the real 48kHz, heard as stutter, and the surplus pinned the
+		// frontend's buffer full so frames got held and audio withheld as well.
+		if (!pad_when_empty || s_audio_frames_output.load(std::memory_order_relaxed) > 0)
 			return;
 
-		// keep the frontend's audio pipeline fed during boot
 		std::memset(s16_buffer, 0, (SAMPLE_RATE / 60) * 2 * sizeof(int16_t));
 		s_audio_batch_cb(s16_buffer, SAMPLE_RATE / 60);
 		return;
@@ -2977,13 +3122,13 @@ void retro_run(void)
 	// handed, the same as it already is for this core - nothing here limits by
 	// wall clock, and SettingsOverride() turns the VM's own limiter off.
 	// That blocking is also why the frontend may not run a frame here at all.
-	// OutputAudio() never writes into a nearly full buffer, because on some
-	// drivers the write then blocks for good - but that also takes away the
-	// block that holds the speed. On a display faster than the game,
-	// RetroArch calls retro_run() once per refresh, and every call ran a
-	// frame: three times too fast at 180Hz, and a 30fps game kept rushing
-	// ahead between its own frames (issue #44). So while the frontend's audio
-	// buffer is that full and the VM is ahead of the wall clock as well, this
+	// OutputAudio() never writes into a full buffer, because on some drivers
+	// the write then blocks for good - but that also takes away the block
+	// that holds the speed. On a display faster than the game, RetroArch
+	// calls retro_run() once per refresh, and every call ran a frame: three
+	// times too fast at 180Hz, and a 30fps game kept rushing ahead between
+	// its own frames (issue #44). So while the frontend's audio buffer is
+	// nearly full and the VM is ahead of the wall clock as well, this
 	// call only repeats the last image and the audio catches up; the speed is
 	// then held by the audio playing, as the block would have held it. Not
 	// while fast-forwarding, where a full buffer is the point.
@@ -2999,6 +3144,27 @@ void retro_run(void)
 
 		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
 		s_frame_ready = false;
+
+		// The CPU thread signals at its vsync, right after queueing that
+		// vsync for the GS thread, which then still has the frame to draw.
+		// Presenting at once handed the frontend the frame published before
+		// it, a frame behind the input it was run with: one frame more input
+		// lag than standalone, where the GS thread presents the frame itself
+		// (issue #53, as LRPS2's fix for its issue #45). So wait for the GS
+		// thread to have taken every queued vsync, or to have published a
+		// frame - a HW path parks it in PublishFrame until this run takes it.
+		// Bounded, so a stuck GS thread cannot stall the frontend for good.
+		if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
+		{
+			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !PresentFramePending() &&
+				   std::chrono::steady_clock::now() < deadline)
+			{
+				lock.unlock();
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				lock.lock();
+			}
+		}
 
 		if (!got_frame || run >= MAX_SKIPPED_DUPLICATE_FRAMES || PresentFramePending())
 			break;
