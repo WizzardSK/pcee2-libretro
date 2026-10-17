@@ -729,10 +729,20 @@ const retro_hw_render_context_negotiation_interface* ParallelGSRenderer::Negotia
 	iface.interface_version = 2;
 	iface.get_application_info = pgs_get_application_info;
 	iface.create_device = pgs_create_device;
-	iface.destroy_device = pgs_destroy_device;
+	// No destroy_device: RetroArch calls it after it has unloaded the core,
+	// where on Windows there is no code left to answer and the frontend
+	// crashed on Close Content (KamiLordus, #51). The context is released at
+	// retro_deinit instead (ReleaseContext); the device and the instance are
+	// the frontend's, which it destroys itself without one.
+	iface.destroy_device = nullptr;
 	iface.create_instance = pgs_create_instance;
 	iface.create_device2 = pgs_create_device2;
 	return reinterpret_cast<const retro_hw_render_context_negotiation_interface*>(&iface);
+}
+
+void ParallelGSRenderer::ReleaseContext()
+{
+	pgs_destroy_device();
 }
 
 void ParallelGSRenderer::SetHWRenderInterface(retro_hw_render_interface_vulkan* iface)

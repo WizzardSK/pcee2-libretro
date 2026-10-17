@@ -1789,6 +1789,12 @@ void retro_deinit(void)
 	// outside FreeLibrary().
 	vu1Thread.Close();
 
+#ifdef HAVE_PARALLEL_GS
+	// paraLLEl-GS's Vulkan context, while this library is still loaded: the
+	// frontend's destroy_device callback would only come after the unload
+	ParallelGSRenderer::ReleaseContext();
+#endif
+
 	// Hand the process' fault handling back to the frontend. Nothing of ours
 	// runs from here on, and the frontend unloads this module while it keeps
 	// going: a SIGSEGV/exception filter still pointing in here would report the
