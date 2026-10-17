@@ -73,7 +73,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	// with nothing to construct (Android turns OpenGL off entirely), so the
 	// list only carries what is actually compiled in.
 	{"pcsx2_renderer", "Renderer", NULL,
-		"Hardware renderer API, or the software renderer. Switching to or from Software applies on the fly; switching between hardware APIs takes effect when the content is restarted.",
+		"Hardware renderer API, or the software renderer. Switching to or from Software applies on the fly; switching between hardware APIs takes effect when the content is restarted. paraLLEl-GS needs RetroArch's Vulkan video driver, takes effect when the content is restarted, and draws no lightgun crosshair.",
 		NULL, "graphics",
 		{
 #ifdef ENABLE_VULKAN

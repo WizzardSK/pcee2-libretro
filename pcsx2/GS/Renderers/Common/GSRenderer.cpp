@@ -1176,6 +1176,16 @@ void GSTranslateWindowToDisplayCoordinates(float window_x, float window_y, float
 {
 	const float draw_width = s_last_draw_rect.z - s_last_draw_rect.x;
 	const float draw_height = s_last_draw_rect.w - s_last_draw_rect.y;
+	// Nothing drawn through GSRenderer (paraLLEl-GS presents by itself): the
+	// coordinates are already the frame's, 0 to 1. Divided by an empty rect,
+	// they came out as NaN, and the lightgun aimed nowhere.
+	if (draw_width <= 0.0f || draw_height <= 0.0f)
+	{
+		const bool inside = window_x >= 0.0f && window_x <= 1.0f && window_y >= 0.0f && window_y <= 1.0f;
+		*display_x = inside ? window_x : -1.0f;
+		*display_y = inside ? window_y : -1.0f;
+		return;
+	}
 	const float rel_x = window_x - s_last_draw_rect.x;
 	const float rel_y = window_y - s_last_draw_rect.y;
 	if (rel_x < 0 || rel_x > draw_width || rel_y < 0 || rel_y > draw_height)
