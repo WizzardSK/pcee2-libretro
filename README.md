@@ -37,6 +37,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
 | Multitap (up to 8 controllers) | ✅ core option |
 | Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse |
+| USB mouse (HID mouse) | ✅ core option, moved by the frontend's mouse |
 | Other USB devices (wheels, mic, EyeToy) | ❌ not wired up |
 | Start Core without content | ✅ opens the PS2 BIOS / System Menu and Memory Card Browser |
 | Content reload / Close Content | ✅ core survives RetroArch's deinit/init cycles |
@@ -132,6 +133,7 @@ the exact steps on all three platforms.
 | Multitap | Disabled / Port 1 / Port 2 / Both | up to 8 players, restart recommended |
 | Lightgun (GunCon 2) | Disabled / USB 1 / USB 2 / Both | aim via frontend lightgun input, restart required. Gun Reload shoots offscreen; the calibration shot (Time Crisis calibration screens) is Gun Trigger + Gun Reload together, or R3 |
 | Lightgun Crosshair | Disabled / White / Red / Green / Blue / Yellow | draws a crosshair where the GunCon 2 aims, restart required |
+| USB Mouse | Disabled / USB 1 / USB 2 | a USB mouse for the games that take one (Police 24/7), moved with the frontend's mouse of the matching controller port, restart required; a port with the Lightgun keeps the gun |
 | Rumble | enabled / disabled | DS2 vibration via frontend rumble |
 | Analog Axis Scale | 100–150% | default 133% (DualShock 2 response) |
 | Analog Deadzone | 0–30% | inside the emulated pad |

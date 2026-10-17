@@ -253,6 +253,11 @@ namespace LibretroHost
 	// GunCon2 lightguns on USB ports (bit 0 = USB1, bit 1 = USB2)
 	static u32 s_lightgun_mask = 0;
 
+	// USB mice (PCSX2's HID mouse) on USB ports, same bits; a port with a gun
+	// keeps the gun. The buttons last sent, as the device queues every event.
+	static u32 s_mouse_mask = 0;
+	static std::array<u32, 2> s_mouse_buttons = {};
+
 	// rumble: written by the InputManager callback (CPU thread), consumed in
 	// retro_run; packed as (large << 16) | small, each 0..65535
 	static std::array<std::atomic<u32>, 8> s_pad_rumble;
@@ -835,6 +840,56 @@ static std::string LibretroCrosshairImage()
 	return path;
 }
 
+// The DualShock 2's names for the RetroPad's buttons and sticks, for every
+// controller port the pads are read from (UpdateInput). RetroArch labels its
+// Quick Menu > Controls with them, where a button can be remapped or unbound
+// per game; without them, with Hide Unbound Core Input Descriptors on, that
+// list was empty and nothing could be changed there (cubatilles, #50).
+static void SetInputDescriptors()
+{
+	static constexpr std::pair<unsigned, const char*> buttons[] = {
+		{RETRO_DEVICE_ID_JOYPAD_UP, "D-Pad Up"},
+		{RETRO_DEVICE_ID_JOYPAD_DOWN, "D-Pad Down"},
+		{RETRO_DEVICE_ID_JOYPAD_LEFT, "D-Pad Left"},
+		{RETRO_DEVICE_ID_JOYPAD_RIGHT, "D-Pad Right"},
+		{RETRO_DEVICE_ID_JOYPAD_X, "Triangle"},
+		{RETRO_DEVICE_ID_JOYPAD_A, "Circle"},
+		{RETRO_DEVICE_ID_JOYPAD_B, "Cross"},
+		{RETRO_DEVICE_ID_JOYPAD_Y, "Square"},
+		{RETRO_DEVICE_ID_JOYPAD_SELECT, "Select"},
+		{RETRO_DEVICE_ID_JOYPAD_START, "Start"},
+		{RETRO_DEVICE_ID_JOYPAD_L, "L1"},
+		{RETRO_DEVICE_ID_JOYPAD_L2, "L2"},
+		{RETRO_DEVICE_ID_JOYPAD_L3, "L3"},
+		{RETRO_DEVICE_ID_JOYPAD_R, "R1"},
+		{RETRO_DEVICE_ID_JOYPAD_R2, "R2"},
+		{RETRO_DEVICE_ID_JOYPAD_R3, "R3"},
+	};
+	static constexpr struct
+	{
+		unsigned index, id;
+		const char* name;
+	} sticks[] = {
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X, "Left Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y, "Left Stick Y"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X, "Right Stick X"},
+		{RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y, "Right Stick Y"},
+	};
+
+	static std::vector<retro_input_descriptor> descriptors;
+	descriptors.clear();
+	for (unsigned port = 0; port < static_cast<unsigned>(s_pad_map.size()); port++)
+	{
+		for (const auto& [id, name] : buttons)
+			descriptors.push_back({port, RETRO_DEVICE_JOYPAD, 0, id, name});
+		for (const auto& stick : sticks)
+			descriptors.push_back({port, RETRO_DEVICE_ANALOG, stick.index, stick.id, stick.name});
+	}
+	descriptors.push_back({0, 0, 0, 0, nullptr});
+	if (s_environ_cb)
+		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
+}
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -1039,6 +1094,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			s_pad_map.push_back(7); // 2D
 		}
 
+		SetInputDescriptors();
+
 		// all mapped pads are DualShock 2s, with the configured analog response
 		const float axis_scale = static_cast<float>(get_int_option("pcsx2_axis_scale", "133")) / 100.0f;
 		const float axis_deadzone = static_cast<float>(get_int_option("pcsx2_axis_deadzone", "0")) / 100.0f;
@@ -1064,6 +1121,15 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			s_lightgun_mask |= 1;
 		if (std::strcmp(lightgun, "usb2") == 0 || std::strcmp(lightgun, "both") == 0)
 			s_lightgun_mask |= 2;
+
+		const char* mouse = get_option("pcsx2_usb_mouse", "disabled");
+		s_mouse_mask = 0;
+		if (std::strcmp(mouse, "usb1") == 0)
+			s_mouse_mask = 1;
+		else if (std::strcmp(mouse, "usb2") == 0)
+			s_mouse_mask = 2;
+		s_mouse_mask &= ~s_lightgun_mask;
+		s_mouse_buttons = {};
 
 		for (u32 usb_port = 0; usb_port < 2; usb_port++)
 		{
@@ -1092,6 +1158,10 @@ void LibretroHost::ReadCoreOptions(bool startup)
 				{
 					s_settings_interface.SetStringValue(section.c_str(), "guncon2_cursor_path", "");
 				}
+			}
+			else if (s_mouse_mask & (1u << usb_port))
+			{
+				s_settings_interface.SetStringValue(section.c_str(), "Type", "hidmouse");
 			}
 			else
 			{
@@ -2507,6 +2577,46 @@ static void UpdateInput()
 		const bool calibrate = s_input_state_cb(usb_port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_R3) ||
 							   (gun(RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) && gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD));
 		USB::SetDeviceBindValue(usb_port, 17 /* BID_RECALIBRATE */, calibrate ? 1.0f : 0.0f);
+	}
+
+	// USB mice (bind indices from usb-hid/usb-hid.cpp: the buttons are
+	// INPUT_BUTTON_*, the pointer's axes INPUT_BUTTON__MAX + InputPointerAxis).
+	// Each value sent is queued as a report, so only what changed is sent.
+	for (u32 usb_port = 0; usb_port < 2; usb_port++)
+	{
+		if (!(s_mouse_mask & (1u << usb_port)))
+			continue;
+
+		const auto mouse = [&](unsigned id) {
+			return s_input_state_cb(usb_port, RETRO_DEVICE_MOUSE, 0, id);
+		};
+
+		const int16_t dx = mouse(RETRO_DEVICE_ID_MOUSE_X);
+		const int16_t dy = mouse(RETRO_DEVICE_ID_MOUSE_Y);
+		if (dx != 0)
+			USB::SetDeviceBindValue(usb_port, 7 /* INPUT_BUTTON__MAX + X */, static_cast<float>(dx));
+		if (dy != 0)
+			USB::SetDeviceBindValue(usb_port, 8 /* INPUT_BUTTON__MAX + Y */, static_cast<float>(dy));
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELUP))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, 1.0f);
+		if (mouse(RETRO_DEVICE_ID_MOUSE_WHEELDOWN))
+			USB::SetDeviceBindValue(usb_port, 10 /* INPUT_BUTTON__MAX + WheelY */, -1.0f);
+
+		static constexpr std::pair<unsigned, u32> mouse_buttons[] = {
+			{RETRO_DEVICE_ID_MOUSE_LEFT, 0 /* INPUT_BUTTON_LEFT */},
+			{RETRO_DEVICE_ID_MOUSE_MIDDLE, 1 /* INPUT_BUTTON_MIDDLE */},
+			{RETRO_DEVICE_ID_MOUSE_RIGHT, 2 /* INPUT_BUTTON_RIGHT */},
+		};
+		for (const auto& [retro_id, bind] : mouse_buttons)
+		{
+			const u32 bit = 1u << bind;
+			const u32 down = mouse(retro_id) ? bit : 0;
+			if ((s_mouse_buttons[usb_port] & bit) != down)
+			{
+				s_mouse_buttons[usb_port] ^= bit;
+				USB::SetDeviceBindValue(usb_port, bind, down ? 1.0f : 0.0f);
+			}
+		}
 	}
 }
 
