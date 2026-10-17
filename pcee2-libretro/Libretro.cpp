@@ -3050,6 +3050,27 @@ void retro_run(void)
 		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
 		s_frame_ready = false;
 
+		// The CPU thread signals at its vsync, right after queueing that
+		// vsync for the GS thread, which then still has the frame to draw.
+		// Presenting at once handed the frontend the frame published before
+		// it, a frame behind the input it was run with: one frame more input
+		// lag than standalone, where the GS thread presents the frame itself
+		// (issue #53, as LRPS2's fix for its issue #45). So wait for the GS
+		// thread to have taken every queued vsync, or to have published a
+		// frame - a HW path parks it in PublishFrame until this run takes it.
+		// Bounded, so a stuck GS thread cannot stall the frontend for good.
+		if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
+		{
+			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !PresentFramePending() &&
+				   std::chrono::steady_clock::now() < deadline)
+			{
+				lock.unlock();
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				lock.lock();
+			}
+		}
+
 		if (!got_frame || run >= MAX_SKIPPED_DUPLICATE_FRAMES || PresentFramePending())
 			break;
 
