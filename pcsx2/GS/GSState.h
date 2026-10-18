@@ -23,6 +23,8 @@ public:
 	virtual ~GSState();
 
 	static constexpr int GetSaveStateSize(int version);
+	// The same at the current STATE_VERSION, callable outside GSState.cpp (paraLLEl-GS saves in this layout)
+	static int GetCurrentSaveStateSize();
 
 private:
 	// RESTRICT prevents multiple loads of the same part of the register when accessing its bitfields (the compiler is happy to know that memory writes in-between will not go there)

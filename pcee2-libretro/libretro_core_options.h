@@ -73,17 +73,46 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	// with nothing to construct (Android turns OpenGL off entirely), so the
 	// list only carries what is actually compiled in.
 	{"pcsx2_renderer", "Renderer", NULL,
-		"Hardware renderer API, or the software renderer. Switching to or from Software applies on the fly; switching between hardware APIs takes effect when the content is restarted.",
+		"Hardware renderer API, or the software renderer. Switching to or from Software applies on the fly; switching between hardware APIs takes effect when the content is restarted. paraLLEl-GS needs RetroArch's Vulkan video driver, takes effect when the content is restarted, and draws no lightgun crosshair.",
 		NULL, "graphics",
 		{
 #ifdef ENABLE_VULKAN
 		{"vulkan", "Vulkan (Hardware)"},
+#endif
+#ifdef HAVE_PARALLEL_GS
+			{"parallel-gs", "paraLLEl-GS (Vulkan)"},
 #endif
 #ifdef ENABLE_OPENGL
 			{"opengl", "OpenGL (Hardware)"},
 #endif
 			{"software", "Software"}, {NULL, NULL}},
 		"vulkan"},
+#ifdef HAVE_PARALLEL_GS
+	// The paraLLEl-GS options and their defaults are LRPS2's, where the renderer comes from.
+	{"pcsx2_pgs_super_sampling", "paraLLEl-GS Super Sampling", NULL,
+		"paraLLEl-GS only. Super-sampled anti-aliasing: unlike upscaling, 3D keeps the same resolution as the 2D on top of it. 2x high-res scanout needs at least 4x ordered; 4x scanout needs 16x ordered; the full field height needs 32x ordered. Applies on the fly.",
+		NULL, "graphics",
+		{{"0", "Native"}, {"1", "2x SSAA"}, {"2", "4x SSAA (sparse grid)"}, {"3", "4x SSAA (ordered, can high-res)"},
+			{"4", "8x SSAA (can high-res)"}, {"5", "16x SSAA (can high-res)"},
+			{"6", "16x SSAA (ordered, can high-res 4x)"}, {"7", "32x SSAA (ordered, can high-res 4x full)"},
+			{NULL, NULL}},
+		"0"},
+	{"pcsx2_pgs_high_res_scanout", "paraLLEl-GS High-Res Scanout (Experimental)", NULL,
+		"paraLLEl-GS only. Scans out above native resolution from the super samples (2x: 640x448 becomes 1280x896, 4x: 2560x1792). Not every game works with it. The anti-aliased 4x modes rebuild each pixel from its neighbours (softer, less shimmer); full field height gives games that render one field at a time the whole height. Applies on the fly.",
+		NULL, "graphics",
+		{{"0", "disabled"}, {"1", "2x"}, {"2", "4x"}, {"3", "4x (anti-aliased)"}, {"4", "4x (full field height)"},
+			{"5", "4x (anti-aliased, full field height)"}, {NULL, NULL}},
+		"0"},
+	{"pcsx2_pgs_super_sample_textures", "paraLLEl-GS Super-Sampled Textures (Experimental)", NULL,
+		"paraLLEl-GS only. Feeds the super samples back to effects that read the picture back (blurs, post-processing). May help high-res scanout; may cause glitches. Applies on the fly.",
+		NULL, "graphics", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_pgs_sharp_backbuffer", "paraLLEl-GS Sharp Backbuffer (Experimental)", NULL,
+		"paraLLEl-GS only. Works around games that add extra blit passes before the picture is scanned out, which can make it sharper in those games. Applies on the fly.",
+		NULL, "graphics", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+	{"pcsx2_pgs_disable_mipmaps", "paraLLEl-GS Force Texture LOD0", NULL,
+		"paraLLEl-GS only. Skips mipmapping and always samples the full-size texture: sharper, with a few games drawn wrong. Applies on the fly.",
+		NULL, "graphics", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+#endif
 	{"pcsx2_upscale_multiplier", "Internal Resolution", NULL,
 		"Internal rendering resolution multiplier for the hardware renderer. Also scales the output framebuffer. Applies on the fly.",
 		NULL, "graphics",

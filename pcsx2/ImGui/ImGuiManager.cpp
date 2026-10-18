@@ -1419,6 +1419,18 @@ void ImGuiManager::UpdateSoftwareCursorTexture(u32 index)
 		Console.Error("Failed to load software cursor %u image '%s'", index, sc.image_path.c_str());
 		return;
 	}
+	// No GS device with paraLLEl-GS, which is device and renderer in one: the
+	// texture went to a null device and took RetroArch down at the start of a
+	// lightgun game with a crosshair set (cubatilles, #51). The image alone
+	// is what the CPU blend of the readback path needs.
+	sc.texture.reset();
+	if (!g_gs_device)
+	{
+		sc.extent_x = std::ceil(static_cast<float>(image.GetWidth()) * sc.scale * s_global_scale) / 2.0f;
+		sc.extent_y = std::ceil(static_cast<float>(image.GetHeight()) * sc.scale * s_global_scale) / 2.0f;
+		sc.image = std::move(image);
+		return;
+	}
 	sc.texture = std::unique_ptr<GSTexture>(g_gs_device->CreateTexture(image.GetWidth(), image.GetHeight(), 1, GSTexture::Format::Color));
 	if (!sc.texture)
 	{

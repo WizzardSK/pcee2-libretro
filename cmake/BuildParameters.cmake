@@ -40,6 +40,7 @@ if(NOT (WIN32 AND ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64" OR "${CMAKE_SYST
 		option(USE_OPENGL "Enable OpenGL GS renderer" ON)
 	endif()
 	option(USE_VULKAN "Enable Vulkan GS renderer" ON)
+	option(ENABLE_PARALLEL_GS "Build the paraLLEl-GS renderer into the libretro core (Vulkan)" ON)
 endif()
 
 #-------------------------------------------------------------------------------

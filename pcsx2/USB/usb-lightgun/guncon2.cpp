@@ -420,8 +420,14 @@ namespace usb_lightgun
 	{
 		const float screen_rel_x = (((relative_pos[1] > 0.0f) ? relative_pos[1] : -relative_pos[0]) + 1.0f) * 0.5f;
 		const float screen_rel_y = (((relative_pos[3] > 0.0f) ? relative_pos[3] : -relative_pos[2]) + 1.0f) * 0.5f;
-		return std::make_pair(
-			screen_rel_x * ImGuiManager::GetWindowWidth(), screen_rel_y * ImGuiManager::GetWindowHeight());
+		// With no window to measure (paraLLEl-GS presents without a GS device
+		// or ImGui), the position stays the frame's own, 0 to 1, which
+		// GSTranslateWindowToDisplayCoordinates takes as it is
+		const float width = ImGuiManager::GetWindowWidth();
+		const float height = ImGuiManager::GetWindowHeight();
+		if (width <= 0.0f || height <= 0.0f)
+			return std::make_pair(screen_rel_x, screen_rel_y);
+		return std::make_pair(screen_rel_x * width, screen_rel_y * height);
 	}
 
 	u32 GunCon2State::GetSoftwarePointerIndex() const
