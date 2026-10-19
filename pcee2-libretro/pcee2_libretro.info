@@ -1,7 +1,7 @@
 # Software Information
 display_name = "Sony - PlayStation 2 (PCEE2)"
 authors = "PCSX2 Team|WizzardSK"
-supported_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx"
+supported_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs|zst|xz"
 corename = "PCEE2"
 categories = "Emulator"
 license = "GPLv3"
