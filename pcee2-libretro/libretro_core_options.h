@@ -130,6 +130,16 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		{{"minimum", "Minimum"}, {"basic", "Basic (Recommended)"}, {"medium", "Medium"}, {"high", "High"},
 			{"full", "Full (Slow)"}, {"maximum", "Maximum (Very Slow)"}, {NULL, NULL}},
 		"basic"},
+	{"pcsx2_rov", "Raster Order Views (Experimental)", NULL,
+		"Lets blending and depth effects read the render target in the shader instead of through a texture barrier. On Apple GPUs (MoltenVK) every texture barrier splits the render pass, which is expensive; this avoids them where the GPU supports it. May cause graphical glitches. Off by default, as in standalone PCSX2.",
+		NULL, "graphics",
+		{{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+#ifdef __APPLE__
+	{"pcsx2_mvk_async_submit", "MoltenVK Asynchronous Submits (Experimental)", NULL,
+		"Vulkan renderer only. Let MoltenVK translate each frame to Metal on its own thread instead of the GS thread, which then returns to emulation immediately. Experimental: MoltenVK can free a frame that is still queued for presentation, which crashes RetroArch at random during play. Requires restarting RetroArch.",
+		NULL, "graphics",
+		{{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+#endif
 	{"pcsx2_texture_filtering", "Texture Filtering", NULL,
 		"Bilinear (PS2) replicates the console; forced modes smooth all textures.", NULL, "graphics",
 		{{"nearest", "Nearest"}, {"bilinear_ps2", "Bilinear (PS2)"}, {"bilinear_forced", "Bilinear (Forced)"},

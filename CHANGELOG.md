@@ -4,6 +4,8 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- New option Graphics > Raster Order Views (Experimental), off by default as in standalone PCSX2: blending and depth effects read the render target in the shader instead of through a texture barrier, which on Apple GPUs splits the render pass every time.
+- macOS: new option Graphics > MoltenVK Asynchronous Submits (Experimental), off by default. With the Vulkan renderer MoltenVK then translates each frame to Metal on its own thread, so the GS thread is not held up by it. MoltenVK can free a frame still queued for presentation with it on, which crashes RetroArch at random, so it is for testing. Needs a restart of RetroArch.
 - New renderer paraLLEl-GS (Vulkan), from LRPS2: a compute-shader renderer of the GS that draws what the console would, with super sampling (up to 32x) and an experimental high-res scanout in place of upscaling. Its options are under Graphics. Chosen as the Renderer and used from the next start of the content; it needs RetroArch's Vulkan driver. A lightgun crosshair is not drawn with it.
 - Windows: the OpenGL renderer starts. The GS thread's OpenGL context was never made current before its functions were loaded, so the GS device failed to open and the picture stayed black (Immersion95, issue #53).
 - One frame less input lag, the same as standalone PCSX2: each frame is handed to RetroArch once the GS has drawn it. The core handed over the frame drawn before, one frame behind the input it was run with (Immersion95, issue #53). With the Software renderer it is two frames less: its frame was also read back one vsync late.
