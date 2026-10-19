@@ -32,12 +32,12 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | PAL (50 Hz) / NTSC av_info | ✅ working |
 | Fast-forward | ✅ working |
 | OpenGL renderer | ✅ working (surfaceless EGL) |
-| paraLLEl-GS renderer (from LRPS2) | 🧪 in testing: a Vulkan compute renderer of the GS, with super sampling and high-res scanout. Needs a frontend with Vulkan context negotiation v2, as RetroArch has |
+| paraLLEl-GS renderer (from LRPS2) | ✅ working, community-tested on Windows: a Vulkan compute renderer of the GS, with super sampling and high-res scanout. Needs a frontend with Vulkan context negotiation v2, as RetroArch has. The lightgun crosshair is not drawn with it |
 | D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested. D3D12 needs `dxcompiler.dll` (from the standalone PCSX2) beside RetroArch's executable; the core loads without it |
 | Metal renderer | ➖ not offered: libretro has no Metal hardware context. On macOS the Vulkan renderer runs on Metal through MoltenVK, sharing the frontend's device |
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
 | Multitap (up to 8 controllers) | ✅ core option |
-| Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse |
+| Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse; no crosshair with paraLLEl-GS |
 | USB mouse (HID mouse) | ✅ core option, moved by the frontend's mouse |
 | Other USB devices (wheels, mic, EyeToy) | ❌ not wired up |
 | Start Core without content | ✅ opens the PS2 BIOS / System Menu and Memory Card Browser |
