@@ -293,3 +293,7 @@ void Threading::SetNameOfCurrentThread(const char* name)
 #endif
 #endif
 }
+
+void Threading::SetCurrentThreadHighPerformance()
+{
+}
