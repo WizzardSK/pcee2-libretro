@@ -264,19 +264,14 @@ void Threading::Sleep(int ms)
 
 void Threading::SleepUntil(u64 ticks)
 {
-	// This is definitely sub-optimal, but apparently clock_nanosleep() doesn't exist.
-	const s64 diff = static_cast<s64>(ticks - GetCPUTicks());
-	if (diff <= 0)
+	// GetCPUTicks() is mach_absolute_time(), which is what mach_wait_until() takes - no
+	// conversion, and wakes within microseconds. The nanosleep() this replaces converted
+	// ticks to ns as ticks * denom / numer, inverted: equal on Intel, but on Apple Silicon
+	// (125/3, 24 MHz ticks) it slept ~1700x too short, turning callers into busy loops.
+	if (static_cast<s64>(ticks - GetCPUTicks()) <= 0)
 		return;
 
-	const u64 nanos = (static_cast<u64>(diff) * static_cast<u64>(s_timebase_info.denom)) / static_cast<u64>(s_timebase_info.numer);
-	if (nanos == 0)
-		return;
-
-	struct timespec ts;
-	ts.tv_sec = nanos / 1000000000ULL;
-	ts.tv_nsec = nanos % 1000000000ULL;
-	nanosleep(&ts, nullptr);
+	mach_wait_until(ticks);
 }
 
 std::vector<DarwinMisc::CPUClass> DarwinMisc::GetCPUClasses()

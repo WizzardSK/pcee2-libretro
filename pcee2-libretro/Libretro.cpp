@@ -1300,6 +1300,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 void LibretroHost::CPUThreadMain()
 {
 	s_cpu_thread_id = std::this_thread::get_id();
+	// The EE/IOP thread is the emulator's critical path; keep it on the performance cores.
+	Threading::SetCurrentThreadHighPerformance();
 
 	const bool init_ok = VMManager::Internal::CPUThreadInitialize();
 	if (!init_ok)

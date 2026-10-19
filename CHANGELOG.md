@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- Apple Silicon: the emulator's threads sleep when they wait instead of spinning, and run on the performance cores. PCSX2's sleep on macOS converted its deadline the wrong way round and slept about 1700 times too short there, so every wait for a deadline was a busy loop; the frame limiter also spun out the last millisecond or two of every frame. The CPU, GS, VU and software-renderer threads now ask macOS for the user-interactive priority, which keeps them off the efficiency cores. Cooler and steadier, with the same speed.
 - New renderer paraLLEl-GS (Vulkan), from LRPS2: a compute-shader renderer of the GS that draws what the console would, with super sampling (up to 32x) and an experimental high-res scanout in place of upscaling. Its options are under Graphics. Chosen as the Renderer and used from the next start of the content; it needs RetroArch's Vulkan driver. A lightgun crosshair is not drawn with it.
 - Windows: the OpenGL renderer starts. The GS thread's OpenGL context was never made current before its functions were loaded, so the GS device failed to open and the picture stayed black (Immersion95, issue #53).
 - One frame less input lag, the same as standalone PCSX2: each frame is handed to RetroArch once the GS has drawn it. The core handed over the frame drawn before, one frame behind the input it was run with (Immersion95, issue #53). With the Software renderer it is two frames less: its frame was also read back one vsync late.
