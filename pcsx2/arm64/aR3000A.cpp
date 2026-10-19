@@ -79,6 +79,10 @@ static __fi uptr* recPtrToBlock(u32 pc)
 static bool iopRecExecuting = false;
 static bool iopRecNeedsReset = false;
 
+// Raised by a block compiled as an idle loop each time it runs, and consumed by
+// recExecuteBlock, which does the actual skip (see recIopIdleSkip).
+static bool s_iop_idle_hit = false;
+
 static void recResetRaw();
 static void recRecompile(u32 startpc);
 
@@ -1008,6 +1012,36 @@ static void recEmitOp(u32 op)
 }
 
 // --------------------------------------------------------------------------------------
+//  Idle-loop detection (mirrors x86 iR3000A.cpp s_nBlockFF / iPsxBranchTest)
+// --------------------------------------------------------------------------------------
+// The IOP spends most of its time in its kernel's idle thread, a `j self` with a nop in
+// the delay slot. Emulating that one iteration at a time costs a dispatch per two guest
+// cycles - tens of millions a second, all on the EE thread - for nothing: only an event
+// (interrupt, DMA, timer) can get the IOP out of it. Like the x86 rec under the WaitLoop
+// speedhack, a block that branches back to its own start with nothing but nops around
+// the branch is marked, and each time it is taken the IOP is fast-forwarded to its next
+// event or the end of its timeslice, whichever comes first.
+
+// Static target of a non-linking branch/jump, or 0xffffffff when it has none (JR/JALR)
+// or writes a link register (JAL, BLTZAL, BGEZAL), which x86 never sees in an idle loop.
+static u32 recIopStaticBranchTarget(u32 op, u32 branchpc)
+{
+	const u32 delaypc = branchpc + 4;
+	const u32 btarget = delaypc + (static_cast<u32>(static_cast<s32>(static_cast<s16>(op))) << 2);
+	switch (op >> 26)
+	{
+		case 0x02: return (delaypc & 0xf0000000u) | ((op & 0x03ffffffu) << 2); // J
+		case 0x04: case 0x05: case 0x06: case 0x07: return btarget; // BEQ BNE BLEZ BGTZ
+		case 0x01: // REGIMM: BLTZ / BGEZ only
+		{
+			const u32 rt = (op >> 16) & 0x1f;
+			return (rt == 0x00 || rt == 0x01) ? btarget : 0xffffffffu;
+		}
+		default: return 0xffffffffu;
+	}
+}
+
+// --------------------------------------------------------------------------------------
 //  Block compiler
 // --------------------------------------------------------------------------------------
 // Compile a straight-line run starting at startpc into one self-contained host block and
@@ -1036,6 +1070,8 @@ static void recRecompile(u32 startpc)
 	u32 block_cycles = 0;
 	u32 compiled = 0;
 	bool interp_step = false;
+	bool body_all_nops = true; // everything before the branch so far is a nop
+	bool idle_loop = false;
 
 	for (;;)
 	{
@@ -1071,11 +1107,15 @@ static void recRecompile(u32 startpc)
 			recEmitIopBranch(op, pc);
 			recEmitOp(delay_op);
 			block_cycles += 2; // branch + delay slot, 1 cycle each (R3000A is 1 cycle/op)
+
+			idle_loop = EmuConfig.Speedhacks.WaitLoop && body_all_nops && delay_op == 0 &&
+						recIopStaticBranchTarget(op, pc) == startpc;
 			break;
 		}
 
 		if (recTranslateOp(op))
 		{
+			body_all_nops = body_all_nops && op == 0;
 			block_cycles++;
 			pc += 4;
 			if (++compiled >= MAX_BLOCK_INSTS)
@@ -1110,6 +1150,14 @@ static void recRecompile(u32 startpc)
 		armAsm->Str(RXARG1, a64::MemOperand(RESTATEPTR, IOP_CYCLE_OFFSET));
 	}
 
+	// Tell recExecuteBlock this was an idle loop; it checks whether the branch was taken.
+	if (idle_loop)
+	{
+		armMoveAddressToReg(RXARG1, &s_iop_idle_hit);
+		armAsm->Mov(RWARG2, 1);
+		armAsm->Strb(RWARG2, a64::MemOperand(RXARG1));
+	}
+
 	// Epilogue: restore x19 + LR, return to the dispatcher loop.
 	armAsm->Ldp(RESTATEPTR, a64::lr, a64::MemOperand(a64::sp, 16, a64::PostIndex));
 	armAsm->Ret();
@@ -1139,6 +1187,26 @@ static __fi void iopAddEECycles(u32 cycles)
 	psxRegs.iopCycleEECarry = t % cdenom;
 }
 
+// Called after an idle-loop block has branched back to itself. Mirrors the cycle
+// arithmetic of x86 iPsxBranchTest: advance psxRegs.cycle by what is left of the EE
+// timeslice (rounded up to IOP cycles), capped at the next scheduled IOP event, and
+// charge the skipped cycles to the timeslice.
+static void recIopIdleSkip()
+{
+	if (psxRegs.iopCycleEE <= 0)
+		return;
+
+	const u64 cycle = psxRegs.cycle;
+	u64 target = cycle + ((static_cast<u32>(psxRegs.iopCycleEE) + 7) >> 3);
+	if (static_cast<s64>(target - psxRegs.iopNextEventCycle) >= 0)
+		target = psxRegs.iopNextEventCycle;
+	if (static_cast<s64>(target - cycle) <= 0)
+		return; // event already due - the event test right after this services it
+
+	psxRegs.cycle = target;
+	iopAddEECycles(static_cast<u32>(target - cycle));
+}
+
 static s32 recExecuteBlock(s32 eeCycles)
 {
 	psxRegs.iopBreak = 0;
@@ -1160,6 +1228,7 @@ static s32 recExecuteBlock(s32 eeCycles)
 		}
 
 		const u64 startCycle = psxRegs.cycle;
+		const u32 block_pc = psxRegs.pc;
 
 		uptr fn = *recPtrToBlock(psxRegs.pc);
 		if (fn == IOP_UNMAPPED) [[unlikely]]
@@ -1176,6 +1245,14 @@ static s32 recExecuteBlock(s32 eeCycles)
 		reinterpret_cast<void (*)()>(fn)();
 
 		iopAddEECycles(static_cast<u32>(psxRegs.cycle - startCycle));
+
+		// An idle loop that branched back to its start stays in it until an event.
+		if (s_iop_idle_hit) [[unlikely]]
+		{
+			s_iop_idle_hit = false;
+			if (psxRegs.pc == block_pc)
+				recIopIdleSkip();
+		}
 
 		if (static_cast<s64>(psxRegs.cycle - psxRegs.iopNextEventCycle) >= 0)
 			iopEventTest();

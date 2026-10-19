@@ -2202,6 +2202,15 @@ static bool recTranslateOp(u32 op, u32 pc)
 				// single-stepping it; the emit loop still charges its cycles. By far the
 				// dominant EE single-step op in real games (The Getaway: ~59% of them).
 				case 0x0F: return true;
+				// MFSA / MTSA: move between a GPR and the SA (funnel-shift amount) register.
+				// Straight-line, no PC write, no exception, no live cycle — inline-interp
+				// in-block like CACHE instead of block-terminating + single-stepping. The
+				// caller flushed the GPR cache (cpuRegs holds rs); MFSA's rd write is
+				// discarded from the cache/const trackers by their SPECIAL default case.
+				case 0x28: // MFSA
+				case 0x29: // MTSA
+					recEmitInterpInline(op);
+					return true;
 				default:   return false;
 			}
 
@@ -2225,10 +2234,22 @@ static bool recTranslateOp(u32 op, u32 pc)
 				// Direct tbl_MMI entries (indexed by funct = op & 0x3F).
 				case 0x04: armEmitPLZCW(rd, rs); return true;
 				// MMI0/1/2/3 SIMD sub-groups (Phase 5.4); sub-op in `sa`.
+				// The sub-ops without a native generator — QFSRV (MMI1 0x1B, shift from the
+				// runtime SA register), PDIVW (MMI2 0x0D), PDIVBW (MMI2 0x1D), PDIVUW (MMI3
+				// 0x0D) — are straight-line register/HI/LO updates with no PC write, exception
+				// or live-cycle read, so inline-interp them in-block instead of breaking the
+				// block. QFSRV's rd write is discarded by the trackers' MMI case; the PDIVs
+				// only write HI/LO, which the rec keeps in cpuRegs.
 				case 0x08: return recTranslateMMI0(sa, rd, rs, rt);
-				case 0x28: return recTranslateMMI1(sa, rd, rs, rt);
-				case 0x09: return recTranslateMMI2(sa, rd, rs, rt);
-				case 0x29: return recTranslateMMI3(sa, rd, rs, rt);
+				case 0x28:
+					if (sa == 0x1B) { recEmitInterpInline(op); return true; } // QFSRV
+					return recTranslateMMI1(sa, rd, rs, rt);
+				case 0x09:
+					if (sa == 0x0D || sa == 0x1D) { recEmitInterpInline(op); return true; } // PDIVW / PDIVBW
+					return recTranslateMMI2(sa, rd, rs, rt);
+				case 0x29:
+					if (sa == 0x0D) { recEmitInterpInline(op); return true; } // PDIVUW
+					return recTranslateMMI3(sa, rd, rs, rt);
 				// PMFHL variant is in `sa`; PMTHL is only defined for sa==0.
 				case 0x30: return armEmitPMFHL(rd, sa);
 				case 0x31: armEmitPMTHL(rs, sa); return true;
@@ -2349,6 +2370,25 @@ static bool recTranslateOp(u32 op, u32 pc)
 		// recCacheFlushAll (recTranslateOpOptimized), so cpuRegs holds the current rs.
 		// 2nd-most-dominant EE single-step op (The Getaway: ~39% of them).
 		case 0x2F: recEmitInterpInline(op); return true;
+
+		// PREF (0x33): data prefetch hint. Its interpreter body is EMPTY (R5900OpcodeImpl
+		// PREF(): the cache is not modelled), so emit nothing — exactly like SYNC — instead
+		// of block-terminating + single-stepping. The emit loop still charges its cycles.
+		case 0x33: return true;
+
+		// REGIMM straight-line ops. The REGIMM branches and traps never reach here (the
+		// emit loop intercepts them via recIsHandledBranch / recIsLikelyBranch / recIsTrap);
+		// MTSAB (rt 0x18) / MTSAH (rt 0x19) only set the SA register from rs ^ imm — no GPR
+		// write, PC write, exception or live cycle — so inline-interp them in-block like
+		// CACHE. That keeps the MTSAB + QFSRV funnel-shift pair (unaligned 128-bit copies)
+		// inside one compiled block.
+		case 0x01:
+			if (rt == 0x18 || rt == 0x19)
+			{
+				recEmitInterpInline(op);
+				return true;
+			}
+			return false;
 
 		// COP0 (Phase 5.1) — same inline-interpreter strategy as COP2: keep straight-line
 		// COP0 ops in the block instead of breaking it + single-stepping. COP0 is not a
@@ -2588,6 +2628,39 @@ static bool recConstGetBranchSource(const RecGprConstState& state, u32 reg, bool
 // Return a compile-time known next PC for branches whose condition is unconditional or
 // collapses through tracked constants. The branch generator still emits the normal PC
 // write; this is only used by the block tail to skip the generic dispatcher lookup.
+// Conditional branches (incl. the likely and BC0/BC1/BC2 forms, and BLTZAL/BGEZAL) whose
+// condition is only known at run time but whose two successors are compile-time constants:
+// the branch target and the fallthrough past the delay slot. Feeds the two-way block tail
+// (recEmitEventTestAndDispatch). J/JAL are fully known (recGetKnownBranchTarget) and
+// JR/JALR have a register target, so neither qualifies.
+static bool recGetStaticBranchTargets(u32 op, u32 branchpc, u32* taken, u32* fall)
+{
+	const u32 opcode = op >> 26;
+	const u32 rs = (op >> 21) & 0x1f;
+	const u32 rt = (op >> 16) & 0x1f;
+	bool conditional = false;
+	switch (opcode)
+	{
+		case 0x04: case 0x05: case 0x06: case 0x07: // BEQ BNE BLEZ BGTZ
+		case 0x14: case 0x15: case 0x16: case 0x17: // BEQL BNEL BLEZL BGTZL
+			conditional = true;
+			break;
+		case 0x01: // REGIMM: BLTZ BGEZ BLTZL BGEZL BLTZAL BGEZAL
+			conditional = (rt == 0x00 || rt == 0x01 || rt == 0x02 || rt == 0x03 || rt == 0x10 || rt == 0x11);
+			break;
+		case 0x10: case 0x11: case 0x12: // BC0x / BC1x / BC2x (F, T, FL, TL)
+			conditional = (rs == 0x08 && rt <= 0x03);
+			break;
+		default:
+			break;
+	}
+	if (!conditional)
+		return false;
+	*taken = (branchpc + 4) + (static_cast<u32>(static_cast<s32>(static_cast<s16>(op))) << 2);
+	*fall = branchpc + 8;
+	return *taken != *fall;
+}
+
 static bool recGetKnownBranchTarget(u32 op, u32 branchpc, const RecGprConstState& state, u32* target)
 {
 	const u32 opcode = op >> 26;
@@ -3823,22 +3896,28 @@ static void recGenDispatchers()
 	armStartBlock();
 
 	a64::Label dispatcher_reg;
+	a64::Label repin_and_dispatch;
 
-	// DispatcherReg: fnptr = *(uptr*)(recLUT[pc>>16] + pc*2); br fnptr.
-	//
-	// Re-pin RESTATEPTR (x19) = &cpuRegs on every dispatch. Although EnterRecompiledCode
-	// establishes it once, the C++ callees we re-enter through (recEventTest ->
-	// _cpuEventTest_Shared in particular, which services DMA/VIF and runs other ARM64 JIT)
-	// do NOT preserve x19 across the call — so by the time control returns to the
-	// dispatcher it can hold garbage. Reloading it here (the single point every block,
-	// event-test and compile path funnels back through) keeps it authoritative cheaply,
-	// instead of relying on every external callee honouring the reservation.
-	DispatcherReg = armGetCurrentCodePointer();
-	armAsm->Bind(&dispatcher_reg);
+	// Re-pin the persistent base registers — RESTATEPTR (x19) = &cpuRegs, REVTLBPTR (x21) =
+	// vtlb vmap, RFASTMEMBASE (x28) = fastmem base — then fall into DispatcherReg. Only the
+	// stubs below that make a C call branch here: the C++ callees they re-enter through
+	// (recEventTest -> _cpuEventTest_Shared in particular, which services DMA/VIF and runs
+	// other ARM64 JIT) do NOT preserve x19 across the call, so it can hold garbage when
+	// they return. Block tails do NOT need this and jump straight to DispatcherReg: every
+	// block tail reads cpuRegs through x19 (the cycle/event test) before it gets there, and
+	// blocks rely on x19/x21/x28 surviving their own mid-block calls — exactly what the
+	// known-PC tails (recEmitDispatchToKnownPc), which chain block->block with no re-pin at
+	// all, already depend on. Keeping the re-pin out of DispatcherReg takes two address
+	// materializations and two loads off every dynamic-target dispatch (JR/JALR returns).
+	armAsm->Bind(&repin_and_dispatch);
 	armMoveAddressToReg(RESTATEPTR, &cpuRegs);
 	armLoadPtr(REVTLBPTR, &vtlb_private::vtlbdata.vmap);
 	if (CHECK_FASTMEM)
 		armLoadPtr(RFASTMEMBASE, &vtlb_private::vtlbdata.fastmem_base); // x28 = host-MMU fastmem base
+
+	// DispatcherReg: fnptr = *(uptr*)(recLUT[pc>>16] + pc*2); br fnptr.
+	DispatcherReg = armGetCurrentCodePointer();
+	armAsm->Bind(&dispatcher_reg);
 	armAsm->Ldr(RWARG1, a64::MemOperand(RESTATEPTR, EE_PC_OFFSET));    // x0 = pc (zero-extended)
 	armAsm->Lsr(RXARG2, RXARG1, 16);                                  // x1 = pc >> 16
 	armMoveAddressToReg(RXARG3, recLUT);                              // x2 = &recLUT[0]
@@ -3847,34 +3926,30 @@ static void recGenDispatchers()
 	armAsm->Ldr(RXARG3, a64::MemOperand(RXARG3));                      // x2 = fnptr
 	armAsm->Br(RXARG3);
 
-	// DispatcherEvent: run the EE event test, then fall through to DispatcherReg (which
-	// re-pins RESTATEPTR, since recEventTest clobbers it).
+	// DispatcherEvent: run the EE event test, then re-pin (recEventTest clobbers x19) and
+	// dispatch.
 	DispatcherEvent = armGetCurrentCodePointer();
 	armEmitCall(reinterpret_cast<const void*>(recEventTest));
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	// JITCompile: compile the block at cpuRegs.pc (which sets its recLUT slot), then
 	// re-dispatch — the slot now points at the freshly compiled block.
 	JITCompile = armGetCurrentCodePointer();
 	armAsm->Ldr(RWARG1, a64::MemOperand(RESTATEPTR, EE_PC_OFFSET));
 	armEmitCall(reinterpret_cast<const void*>(recRecompile));
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	// EnterRecompiledCode: the C entry point. Pin RESTATEPTR (x19) = &cpuRegs once,
 	// then dispatch. We never return through here (exit is a fastjmp out of
 	// recEventTest), so callee-saved registers need no preserving — fastjmp restores
 	// recExecute's full context. Blocks therefore need no per-block prologue/epilogue.
 	EnterRecompiledCode = armGetCurrentCodePointer();
-	armMoveAddressToReg(RESTATEPTR, &cpuRegs);
-	armLoadPtr(REVTLBPTR, &vtlb_private::vtlbdata.vmap);
-	if (CHECK_FASTMEM)
-		armLoadPtr(RFASTMEMBASE, &vtlb_private::vtlbdata.fastmem_base); // x28 = host-MMU fastmem base
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	// UnmappedRecLUTPage: target for every word of an unmapped guest page.
 	UnmappedRecLUTPage = armGetCurrentCodePointer();
 	armEmitCall(reinterpret_cast<const void*>(recExitUnmapped));
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	// DispatchBlockDiscard / DispatchPageReset: the tails of a manually-protected block's
 	// entry checksum (see recEmitManualProtection). The checksum prologue has already loaded
@@ -3882,11 +3957,11 @@ static void recGenDispatchers()
 	// helper, then re-dispatch (the slot now points back at JITCompile, so it recompiles).
 	DispatchBlockDiscard = armGetCurrentCodePointer();
 	armEmitCall(reinterpret_cast<const void*>(dyna_block_discard));
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	DispatchPageReset = armGetCurrentCodePointer();
 	armEmitCall(reinterpret_cast<const void*>(dyna_page_reset));
-	armAsm->B(&dispatcher_reg);
+	armAsm->B(&repin_and_dispatch);
 
 	recPtr = armEndBlock();
 }
@@ -3906,8 +3981,18 @@ static void recGenDispatchers()
 // DispatcherEvent) after this block instead of continuing straight on when no event is due.
 // Set for interp-step EI/ERET (recIsForcedEventTestOp) so a now-unmasked pending interrupt
 // is serviced immediately. Only meaningful on the dynamic-target (!known_dispatch_pc) tail.
+// `two_way` (with `taken_pc` / `fall_pc`): the block ends in a conditional branch whose
+// two possible successors are compile-time constants (the condition is runtime, the
+// targets are not). Instead of funnelling through DispatcherReg — which recomputes the
+// recLUT lookup from cpuRegs.pc and ends in ONE indirect `br` shared by every block exit
+// in the program (poorly predicted) — compare cpuRegs.pc
+// against each successor and tail through that successor's own recLUT slot, exactly like
+// the known-PC tail (recEmitDispatchToKnownPc, so SMC invalidation stays safe: still an
+// indirect jump through the slot, never a direct block->block link). Each exit gets its
+// own branch-predictor entry. If cpuRegs.pc matches neither (e.g. an inline-interpreted
+// delay-slot op raised an exception and redirected PC), fall back to DispatcherReg.
 static void recEmitEventTestAndDispatch(u32 scaled_cycles, bool add_cycles, bool known_dispatch_pc, u32 dispatch_pc,
-	u32 waitloop_selfpc = 0, bool force_event = false)
+	u32 waitloop_selfpc = 0, bool force_event = false, bool two_way = false, u32 taken_pc = 0, u32 fall_pc = 0)
 {
 	armAsm->Ldr(RXARG1, a64::MemOperand(RESTATEPTR, EE_CYCLE_OFFSET)); // x0 = cpuRegs.cycle (u64)
 	if (add_cycles)
@@ -3932,6 +4017,23 @@ static void recEmitEventTestAndDispatch(u32 scaled_cycles, bool add_cycles, bool
 	{
 		armEmitCondBranch(a64::pl, DispatcherEvent); // event due => service before continuing
 		recEmitDispatchToKnownPc(dispatch_pc);
+		return;
+	}
+
+	if (two_way && !force_event)
+	{
+		armEmitCondBranch(a64::pl, DispatcherEvent); // event due => service before continuing
+		a64::Label not_taken;
+		armAsm->Ldr(RWARG1, a64::MemOperand(RESTATEPTR, EE_PC_OFFSET));
+		armAsm->Mov(RWARG2, taken_pc);
+		armAsm->Cmp(RWARG1, RWARG2);
+		armAsm->B(&not_taken, a64::ne);
+		recEmitDispatchToKnownPc(taken_pc);
+		armAsm->Bind(&not_taken);
+		armAsm->Mov(RWARG2, fall_pc);
+		armAsm->Cmp(RWARG1, RWARG2);
+		armEmitCondBranch(a64::ne, DispatcherReg); // neither successor: generic lookup
+		recEmitDispatchToKnownPc(fall_pc);
 		return;
 	}
 
@@ -4164,6 +4266,9 @@ static void recRecompile(u32 startpc)
 	bool force_event_test = false; // interp-step EI/ERET: force a post-op event test (x86 recBranchCall)
 	bool known_dispatch_pc = false;
 	u32 dispatch_pc = 0;
+	bool two_way_dispatch = false; // conditional branch with two static successors
+	u32 two_way_taken = 0;
+	u32 two_way_fall = 0;
 	u32 waitloop_selfpc = 0;
 	u32 waitloop_ops[REC_WAITLOOP_MAX_OPS];
 	u32 waitloop_num_ops = 0;
@@ -4367,6 +4472,8 @@ static void recRecompile(u32 startpc)
 			// Terminate the block: branch generator + delay slot + dispatch tail.
 			raw_cycles += eeOpCycles(op);
 			known_dispatch_pc = recGetKnownBranchTarget(op, pc, const_state, &dispatch_pc);
+			if (!known_dispatch_pc)
+				two_way_dispatch = recGetStaticBranchTargets(op, pc, &two_way_taken, &two_way_fall);
 			recCacheFlushAll(cache_state);
 			recCacheKillAll(cache_state);
 			recEmitBranch(op, pc); // writes cpuRegs.pc (taken/fallthrough/link)
@@ -4427,6 +4534,7 @@ static void recRecompile(u32 startpc)
 
 			armAsm->Bind(&skip_delay);
 			endpc = pc + 8;
+			two_way_dispatch = recGetStaticBranchTargets(op, pc, &two_way_taken, &two_way_fall);
 			break;
 		}
 
@@ -4546,7 +4654,8 @@ static void recRecompile(u32 startpc)
 	recCacheKillAll(cache_state);
 
 	recEmitEventTestAndDispatch(interp_step ? 0 : recScaleBlockCycles(raw_cycles), !interp_step,
-		!interp_step && known_dispatch_pc, dispatch_pc, waitloop_selfpc, force_event_test);
+		!interp_step && known_dispatch_pc, dispatch_pc, waitloop_selfpc, force_event_test,
+		!interp_step && two_way_dispatch, two_way_taken, two_way_fall);
 
 	// Apply SMC protection (must emit any checksum prologue into this block's stream before
 	// armEndBlock flushes it). `block_entry` is what subsequent dispatches jump to.

@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- ARM64: faster EE and IOP recompilers. A conditional branch whose two destinations are known jumps straight to whichever block it takes instead of through the dispatcher; MFSA/MTSA, MTSAB/MTSAH, QFSRV, the PDIV* divides and PREF are compiled in the block rather than called out to the interpreter; and the IOP's idle loop is skipped to its next event, as the x86 recompiler does under the Wait Loop speedhack.
 - The macOS arm64 core is built with link-time optimisation of the emulator core (`LTO_PCSX2_CORE`), which builds on arm64 now.
 - Apple Silicon: the emulator's threads sleep when they wait instead of spinning, and run on the performance cores. PCSX2's sleep on macOS converted its deadline the wrong way round and slept about 1700 times too short there, so every wait for a deadline was a busy loop; the frame limiter also spun out the last millisecond or two of every frame. The CPU, GS, VU and software-renderer threads now ask macOS for the user-interactive priority, which keeps them off the efficiency cores. Cooler and steadier, with the same speed.
 - New renderer paraLLEl-GS (Vulkan), from LRPS2: a compute-shader renderer of the GS that draws what the console would, with super sampling (up to 32x) and an experimental high-res scanout in place of upscaling. Its options are under Graphics. Chosen as the Renderer and used from the next start of the content; it needs RetroArch's Vulkan driver. A lightgun crosshair is not drawn with it.
