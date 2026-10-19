@@ -190,6 +190,11 @@ namespace LibretroHost
 	// rather than this file's. Chosen at retro_load_game like the API, and
 	// like it, fixed for the session.
 	static bool s_parallel_gs = false;
+	// The Metal renderer has no frontend context to render into - libretro
+	// has none for Metal - so it always runs on the readback path, with the
+	// GS building its own Metal device and the frontend left on whatever
+	// driver it runs (Metal included). Set at retro_load_game.
+	static bool s_metal_readback = false;
 	// Set by the frontend's context_reset once the retro_hw_render_interface is
 	// available; the CPU thread parks on it before booting the VM so GSDeviceVK
 	// adopts the shared instance during negotiation rather than creating its own.
@@ -478,6 +483,10 @@ RenderAPI LibretroGetRenderAPI()
 		default:
 			break;
 	}
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+	if (s_metal_readback)
+		return RenderAPI::Metal;
+#endif
 	// No frontend context: this is the readback path, which still opens a
 	// device to present and run ImGui through. It has to be one this core was
 	// built with rather than whatever the host would pick for a desktop
@@ -951,6 +960,10 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	else if (std::strcmp(renderer, "opengl") == 0)
 		renderer_type = GSRendererType::OGL;
 #endif
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+	else if (std::strcmp(renderer, "metal") == 0)
+		renderer_type = GSRendererType::Metal;
+#endif
 
 #ifdef HAVE_PARALLEL_GS
 	else if (std::strcmp(renderer, "parallel-gs") == 0)
@@ -964,6 +977,15 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		renderer_type = GSRendererType::ParallelGS;
 	else if (renderer_type == GSRendererType::ParallelGS)
 		renderer_type = (s_hw_render == HWRender::OpenGL) ? GSRendererType::OGL : GSRendererType::VK;
+#endif
+
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+	// The session's device is Metal only if the content was started on it;
+	// switching to or from Metal, like any hardware API, waits for a restart.
+	// Anything else picked mid-session is pulled onto the session's API by
+	// the clamp below or by GS.cpp's LibretroClampRenderer.
+	if (s_metal_readback && renderer_type != GSRendererType::SW)
+		renderer_type = GSRendererType::Metal;
 #endif
 
 	// The frontend's HW-render context type is negotiated once, when the
@@ -2222,8 +2244,16 @@ bool retro_load_game(const struct retro_game_info* game)
 #endif
 		const char* const renderer =
 			(s_environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) ? var.value : fallback_renderer;
+		s_metal_readback = false;
 		if (std::getenv("PCEE2_READBACK"))
 			s_hw_render = HWRender::None;
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+		else if (std::strcmp(renderer, "metal") == 0)
+		{
+			s_hw_render = HWRender::None;
+			s_metal_readback = true;
+		}
+#endif
 		else if (std::strcmp(renderer, "opengl") == 0)
 			s_hw_render = HWRender::OpenGL;
 		else if (std::strcmp(renderer, "software") != 0)

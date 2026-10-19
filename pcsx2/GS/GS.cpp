@@ -161,6 +161,10 @@ static GSRendererType LibretroClampRenderer(GSRendererType renderer)
 			return GSRendererType::VK;
 		case RenderAPI::OpenGL:
 			return GSRendererType::OGL;
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+		case RenderAPI::Metal:
+			return GSRendererType::Metal;
+#endif
 		default:
 			return renderer;
 	}

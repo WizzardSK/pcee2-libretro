@@ -1097,10 +1097,16 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 		if (!AcquireWindow(true))
 			return false;
 
-		OnMainThread([this]
+		// A surfaceless window (a libretro core on its readback path) has no
+		// view to put a layer on: the device renders offscreen, and its output
+		// is read back rather than presented.
+		if (m_window_info.type != WindowInfo::Type::Surfaceless)
 		{
-			AttachSurfaceOnMainThread();
-		});
+			OnMainThread([this]
+			{
+				AttachSurfaceOnMainThread();
+			});
+		}
 
 		// Metal does not support mailbox.
 		m_vsync_mode = (m_vsync_mode == GSVSyncMode::Mailbox) ? GSVSyncMode::FIFO : m_vsync_mode;
@@ -1111,7 +1117,9 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 		return false;
 	}
 
-	MTLPixelFormat layer_px_fmt = [m_layer pixelFormat];
+	// With no layer, the present pipelines are built for the format a
+	// CAMetalLayer has by default; nothing presents through them.
+	MTLPixelFormat layer_px_fmt = m_layer ? [m_layer pixelFormat] : MTLPixelFormatBGRA8Unorm;
 
 	m_features.broken_point_sampler = false;
 	m_features.vs_expand = !GSConfig.DisableVertexShaderExpand;

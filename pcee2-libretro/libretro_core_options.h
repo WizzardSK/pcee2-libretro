@@ -85,6 +85,9 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 #ifdef ENABLE_OPENGL
 			{"opengl", "OpenGL (Hardware)"},
 #endif
+#if defined(__APPLE__) && !defined(PCSX2_DISABLE_METAL)
+			{"metal", "Metal (Hardware, copied to frontend)"},
+#endif
 			{"software", "Software"}, {NULL, NULL}},
 		"vulkan"},
 #ifdef HAVE_PARALLEL_GS
