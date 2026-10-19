@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- ARM64: faster EE and IOP recompilers. A conditional branch whose two destinations are known jumps straight to whichever block it takes instead of through the dispatcher; MFSA/MTSA, MTSAB/MTSAH, QFSRV, the PDIV* divides and PREF are compiled in the block rather than called out to the interpreter; and the IOP's idle loop is skipped to its next event, as the x86 recompiler does under the Wait Loop speedhack.
 - New renderer paraLLEl-GS (Vulkan), from LRPS2: a compute-shader renderer of the GS that draws what the console would, with super sampling (up to 32x) and an experimental high-res scanout in place of upscaling. Its options are under Graphics. Chosen as the Renderer and used from the next start of the content; it needs RetroArch's Vulkan driver. A lightgun crosshair is not drawn with it.
 - Windows: the OpenGL renderer starts. The GS thread's OpenGL context was never made current before its functions were loaded, so the GS device failed to open and the picture stayed black (Immersion95, issue #53).
 - One frame less input lag, the same as standalone PCSX2: each frame is handed to RetroArch once the GS has drawn it. The core handed over the frame drawn before, one frame behind the input it was run with (Immersion95, issue #53). With the Software renderer it is two frames less: its frame was also read back one vsync late.
