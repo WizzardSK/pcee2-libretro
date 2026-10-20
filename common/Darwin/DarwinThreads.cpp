@@ -277,3 +277,12 @@ void Threading::SetNameOfCurrentThread(const char* name)
 {
 	pthread_setname_np(name);
 }
+
+void Threading::SetCurrentThreadHighPerformance()
+{
+	// A thread created with plain pthread_create / std::thread carries no QoS of its own,
+	// and the scheduler is free to run it on an efficiency core. User-interactive is the
+	// class for work whose latency the user feels (what an app's main thread runs at), so
+	// the emulation threads get P-cores whenever any are available.
+	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+}

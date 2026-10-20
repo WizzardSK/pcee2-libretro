@@ -576,7 +576,7 @@ jobs:
             -DCMAKE_PREFIX_PATH="$HOME/deps" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES="arm64" \
-            -DDISABLE_ADVANCE_SIMD=ON \
+            -DDISABLE_ADVANCE_SIMD=ON -DLTO_PCSX2_CORE=ON \
             -DENABLE_QT_UI=OFF -DENABLE_TESTS=OFF -DENABLE_LIBRETRO=ON \
             -DSHADERC_STATIC=ON "-DSHADERC_LIBRARY=$HOME/deps/lib/libshaderc_combined.a"
 

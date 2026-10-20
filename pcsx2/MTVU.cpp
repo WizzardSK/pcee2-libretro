@@ -128,6 +128,7 @@ void VU_Thread::Reset()
 void VU_Thread::ExecuteRingBuffer()
 {
 	Threading::SetNameOfCurrentThread("MTVU");
+	Threading::SetCurrentThreadHighPerformance();
 
 	for (;;)
 	{

@@ -144,6 +144,7 @@ void MTGS::ShutdownThread()
 void MTGS::ThreadEntryPoint()
 {
 	Threading::SetNameOfCurrentThread("GS");
+	Threading::SetCurrentThreadHighPerformance();
 
 	// GS can hit SMC write traps when executing InitAndReadFIFO
 	// As racey as it sounds, it should be safe, since InitAndReadFIFO is requested and immediately waited for,

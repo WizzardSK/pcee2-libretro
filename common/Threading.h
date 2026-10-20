@@ -28,6 +28,12 @@ namespace Threading
 	/// Set the name of the current thread
 	extern void SetNameOfCurrentThread(const char* name);
 
+	/// Marks the current thread as latency-critical emulation work (EE/IOP, GS, VU, GS-SW).
+	/// On macOS this sets the user-interactive QoS class, which is what keeps a thread on the
+	/// performance cores of Apple Silicon instead of letting it drift to the efficiency
+	/// cores. Does nothing on other platforms.
+	extern void SetCurrentThreadHighPerformance();
+
 	// Releases a timeslice to other threads.
 	extern void Timeslice();
 

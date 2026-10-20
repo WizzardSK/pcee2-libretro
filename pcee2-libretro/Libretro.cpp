@@ -17,6 +17,7 @@
 // null audio output, no pad input, no savestates. Enough to boot and render.
 
 #include <algorithm>
+#include <ctime>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -932,6 +933,9 @@ static void SetInputDescriptors()
 		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
 }
 
+// Debug > GS Dump Trigger File: retro_run looks for gsdump.trigger
+static bool s_gsdump_trigger = false;
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -940,6 +944,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			return var.value;
 		return fallback;
 	};
+
+	s_gsdump_trigger = std::strcmp(get_option("pcsx2_gsdump_trigger", "disabled"), "enabled") == 0;
 
 	// The default has to name a renderer this build actually has: a core without
 	// Vulkan still reads a stale pcsx2_renderer = "vulkan" out of the frontend's
@@ -1067,6 +1073,9 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			break;
 		}
 	}
+
+	s_settings_interface.SetBoolValue("EmuCore/GS", "HWROV",
+		std::strcmp(get_option("pcsx2_rov", "disabled"), "enabled") == 0);
 
 	static constexpr std::pair<const char*, BiFiltering> bi_filters[] = {
 		{"nearest", BiFiltering::Nearest}, {"bilinear_ps2", BiFiltering::PS2},
@@ -1322,6 +1331,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 void LibretroHost::CPUThreadMain()
 {
 	s_cpu_thread_id = std::this_thread::get_id();
+	// The EE/IOP thread is the emulator's critical path; keep it on the performance cores.
+	Threading::SetCurrentThreadHighPerformance();
 
 	const bool init_ok = VMManager::Internal::CPUThreadInitialize();
 	if (!init_ok)
@@ -1452,6 +1463,78 @@ static const VkApplicationInfo* GetVulkanApplicationInfo(void)
 	app_info.apiVersion = VK_API_VERSION_1_1;
 	return &app_info;
 }
+
+#ifdef __APPLE__
+// Negotiation v2 create_instance: lets the core put its own settings on the VkInstance the
+// frontend creates (the wrapper still adds the frontend's required/optional extensions and
+// layers). On macOS this is the only place the core can configure MoltenVK, which reads its
+// configuration once per instance, at creation.
+static VkInstance CreateVulkanInstance(PFN_vkGetInstanceProcAddr get_instance_proc_addr, const VkApplicationInfo* app,
+	retro_vulkan_create_instance_wrapper_t create_instance_wrapper, void* opaque)
+{
+	VkInstanceCreateInfo info{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
+	info.pApplicationInfo = app;
+
+	// MoltenVK defaults to synchronous queue submits: vkQueueSubmit encodes the whole
+	// frame's Metal command buffers on the calling thread - the GS thread - while holding
+	// the queue lock shared with the frontend (profiled: ~15% of GS-thread time in
+	// MVKQueueCommandBufferSubmission::execute, plus waits on that lock). Turning it off
+	// makes MoltenVK hand the encoding to a serial GCD queue per VkQueue (ordering is
+	// preserved), so the GS thread returns to emulation immediately. Set through the
+	// standard VK_EXT_layer_settings extension, which MoltenVK only honours when it is
+	// enabled.
+	//
+	// Opt-in (PCSX2_MVK_ASYNC_SUBMIT=1): with async submits MoltenVK's vkAcquireNextImageKHR can release an image's
+	// drawable while that image's present is still queued on the async queue, and the
+	// queued present then uses a freed drawable - a crash at random during play (the same
+	// code in MoltenVK 1.4.2).
+	static const VkBool32 kSynchronousSubmits = VK_FALSE;
+	static const VkLayerSettingEXT kMoltenVKSettings[] = {
+		{"MoltenVK", "MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &kSynchronousSubmits},
+	};
+	static const char* const kLayerSettingsExtension = VK_EXT_LAYER_SETTINGS_EXTENSION_NAME;
+	VkLayerSettingsCreateInfoEXT layer_settings{VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT};
+
+	// Not a core option: it crashes at random (above), so it is kept for testing
+	// behind an environment variable until MoltenVK's present is fixed.
+	const char* const async_env = std::getenv("PCSX2_MVK_ASYNC_SUBMIT");
+	const bool async_submit = async_env && std::strcmp(async_env, "1") == 0;
+	if (async_submit)
+	{
+		// Only ask for the extension when the implementation offers it, so a non-MoltenVK
+		// driver (or an older MoltenVK) still gets a plain instance.
+		bool has_layer_settings = false;
+		const auto enumerate = reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+			get_instance_proc_addr(VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties"));
+		u32 count = 0;
+		if (enumerate && enumerate(nullptr, &count, nullptr) == VK_SUCCESS && count > 0)
+		{
+			std::vector<VkExtensionProperties> props(count);
+			if (enumerate(nullptr, &count, props.data()) == VK_SUCCESS)
+			{
+				for (u32 i = 0; i < count && !has_layer_settings; i++)
+					has_layer_settings = (std::strcmp(props[i].extensionName, kLayerSettingsExtension) == 0);
+			}
+		}
+
+		if (has_layer_settings)
+		{
+			layer_settings.settingCount = static_cast<u32>(std::size(kMoltenVKSettings));
+			layer_settings.pSettings = kMoltenVKSettings;
+			info.pNext = &layer_settings;
+			info.enabledExtensionCount = 1;
+			info.ppEnabledExtensionNames = &kLayerSettingsExtension;
+			Console.WriteLn("Vulkan: requesting asynchronous MoltenVK queue submits.");
+		}
+		else
+		{
+			Console.Warning("Vulkan: VK_EXT_layer_settings unavailable; MoltenVK keeps synchronous submits.");
+		}
+	}
+
+	return create_instance_wrapper(opaque, &info);
+}
+#endif
 
 static bool OpenGSOnNegotiatedDevice(retro_vulkan_context* context);
 
@@ -1710,7 +1793,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	std::memset(info, 0, sizeof(*info));
 	info->library_name = "PCEE2";
 	info->library_version = GIT_REV;
-	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx";
+	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs";
 	info->need_fullpath = true;
 	info->block_extract = true;
 }
@@ -2292,8 +2375,9 @@ bool retro_load_game(const struct retro_game_info* game)
 		{
 			// v2 where the frontend has it: create_device2, with the frontend's
 			// device wrapper. A frontend that only knows v1 is told version 1,
-			// and calls create_device. create_instance stays null either way,
-			// so the frontend makes the instance, as it always did here.
+			// and calls create_device. create_instance is set only on macOS, where
+			// it is the one place MoltenVK's settings can go on the instance;
+			// elsewhere the frontend makes the instance, as it always did here.
 			struct retro_hw_render_context_negotiation_interface support = {
 				RETRO_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_VULKAN, 0};
 			unsigned version = 1;
@@ -2326,7 +2410,11 @@ bool retro_load_game(const struct retro_game_info* game)
 				neg_iface.get_application_info = GetVulkanApplicationInfo;
 				neg_iface.create_device = CreateVulkanDevice;
 				neg_iface.destroy_device = nullptr;
+#ifdef __APPLE__
+				neg_iface.create_instance = version >= 2 ? CreateVulkanInstance : nullptr;
+#else
 				neg_iface.create_instance = nullptr;
+#endif
 				neg_iface.create_device2 = version >= 2 ? CreateVulkanDevice2 : nullptr;
 				Console.WriteLn("Vulkan context negotiation interface v%u", version);
 				s_environ_cb(RETRO_ENVIRONMENT_SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE, (void*)&neg_iface);
@@ -3072,6 +3160,33 @@ void retro_run(void)
 		if (s_video_cb)
 			s_video_cb(black.data(), DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_WIDTH * sizeof(u32));
 		return;
+	}
+
+	// Debug aid (Debug > GS Dump Trigger File, off by default, so players are not
+	// charged a file lookup a second): a libretro core has no hotkey for PCSX2's GS dump, so a file named
+	// gsdump.trigger in <system>/pcsx2 records one instead. It holds the number of frames
+	// (default 2) and is removed when the dump starts; the dump and a PNG of the frame go
+	// next to it as gsdump_<serial>_<time>. Replaying the .gs file as content gives every
+	// renderer the exact same frames, which is what renderer bugs need to be compared.
+	if (s_gsdump_trigger)
+	{
+		static u32 s_trigger_poll = 0;
+		if (++s_trigger_poll >= 60)
+		{
+			s_trigger_poll = 0;
+			const std::string trigger = Path::Combine(s_system_dir, "gsdump.trigger");
+			if (FileSystem::FileExists(trigger.c_str()))
+			{
+				u32 frames = 2;
+				if (const std::optional<std::string> text = FileSystem::ReadFileToString(trigger.c_str()))
+					frames = static_cast<u32>(std::clamp(std::atoi(text->c_str()), 1, 60));
+				FileSystem::DeleteFilePath(trigger.c_str());
+				std::string png = Path::Combine(s_system_dir,
+					fmt::format("gsdump_{}_{}.png", VMManager::GetDiscSerial(), static_cast<u64>(std::time(nullptr))));
+				Console.WriteLnFmt("GS dump of {} frame(s) requested: {}", frames, png);
+				MTGS::RunOnGSThread([png = std::move(png), frames]() { GSQueueSnapshot(png, frames); });
+			}
+		}
 	}
 
 #ifdef ENABLE_OPENGL
