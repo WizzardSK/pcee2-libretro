@@ -2337,6 +2337,12 @@ void VMManager::Internal::Throttle(bool vsync_start)
 		return;
 	}
 
+#ifdef __APPLE__
+	// mach_wait_until() wakes within microseconds of the deadline, so there is no need
+	// for the sleep-then-spin below, which keeps a core busy for the last millisecond
+	// or two of every frame - real heat on a fanless Apple Silicon machine.
+	Threading::SleepUntil(uExpectedEnd);
+#else
 	// Conversion of delta from CPU ticks (microseconds) to milliseconds
 	const s32 msec = static_cast<s32>((sDeltaTime * -1000) / static_cast<s64>(GetTickFrequency()));
 
@@ -2353,6 +2359,7 @@ void VMManager::Internal::Throttle(bool vsync_start)
 	while (GetCPUTicks() < uExpectedEnd)
 	{
 	}
+#endif
 
 	if (!vsync_start)
 	{

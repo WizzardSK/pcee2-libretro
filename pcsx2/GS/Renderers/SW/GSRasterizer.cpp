@@ -1524,6 +1524,7 @@ GSRasterizerList::~GSRasterizerList()
 void GSRasterizerList::OnWorkerStartup(int i, u64 affinity)
 {
 	Threading::SetNameOfCurrentThread(StringUtil::StdStringFromFormat("GS-SW-%d", i).c_str());
+	Threading::SetCurrentThreadHighPerformance();
 
 	Threading::ThreadHandle handle(Threading::ThreadHandle::GetForCallingThread());
 	if (affinity != 0)

@@ -924,6 +924,9 @@ static void SetInputDescriptors()
 		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
 }
 
+// Debug > GS Dump Trigger File: retro_run looks for gsdump.trigger
+static bool s_gsdump_trigger = false;
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -932,6 +935,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			return var.value;
 		return fallback;
 	};
+
+	s_gsdump_trigger = std::strcmp(get_option("pcsx2_gsdump_trigger", "disabled"), "enabled") == 0;
 
 	// The default has to name a renderer this build actually has: a core without
 	// Vulkan still reads a stale pcsx2_renderer = "vulkan" out of the frontend's
@@ -1301,6 +1306,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 void LibretroHost::CPUThreadMain()
 {
 	s_cpu_thread_id = std::this_thread::get_id();
+	// The EE/IOP thread is the emulator's critical path; keep it on the performance cores.
+	Threading::SetCurrentThreadHighPerformance();
 
 	const bool init_ok = VMManager::Internal::CPUThreadInitialize();
 	if (!init_ok)
@@ -1689,7 +1696,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	std::memset(info, 0, sizeof(*info));
 	info->library_name = "PCEE2";
 	info->library_version = GIT_REV;
-	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs|zst|xz";
+	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs";
 	info->need_fullpath = true;
 	info->block_extract = true;
 }
@@ -3045,11 +3052,13 @@ void retro_run(void)
 		return;
 	}
 
-	// Debug aid: a libretro core has no hotkey for PCSX2's GS dump, so a file named
+	// Debug aid (Debug > GS Dump Trigger File, off by default, so players are not
+	// charged a file lookup a second): a libretro core has no hotkey for PCSX2's GS dump, so a file named
 	// gsdump.trigger in <system>/pcsx2 records one instead. It holds the number of frames
 	// (default 2) and is removed when the dump starts; the dump and a PNG of the frame go
 	// next to it as gsdump_<serial>_<time>. Replaying the .gs file as content gives every
 	// renderer the exact same frames, which is what renderer bugs need to be compared.
+	if (s_gsdump_trigger)
 	{
 		static u32 s_trigger_poll = 0;
 		if (++s_trigger_poll >= 60)
