@@ -17,6 +17,7 @@
 // null audio output, no pad input, no savestates. Enough to boot and render.
 
 #include <algorithm>
+#include <ctime>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -923,6 +924,9 @@ static void SetInputDescriptors()
 		s_environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, descriptors.data());
 }
 
+// Debug > GS Dump Trigger File: retro_run looks for gsdump.trigger
+static bool s_gsdump_trigger = false;
+
 void LibretroHost::ReadCoreOptions(bool startup)
 {
 	const auto get_option = [](const char* key, const char* fallback) -> const char* {
@@ -931,6 +935,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 			return var.value;
 		return fallback;
 	};
+
+	s_gsdump_trigger = std::strcmp(get_option("pcsx2_gsdump_trigger", "disabled"), "enabled") == 0;
 
 	// The default has to name a renderer this build actually has: a core without
 	// Vulkan still reads a stale pcsx2_renderer = "vulkan" out of the frontend's
@@ -1765,7 +1771,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	std::memset(info, 0, sizeof(*info));
 	info->library_name = "PCEE2";
 	info->library_version = GIT_REV;
-	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx";
+	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs";
 	info->need_fullpath = true;
 	info->block_extract = true;
 }
@@ -3124,6 +3130,33 @@ void retro_run(void)
 		if (s_video_cb)
 			s_video_cb(black.data(), DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_WIDTH * sizeof(u32));
 		return;
+	}
+
+	// Debug aid (Debug > GS Dump Trigger File, off by default, so players are not
+	// charged a file lookup a second): a libretro core has no hotkey for PCSX2's GS dump, so a file named
+	// gsdump.trigger in <system>/pcsx2 records one instead. It holds the number of frames
+	// (default 2) and is removed when the dump starts; the dump and a PNG of the frame go
+	// next to it as gsdump_<serial>_<time>. Replaying the .gs file as content gives every
+	// renderer the exact same frames, which is what renderer bugs need to be compared.
+	if (s_gsdump_trigger)
+	{
+		static u32 s_trigger_poll = 0;
+		if (++s_trigger_poll >= 60)
+		{
+			s_trigger_poll = 0;
+			const std::string trigger = Path::Combine(s_system_dir, "gsdump.trigger");
+			if (FileSystem::FileExists(trigger.c_str()))
+			{
+				u32 frames = 2;
+				if (const std::optional<std::string> text = FileSystem::ReadFileToString(trigger.c_str()))
+					frames = static_cast<u32>(std::clamp(std::atoi(text->c_str()), 1, 60));
+				FileSystem::DeleteFilePath(trigger.c_str());
+				std::string png = Path::Combine(s_system_dir,
+					fmt::format("gsdump_{}_{}.png", VMManager::GetDiscSerial(), static_cast<u64>(std::time(nullptr))));
+				Console.WriteLnFmt("GS dump of {} frame(s) requested: {}", frames, png);
+				MTGS::RunOnGSThread([png = std::move(png), frames]() { GSQueueSnapshot(png, frames); });
+			}
+		}
 	}
 
 #ifdef ENABLE_OPENGL

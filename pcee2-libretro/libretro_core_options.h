@@ -58,6 +58,7 @@ struct retro_core_option_v2_category option_cats_us[] = {
 	{"patches", "Patches", "Built-in game patches (widescreen, no-interlacing) and cheats."},
 	{"performance", "Performance", "Speed hacks. May break games."},
 	{"audio", "Audio", "Sound output and buffering."},
+	{"debug", "Debug", "Tools for reporting bugs."},
 	{NULL, NULL, NULL},
 };
 
@@ -290,6 +291,10 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	{"pcsx2_memcard_slot2_file", "Slot 2 Card", NULL,
 		"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
 		NULL, "memory_cards", {{NULL, NULL}}, "Mcd002.ps2"},
+	// debug
+	{"pcsx2_gsdump_trigger", "GS Dump Trigger File", NULL,
+		"While enabled, a file named gsdump.trigger in <system>/pcsx2 records a GS dump of the frames it gives (2 if empty) and is removed; the dump and a PNG of the frame go beside it. A GS dump (.gs) loads as content and replays the same frames on any renderer, for reporting renderer bugs.",
+		NULL, "debug", {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{NULL, NULL, NULL, NULL, NULL, NULL, {{NULL, NULL}}, NULL},
 };
 
