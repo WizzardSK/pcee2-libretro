@@ -671,8 +671,10 @@ if(USE_VULKAN)
 	# VKLibretro::Active), so it's compiled in every Vulkan build; when the
 	# libretro core is off, VKLibretro::Active is simply never set. It needs the
 	# libretro HW-render interface header (libretro_vulkan.h -> libretro.h),
-	# which live in the core's source dir; add it PRIVATE so it doesn't leak.
-	target_include_directories(PCSX2 PRIVATE "${CMAKE_SOURCE_DIR}/pcee2-libretro")
+	# which live in the core's source dir. Put it on PCSX2_FLAGS (linked PRIVATE into
+	# PCSX2, and into PCSX2_LTO when LTO_PCSX2_CORE moves the GS sources there) so it
+	# reaches VKLibretro.cpp in both layouts without leaking to other targets.
+	target_include_directories(PCSX2_FLAGS INTERFACE "${CMAKE_SOURCE_DIR}/pcee2-libretro")
 	list(APPEND pcsx2GSHeaders
 		GS/Renderers/Vulkan/GSDeviceVK.h
 		GS/Renderers/Vulkan/GSTextureVK.h
@@ -1239,7 +1241,9 @@ endif()
 
 if(LTO_PCSX2_CORE)
 	add_library(PCSX2_LTO ${pcsx2LTOSources})
-	if (DISABLE_ADVANCE_SIMD)
+	# Multi-ISA only exists on x86 (see BuildParameters.cmake); on ARM64 this define would
+	# pull the x86 dispatch scaffolding into the LTO sources and break IPU.cpp.
+	if (DISABLE_ADVANCE_SIMD AND ARCH_X86)
 		target_compile_definitions(PCSX2_LTO PRIVATE MULTI_ISA_SHARED_COMPILATION)
 	endif()
 	target_link_libraries(PCSX2_LTO PRIVATE PCSX2_FLAGS)

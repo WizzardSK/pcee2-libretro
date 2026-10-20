@@ -1303,6 +1303,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 void LibretroHost::CPUThreadMain()
 {
 	s_cpu_thread_id = std::this_thread::get_id();
+	// The EE/IOP thread is the emulator's critical path; keep it on the performance cores.
+	Threading::SetCurrentThreadHighPerformance();
 
 	const bool init_ok = VMManager::Internal::CPUThreadInitialize();
 	if (!init_ok)
@@ -1454,7 +1456,7 @@ static VkInstance CreateVulkanInstance(PFN_vkGetInstanceProcAddr get_instance_pr
 	// standard VK_EXT_layer_settings extension, which MoltenVK only honours when it is
 	// enabled.
 	//
-	// Opt-in: with async submits MoltenVK's vkAcquireNextImageKHR can release an image's
+	// Opt-in (PCSX2_MVK_ASYNC_SUBMIT=1): with async submits MoltenVK's vkAcquireNextImageKHR can release an image's
 	// drawable while that image's present is still queued on the async queue, and the
 	// queued present then uses a freed drawable - a crash at random during play (the same
 	// code in MoltenVK 1.4.2).
@@ -1465,9 +1467,10 @@ static VkInstance CreateVulkanInstance(PFN_vkGetInstanceProcAddr get_instance_pr
 	static const char* const kLayerSettingsExtension = VK_EXT_LAYER_SETTINGS_EXTENSION_NAME;
 	VkLayerSettingsCreateInfoEXT layer_settings{VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT};
 
-	retro_variable var = {"pcsx2_mvk_async_submit", nullptr};
-	const bool async_submit = s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value &&
-							  std::strcmp(var.value, "enabled") == 0;
+	// Not a core option: it crashes at random (above), so it is kept for testing
+	// behind an environment variable until MoltenVK's present is fixed.
+	const char* const async_env = std::getenv("PCSX2_MVK_ASYNC_SUBMIT");
+	const bool async_submit = async_env && std::strcmp(async_env, "1") == 0;
 	if (async_submit)
 	{
 		// Only ask for the extension when the implementation offers it, so a non-MoltenVK
