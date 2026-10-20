@@ -65,3 +65,38 @@ if(UNIX AND NOT APPLE)
 	set_property(TARGET pcee2_libretro APPEND PROPERTY
 		LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/libretro.map")
 endif()
+
+# The Metal GS device's shaders. A standalone PCSX2 ships them as .metallib
+# files in its app bundle; a core has no bundle of its own - NSBundle's main
+# bundle is the frontend's, whose default.metallib holds the frontend's
+# shaders - so build one library (Metal 2.3, the macOS 11 deployment target)
+# and link it into the core, where GSMTLDeviceInfo.mm reads it back from the
+# __DATA,__pcsx2_mtllib section. The core stays a single file.
+if(APPLE AND NOT APPLE_EMBEDDED)
+	get_property(PCSX2_SOURCE_DIR GLOBAL PROPERTY PCSX2_SOURCE_DIR)
+	get_property(PCSX2_METAL_SHADERS GLOBAL PROPERTY PCSX2_METAL_SHADERS)
+	set(core_metal_air)
+	foreach(shader IN LISTS PCSX2_METAL_SHADERS)
+		set(air ${CMAKE_CURRENT_BINARY_DIR}/metal/${shader}.air)
+		get_filename_component(air_dir ${air} DIRECTORY)
+		add_custom_command(OUTPUT ${air}
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${air_dir}
+			COMMAND xcrun metal -ffast-math -std=macos-metal2.3 -target air64-apple-macos11.0
+				-o ${air} -c ${PCSX2_SOURCE_DIR}/${shader}
+			DEPENDS ${PCSX2_SOURCE_DIR}/${shader}
+				${PCSX2_SOURCE_DIR}/GS/Renderers/Metal/GSMTLSharedHeader.h
+				${PCSX2_SOURCE_DIR}/GS/Renderers/Metal/GSMTLShaderCommon.h
+		)
+		list(APPEND core_metal_air ${air})
+	endforeach()
+	set(core_metallib ${CMAKE_CURRENT_BINARY_DIR}/pcsx2.metallib)
+	add_custom_command(OUTPUT ${core_metallib}
+		COMMAND xcrun metallib -o ${core_metallib} ${core_metal_air}
+		DEPENDS ${core_metal_air}
+	)
+	add_custom_target(pcee2_libretro_metallib DEPENDS ${core_metallib})
+	add_dependencies(pcee2_libretro pcee2_libretro_metallib)
+	target_link_options(pcee2_libretro PRIVATE
+		"LINKER:-sectcreate,__DATA,__pcsx2_mtllib,${core_metallib}")
+	set_property(TARGET pcee2_libretro APPEND PROPERTY LINK_DEPENDS ${core_metallib})
+endif()

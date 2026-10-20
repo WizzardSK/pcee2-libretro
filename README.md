@@ -34,7 +34,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | OpenGL renderer | ✅ working (surfaceless EGL) |
 | paraLLEl-GS renderer (from LRPS2) | ✅ working, community-tested on Windows: a Vulkan compute renderer of the GS, with super sampling and high-res scanout. Needs a frontend with Vulkan context negotiation v2, as RetroArch has. The lightgun crosshair is not drawn with it |
 | D3D11 / D3D12 renderers | ⚠️ in the Windows build, untested. D3D12 needs `dxcompiler.dll` (from the standalone PCSX2) beside RetroArch's executable; the core loads without it |
-| Metal renderer | ➖ not offered: libretro has no Metal hardware context. On macOS the Vulkan renderer runs on Metal through MoltenVK, sharing the frontend's device |
+| Metal renderer | ✅ macOS: libretro has no Metal hardware context, so the GS renders on its own Metal device and each frame is copied back to the frontend (the readback path), whatever video driver RetroArch runs. The Vulkan renderer also runs on Metal, through MoltenVK and sharing the frontend's device |
 | RetroAchievements | ✅ via RetroArch (EE RAM exposed; log in to RetroAchievements in RetroArch settings) |
 | Multitap (up to 8 controllers) | ✅ core option |
 | Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse; no crosshair with paraLLEl-GS |

@@ -699,12 +699,12 @@ void GSDeviceMTL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex,
 	{
 		// 2nd output is enabled and selected. Copy it to destination so we can blend it with 1st output
 		// Note: value outside of dRect must contains the background color (c)
-		StretchRect(sTex[1], sRect[1], dTex, dRect[1], ShaderConvert::COPY, filter);
+		StretchRect(sTex[1], sRect[1], dTex, PMODE.SLBG ? dRect[2] : dRect[1], ShaderConvert::COPY, filter);
 	}
 
-	// Save 2nd output
-	if (feedback_write_2) // FIXME I'm not sure dRect[1] is always correct
-		DoStretchRect(dTex, full_r, sTex[2], dRect[1], GetConvertPipeline(ShaderConvert::YUV), filter, LoadAction::DontCareIfFull, &cb_yuv, sizeof(cb_yuv));
+	// Save 2nd output. dRect[2] is the feedback write area (EXTBUF), as on the other renderers.
+	if (feedback_write_2)
+		DoStretchRect(dTex, full_r, sTex[2], dRect[2], GetConvertPipeline(ShaderConvert::YUV), filter, LoadAction::DontCareIfFull, &cb_yuv, sizeof(cb_yuv));
 
 	if (feedback_write_2_but_blend_bg)
 		ClearRenderTarget(dTex, c);
@@ -727,8 +727,8 @@ void GSDeviceMTL::DoMerge(GSTexture* sTex[3], GSVector4* sRect, GSTexture* dTex,
 		}
 	}
 
-	if (feedback_write_1) // FIXME I'm not sure dRect[0] is always correct
-		StretchRect(dTex, full_r, sTex[2], dRect[0], ShaderConvert::YUV, filter);
+	if (feedback_write_1)
+		StretchRect(dTex, full_r, sTex[2], dRect[2], ShaderConvert::YUV, filter);
 
 	// Commit clear if nothing was drawn to dTex.
 	FlushClears(dTex);
@@ -1097,10 +1097,16 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 		if (!AcquireWindow(true))
 			return false;
 
-		OnMainThread([this]
+		// A surfaceless window (a libretro core on its readback path) has no
+		// view to put a layer on: the device renders offscreen, and its output
+		// is read back rather than presented.
+		if (m_window_info.type != WindowInfo::Type::Surfaceless)
 		{
-			AttachSurfaceOnMainThread();
-		});
+			OnMainThread([this]
+			{
+				AttachSurfaceOnMainThread();
+			});
+		}
 
 		// Metal does not support mailbox.
 		m_vsync_mode = (m_vsync_mode == GSVSyncMode::Mailbox) ? GSVSyncMode::FIFO : m_vsync_mode;
@@ -1111,7 +1117,9 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 		return false;
 	}
 
-	MTLPixelFormat layer_px_fmt = [m_layer pixelFormat];
+	// With no layer, the present pipelines are built for the format a
+	// CAMetalLayer has by default; nothing presents through them.
+	MTLPixelFormat layer_px_fmt = m_layer ? [m_layer pixelFormat] : MTLPixelFormatBGRA8Unorm;
 
 	m_features.broken_point_sampler = false;
 	m_features.vs_expand = !GSConfig.DisableVertexShaderExpand;
@@ -2415,8 +2423,19 @@ void GSDeviceMTL::RenderHW(GSHWDrawConfig& config)
 	if (config.tex && (config.ds == config.tex || config.rt == config.tex))
 		EndRenderPass(); // Barrier
 
-	if (m_dev.features.broken_shader_depth && (config.depth.ztst >= ZTST_GEQUAL || config.depth.zwe))
-		config.ps.zfloor = true; // Depth must always go through shader (see tfx vs for comment with details)
+	if (m_dev.features.broken_shader_depth)
+	{
+		// Depth must always go through shader (see tfx vs for comment with details)
+		if (config.depth.ztst >= ZTST_GEQUAL || config.depth.zwe)
+			config.ps.zfloor = true;
+		// The alpha test's second pass has its own shader and depth state. Without this it wrote
+		// the rasterizer's depth, which still carries the VS bias, so it stored Z+1 and everything
+		// drawn later at Z failed GEQUAL against it (Metal Gear Solid 3's title screen: the Snake
+		// layer covered the title and menu, and the text stayed bright through the fade).
+		if (config.alpha_second_pass.enable &&
+			(config.alpha_second_pass.depth.ztst >= ZTST_GEQUAL || config.alpha_second_pass.depth.zwe))
+			config.alpha_second_pass.ps.zfloor = true;
+	}
 
 	size_t vertsize = config.nverts * sizeof(*config.verts);
 	size_t idxsize = config.vs.UseFixedExpandIndexBuffer() ? 0 : (config.nindices * sizeof(*config.indices));
