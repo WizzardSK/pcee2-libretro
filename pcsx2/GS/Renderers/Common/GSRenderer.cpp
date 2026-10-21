@@ -490,14 +490,26 @@ void GSReleaseFramebufferReadbackResources()
 	}
 }
 
-static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src_rect, const GSVector4& src_uv,
-	bool is_progressive)
+static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src_rect, const GSVector4& src_uv)
 {
+	// The size set is the largest the frontend was told about; the frame goes
+	// over at its own size within it, so it is copied, not resampled. It used
+	// to be stretched (bilinear) and letterboxed into a fixed 640x480 x upscale
+	// target: a soft picture from the software renderer (issue #60), and black
+	// bars around a 480p frame, letterboxed to 3:2 (issue #61). The frontend
+	// corrects the aspect from the ratio the core reports, as on the HW-render
+	// paths.
 	const u64 packed_size = s_fb_readback_size.load(std::memory_order_acquire);
-	const u32 width = static_cast<u32>(packed_size >> 32);
-	const u32 height = static_cast<u32>(packed_size & 0xFFFFFFFFu);
-	if (width == 0 || height == 0)
+	const u32 max_width = static_cast<u32>(packed_size >> 32);
+	const u32 max_height = static_cast<u32>(packed_size & 0xFFFFFFFFu);
+	if (max_width == 0 || max_height == 0 || src_rect.width() <= 0 || src_rect.height() <= 0)
 		return;
+	const float clamp_scale = std::min({1.0f, static_cast<float>(max_width) / static_cast<float>(src_rect.width()),
+		static_cast<float>(max_height) / static_cast<float>(src_rect.height())});
+	const u32 width = std::max(1, static_cast<int>(std::lround(src_rect.width() * clamp_scale)));
+	const u32 height = std::max(1, static_cast<int>(std::lround(src_rect.height() * clamp_scale)));
+
+	GSLibretro::DisplayAspect.store(GetCurrentAspectRatioFloat(false), std::memory_order_release);
 
 	// (re)allocate on size change
 	if (s_fb_readback_rt &&
@@ -521,12 +533,10 @@ static void PerformFramebufferReadback(GSTexture* current, const GSVector4i& src
 		}
 	}
 
-	// render the display into the readback target (letterboxed)
-	const GSVector4 draw_rect = CalculateDrawDstRect(width, height, src_rect, current->GetSize(),
-		GSDisplayAlignment::Center, false, is_progressive);
-	g_gs_device->ClearRenderTarget(s_fb_readback_rt, 0);
+	// filtered only when the clamp scales it down
+	const GSVector4 draw_rect(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
 	g_gs_device->StretchRect(current, src_uv, s_fb_readback_rt, draw_rect, ShaderConvert::TRANSPARENCY_FILTER,
-		BilnIf(GSConfig.LinearPresent != GSPostBilinearMode::Off));
+		BilnIf(clamp_scale < 1.0f && GSConfig.LinearPresent != GSPostBilinearMode::Off));
 
 	const GSVector4i rc(0, 0, width, height);
 	s_fb_readback_dl->CopyFromTexture(rc, s_fb_readback_rt, rc, 0);
@@ -757,9 +767,10 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 			// below is computed so the whole frame stays consistent.
 			if (GSLibretro::Active)
 			{
-				GSLibretro::DisplayAspect.store(
-					GetCurrentAspectRatioFloat(GetVideoMode() == GSVideoMode::SDTV_480P),
-					std::memory_order_release);
+				// Not 3:2 for a progressive (480p) frame, as Auto 4:3/3:2 would
+				// make it: what the core's Aspect Ratio option says, 4:3 unless a
+				// widescreen patch sets its own (issue #61)
+				GSLibretro::DisplayAspect.store(GetCurrentAspectRatioFloat(false), std::memory_order_release);
 				// The size the frontend should scale by is the native one, not
 				// the canvas: the canvas moves with the upscale multiplier and
 				// with each field/frame merge, and a frontend that scales by
@@ -868,7 +879,7 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 		}
 
 		if (s_fb_readback_cb && current && !blank_frame)
-			PerformFramebufferReadback(current, src_rect, src_uv, GetVideoMode() == GSVideoMode::SDTV_480P);
+			PerformFramebufferReadback(current, src_rect, src_uv);
 
 		PerformanceMetrics::Update(registers_written, fb_sprite_frame, false);
 	}

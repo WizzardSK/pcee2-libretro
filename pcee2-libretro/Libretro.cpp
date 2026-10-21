@@ -1043,7 +1043,7 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	// The HW-render paths hand the frontend the rendered image directly; only
 	// wire the GPU->CPU readback when we're actually on the readback path.
 	if (!HWRenderActive())
-		GSSetFramebufferReadback(&FramebufferReadbackCallback, DEFAULT_WIDTH * upscale, DEFAULT_HEIGHT * upscale);
+		GSSetFramebufferReadback(&FramebufferReadbackCallback, MAX_WIDTH, MAX_HEIGHT);
 
 	// graphics quality
 	const auto get_int_option = [&get_option](const char* key, const char* fallback) {
@@ -1142,6 +1142,11 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	if (std::strcmp(aspect, "16:9") == 0 || (std::strcmp(aspect, "auto") == 0 && widescreen))
 		aspect_value = 16.0f / 9.0f;
 	s_aspect_bits.store(std::bit_cast<u32>(aspect_value), std::memory_order_release);
+	// The GS's own setting, which is what the aspect reported with each frame
+	// comes from; without it Auto 4:3/3:2 stayed, and 4:3 or 16:9 chosen here
+	// changed nothing once a frame was out
+	s_settings_interface.SetStringValue("EmuCore/GS", "AspectRatio",
+		std::strcmp(aspect, "4:3") == 0 ? "4:3" : std::strcmp(aspect, "16:9") == 0 ? "16:9" : "Auto 4:3/3:2");
 
 	// performance
 	// PCEE2_OSD=1: performance overlay (fps/speed + EE/GS/VU thread loads +
@@ -1681,8 +1686,7 @@ static void OnGLContextReset(void)
 		GLLibretro::Active = false;
 		s_hw_render = HWRender::None;
 		GSLibretro::Active = false;
-		GSSetFramebufferReadback(
-			&FramebufferReadbackCallback, DEFAULT_WIDTH * s_opt_upscale, DEFAULT_HEIGHT * s_opt_upscale);
+		GSSetFramebufferReadback(&FramebufferReadbackCallback, MAX_WIDTH, MAX_HEIGHT);
 		s_context_ready.store(true, std::memory_order_release);
 		return;
 	}
@@ -3111,6 +3115,29 @@ static void SyncHWRenderGeometry(u32 canvas_width, u32 canvas_height)
 	s_environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
 }
 
+// The readback path hands each frame over at the size the GS drew it, so
+// the geometry follows it, with the GS's aspect, as on the HW-render paths
+static void SyncReadbackGeometry(u32 width, u32 height)
+{
+	static u32 s_width, s_height;
+	static float s_aspect;
+	const float gs_aspect = GSLibretro::DisplayAspect.load(std::memory_order_acquire);
+	const float aspect = gs_aspect > 0.0f ? gs_aspect : 4.0f / 3.0f;
+	if (width == s_width && height == s_height && aspect == s_aspect)
+		return;
+	s_width = width;
+	s_height = height;
+	s_aspect = aspect;
+
+	retro_game_geometry geometry = {};
+	geometry.base_width = width;
+	geometry.base_height = height;
+	geometry.max_width = MAX_WIDTH;
+	geometry.max_height = MAX_HEIGHT;
+	geometry.aspect_ratio = aspect;
+	s_environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
+}
+
 void retro_run(void)
 {
 	// apply core option changes on the fly
@@ -3498,6 +3525,7 @@ void retro_run(void)
 		if (got_frame && s_frame_width > 0 && s_frame_height > 0 && s_video_cb)
 		{
 			s_frame_serial_seen = s_frame_serial;
+			SyncReadbackGeometry(s_frame_width, s_frame_height);
 			s_video_cb(s_frame_pixels.data(), s_frame_width, s_frame_height, s_frame_width * sizeof(u32));
 		}
 		else if (s_video_cb)

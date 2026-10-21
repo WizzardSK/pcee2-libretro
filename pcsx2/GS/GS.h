@@ -116,9 +116,9 @@ bool GSSaveSnapshotToMemory(u32 window_width, u32 window_height, bool apply_aspe
 void GSJoinSnapshotThreads();
 
 /// Continuous per-frame framebuffer readback for frontends that consume frames
-/// from memory (e.g. libretro). The callback runs on the GS thread with the
-/// frame queued at the previous vsync (one frame of latency), which lets the
-/// GPU complete the copy without stalling. Pass nullptr to disable.
+/// from memory (e.g. libretro). The callback runs on the GS thread with each
+/// frame at the size the GS drew it, scaled down only to fit width x height.
+/// Pass nullptr to disable.
 using GSFramebufferReadbackCallback = void (*)(const u32* pixels, u32 pitch_px, u32 width, u32 height);
 void GSSetFramebufferReadback(GSFramebufferReadbackCallback callback, u32 width, u32 height);
 void GSReleaseFramebufferReadbackResources();
