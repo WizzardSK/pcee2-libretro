@@ -2723,13 +2723,34 @@ static void UpdateInput()
 		{RETRO_DEVICE_ID_JOYPAD_R3, PadDualshock2::Inputs::PAD_R3},
 	};
 
+	// TEMP lag probe: PCEE2_PRESS=<first run>:<retro id>:<period> presses the
+	// button on port 0 for 8 runs every period runs from the first
+	static u64 s_probe_run = 0;
+	static long s_probe_first = -1, s_probe_id = 0, s_probe_period = 0;
+	if (s_probe_first < 0)
+	{
+		s_probe_first = 0;
+		if (const char* e = std::getenv("PCEE2_PRESS"))
+			std::sscanf(e, "%ld:%ld:%ld", &s_probe_first, &s_probe_id, &s_probe_period);
+	}
+	s_probe_run++;
+	bool probe_down = false;
+	if (s_probe_first > 0 && static_cast<long>(s_probe_run) >= s_probe_first && s_probe_period > 0)
+	{
+		const long phase = (static_cast<long>(s_probe_run) - s_probe_first) % s_probe_period;
+		probe_down = phase < 8;
+		if (phase == 0)
+			Console.WriteLn("PCEE2_PRESS down at run %llu", static_cast<unsigned long long>(s_probe_run));
+	}
+
 	for (u32 port = 0; port < static_cast<u32>(s_pad_map.size()); port++)
 	{
 		const u32 pad = s_pad_map[port];
 
 		for (const auto& [retro_id, ds2_bind] : button_map)
 		{
-			const int16_t state = s_input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, retro_id);
+			const int16_t state = (port == 0 && probe_down && static_cast<long>(retro_id) == s_probe_id) ? 1 :
+				s_input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, retro_id);
 			Pad::SetControllerState(pad, ds2_bind, state ? 1.0f : 0.0f);
 		}
 
