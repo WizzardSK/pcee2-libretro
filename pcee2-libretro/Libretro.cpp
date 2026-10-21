@@ -2692,6 +2692,7 @@ void retro_reset(void)
 // Translate libretro joypad/analog state into DualShock2 binds. Called at the
 // start of retro_run(), while the CPU thread is parked, so Pad state writes
 // don't race the SIO reads.
+static u64 s_probe_total_runs = 0; // TEMP lag probe: every retro_run
 static void UpdateInput()
 {
 	if (!s_input_poll_cb || !s_input_state_cb)
@@ -2740,7 +2741,8 @@ static void UpdateInput()
 		const long phase = (static_cast<long>(s_probe_run) - s_probe_first) % s_probe_period;
 		probe_down = phase < 8;
 		if (phase == 0)
-			Console.WriteLn("PCEE2_PRESS down at run %llu", static_cast<unsigned long long>(s_probe_run));
+			Console.WriteLn("PCEE2_PRESS down at run %llu, retro_run %llu", static_cast<unsigned long long>(s_probe_run),
+				static_cast<unsigned long long>(s_probe_total_runs));
 	}
 
 	for (u32 port = 0; port < static_cast<u32>(s_pad_map.size()); port++)
@@ -3134,6 +3136,7 @@ static void SyncHWRenderGeometry(u32 canvas_width, u32 canvas_height)
 
 void retro_run(void)
 {
+	s_probe_total_runs++;
 	// apply core option changes on the fly
 	bool options_updated = false;
 	if (s_environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &options_updated) && options_updated &&
