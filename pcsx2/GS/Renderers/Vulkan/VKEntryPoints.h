@@ -168,6 +168,7 @@
 #define vkCmdResetEvent pcsx2_vkCmdResetEvent
 #define vkCmdWaitEvents pcsx2_vkCmdWaitEvents
 #define vkCmdPipelineBarrier pcsx2_vkCmdPipelineBarrier
+#define vkCmdPipelineBarrier2KHR pcsx2_vkCmdPipelineBarrier2KHR
 #define vkCmdBeginQuery pcsx2_vkCmdBeginQuery
 #define vkCmdEndQuery pcsx2_vkCmdEndQuery
 #define vkCmdResetQueryPool pcsx2_vkCmdResetQueryPool
