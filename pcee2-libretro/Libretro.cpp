@@ -3783,6 +3783,11 @@ void Host::OnGameChanged(const std::string& title, const std::string& elf_overri
 	INFO_LOG("Game changed: {} ({})", title, disc_serial);
 }
 
+void Host::OnGameListFavoriteChanged(const std::string& path)
+{
+	// The frontend keeps its own playlists; there is no game list to update.
+}
+
 void Host::OnPerformanceMetricsUpdated()
 {
 }
