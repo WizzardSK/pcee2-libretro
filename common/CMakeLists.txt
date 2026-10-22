@@ -43,6 +43,7 @@ target_sources(common PRIVATE
 	Assertions.h
 	boost_spsc_queue.hpp
 	BitUtils.h
+	Buffer.h
 	ByteSwap.h
 	Console.h
 	CrashHandler.h
@@ -66,6 +67,8 @@ target_sources(common PRIVATE
 	MD5Digest.h
 	MRCHelpers.h
 	Path.h
+	Pcsx2Defs.h
+	Pcsx2Types.h
 	PrecompiledHeader.h
 	ProgressCallback.h
 	ReadbackSpinManager.h
@@ -85,6 +88,7 @@ target_sources(common PRIVATE
 	WindowInfo.h
 	WrappedMemCopy.h
 	YAML.h
+	ZipHelpers.h
 )
 
 if(ARCH_X86)

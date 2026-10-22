@@ -1141,6 +1141,7 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 	if (@available(macOS 13.0, *))
 		m_features.metalfx_spatial = [MTLFXSpatialScalerDescriptor supportsDevice:m_dev.dev];
 	m_features.rov = m_dev.features.rov && !m_features.framebuffer_fetch;
+	m_features.copyless_ds_as_rt = m_features.framebuffer_fetch;
 	m_max_texture_size = m_dev.features.max_texsize;
 
 	// Init metal stuff

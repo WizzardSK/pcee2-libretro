@@ -443,7 +443,7 @@ bool GSDeviceOGL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GSVertexPT1), (const GLvoid*)(0));
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GSVertexPT1), (const GLvoid*)(16));
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(GSVertex), (const GLvoid*)(8));
+		glVertexAttribIPointer(2, 4, GL_UNSIGNED_BYTE, sizeof(GSVertex), (const GLvoid*)(8));
 		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GSVertex), (const GLvoid*)(12));
 		glVertexAttribIPointer(4, 2, GL_UNSIGNED_SHORT, sizeof(GSVertex), (const GLvoid*)(16));
 		glVertexAttribIPointer(5, 1, GL_UNSIGNED_INT, sizeof(GSVertex), (const GLvoid*)(20));
@@ -1034,7 +1034,9 @@ bool GSDeviceOGL::CheckFeatures()
 		GLAD_GL_VERSION_4_2 || GLAD_GL_ARB_texture_compression_bptc || GLAD_GL_EXT_texture_compression_bptc;
 	m_features.prefer_new_textures = false;
 	m_features.stencil_buffer = true;
-	m_features.test_and_sample_depth = true;
+	// Attachment can not be bound as read only unlike on dx11/12/vk,
+	// and it's not always guaranteed to work properly even if depth write is disabled.
+	m_features.test_and_sample_depth = false;
 	// Auto select chooses depth-as-rt as it appears to be more compatible across hardware.
 	m_features.depth_feedback = GSConfig.DepthFeedbackMode == GSDepthFeedbackMode::Depth;
 	if (!m_features.texture_barrier && m_features.multidraw_fb_copy)
@@ -1717,13 +1719,13 @@ void GSDeviceOGL::CommitClear(GSTexture* t, bool use_write_fbo)
 		OMSetFBO(m_fbo);
 		if (T->IsDepthStencil())
 		{
-			if (GLState::rt && GLState::rt->GetSize() != T->GetSize())
+			if (GLState::current_rt && GLState::current_rt->GetSize() != T->GetSize())
 				OMAttachRt(nullptr);
 			OMAttachDs(T);
 		}
 		else
 		{
-			if (GLState::ds && GLState::ds->GetSize() != T->GetSize())
+			if (GLState::current_ds && GLState::current_ds->GetSize() != T->GetSize())
 				OMAttachDs(nullptr);
 			OMAttachRt(T);
 		}
@@ -1939,18 +1941,23 @@ std::string GSDeviceOGL::GenGlslHeader(const std::string_view entry, GLenum type
 		if (!m_dual_source_blend)
 			header += "#define DISABLE_DUAL_SOURCE\n";
 	}
-	else if (m_features.vs_expand && GLAD_GL_VERSION_4_3)
+	// Intel's GL driver doesn't like the readonly qualifier with 3.3 GLSL.
+	else if (GLAD_GL_VERSION_4_3)
 	{
-		// Intel's GL driver doesn't like the readonly qualifier with 3.3 GLSL.
 		header = "#version 430 core\n";
+	}
+	else if (GLAD_GL_VERSION_4_2)
+	{
+		header = "#version 420 core\n";
 	}
 	else
 	{
 		header = "#version 330 core\n";
 		header += "#extension GL_ARB_shading_language_420pack : require\n";
-		if (m_features.vs_expand)
-			header += "#extension GL_ARB_shader_storage_buffer_object: require\n";
 	}
+
+	if (!m_is_gles && m_features.vs_expand && !GLAD_GL_VERSION_4_3)
+		header += "#extension GL_ARB_shader_storage_buffer_object: require\n";
 
 	if (!m_is_gles && m_features.framebuffer_fetch && GLAD_GL_EXT_shader_framebuffer_fetch)
 		header += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
@@ -2244,6 +2251,9 @@ void GSDeviceOGL::CopyRect(GSTexture* sTex, GSTexture* dTex, const GSVector4i& r
 		GL_INS("GL: CopyRect rect empty.");
 		return;
 	}
+
+	if (dTex->IsDepthStencil())
+		InvalidateDSAsRT(dTex);
 
 	const GLuint& sid = static_cast<GSTextureOGL*>(sTex)->GetID();
 	const GLuint& did = static_cast<GSTextureOGL*>(dTex)->GetID();
@@ -3096,30 +3106,30 @@ void GSDeviceOGL::RenderBlankFrame()
 
 void GSDeviceOGL::OMAttachRt(GSTexture* rt)
 {
-	if (GLState::rt == rt)
+	if (GLState::current_rt == rt)
 		return;
 
-	GLState::rt = static_cast<GSTextureOGL*>(rt);
+	GLState::current_rt = static_cast<GSTextureOGL*>(rt);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
 		rt ? static_cast<GSTextureOGL*>(rt)->GetID() : 0, 0);
 }
 
 void GSDeviceOGL::OMAttachDsAsRt(GSTexture* ds_as_rt)
 {
-	if (GLState::ds_as_rt == ds_as_rt)
+	if (GLState::current_ds_as_rt == ds_as_rt)
 		return;
 
-	GLState::ds_as_rt = static_cast<GSTextureOGL*>(ds_as_rt);
+	GLState::current_ds_as_rt = static_cast<GSTextureOGL*>(ds_as_rt);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D,
 		ds_as_rt ? static_cast<GSTextureOGL*>(ds_as_rt)->GetID() : 0, 0);
 }
 
 void GSDeviceOGL::OMAttachDs(GSTexture* ds)
 {
-	if (GLState::ds == ds)
+	if (GLState::current_ds == ds)
 		return;
 
-	GLState::ds = static_cast<GSTextureOGL*>(ds);
+	GLState::current_ds = static_cast<GSTextureOGL*>(ds);
 
 	const GLenum target = m_features.framebuffer_fetch ? GL_DEPTH_ATTACHMENT : GL_DEPTH_STENCIL_ATTACHMENT;
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, target, GL_TEXTURE_2D, ds ? static_cast<GSTextureOGL*>(ds)->GetID() : 0, 0);
@@ -3152,15 +3162,15 @@ void GSDeviceOGL::OMSetColorMaskState(OMColorMaskSelector sel)
 
 void GSDeviceOGL::OMUnbindTexture(GSTextureOGL* tex)
 {
-	if (GLState::rt != tex && GLState::ds_as_rt != tex && GLState::ds != tex)
+	if (GLState::current_rt != tex && GLState::current_ds_as_rt != tex && GLState::current_ds != tex)
 		return;
 
 	OMSetFBO(m_fbo);
-	if (GLState::rt == tex)
+	if (GLState::current_rt == tex)
 		OMAttachRt();
-	if (GLState::ds_as_rt == tex)
+	if (GLState::current_ds_as_rt == tex)
 		OMAttachDsAsRt();
-	if (GLState::ds == tex)
+	if (GLState::current_ds == tex)
 		OMAttachDs();
 }
 
@@ -3210,9 +3220,10 @@ void GSDeviceOGL::OMSetBlendState(bool enable, GLenum src_factor, GLenum dst_fac
 
 void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds_as_rt, GSTexture* ds, const GSVector4i* scissor)
 {
-	const bool rt_changed = (rt != GLState::rt);
-	const bool ds_as_rt_changed = (ds_as_rt != GLState::ds_as_rt);
-	const bool ds_changed = (ds != GLState::ds);
+	const bool rt_changed = (rt != GLState::current_rt);
+	const bool ds_as_rt_changed = (ds_as_rt != GLState::current_ds_as_rt) ||
+		(ds_as_rt && ds_as_rt->GetState() == GSTexture::State::Cleared); // See note about clearing below.
+	const bool ds_changed = (ds != GLState::current_ds);
 	const u32 draw_buffers = GLState::draw_buffers;
 
 	g_perfmon.Put(GSPerfMon::RenderPasses, static_cast<double>(rt_changed || ds_as_rt_changed || ds_changed));
@@ -3236,7 +3247,8 @@ void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds_as_rt, GSTextu
 	if (ds_as_rt)
 	{
 		OMAttachDsAsRt(ds_as_rt);
-		CommitClear(ds_as_rt, false);
+		// Clearing DS as RT on the main FBO appears to cause problems so use the alternate FBO.
+		CommitClear(ds_as_rt, true);
 		GLState::ds_as_rt_written = ds_as_rt_changed;
 	}
 	else
@@ -3247,6 +3259,13 @@ void GSDeviceOGL::OMSetRenderTargets(GSTexture* rt, GSTexture* ds_as_rt, GSTextu
 		OMAttachDs(ds);
 		CommitClear(ds, false);
 		GLState::ds_written = ds_changed;
+
+		// Invalidate DS as RT if we're updating DS alone.
+		if (!ds_as_rt)
+			InvalidateDSAsRT(ds);
+
+		// Make sure something didn't go wrong with DS as RT caching.
+		pxAssert(!ds_as_rt || m_ds_as_rt_orig == ds);
 	}
 	else
 		OMAttachDs();
@@ -3346,7 +3365,7 @@ void GSDeviceOGL::RenderHW(GSHWDrawConfig& config)
 	GSTexture* colclip_rt = g_gs_device->GetColorClipTexture();
 	GSTexture* draw_rt = config.rt;
 	GSTexture* draw_ds = config.ds;
-	GSTexture* draw_ds_as_rt = m_ds_as_rt;
+	GSTexture* draw_ds_as_rt = config.ps.IsFeedbackLoopDepth() ? m_ds_as_rt : nullptr;
 	GSTexture* draw_rt_clone = nullptr;
 	GSTexture* draw_ds_clone = nullptr;
 	GSTexture* primid_texture = nullptr;
@@ -3467,7 +3486,7 @@ void GSDeviceOGL::RenderHW(GSHWDrawConfig& config)
 	if (m_features.texture_barrier && (config.require_one_barrier || config.require_full_barrier))
 		PSSetShaderResource(TEXTURE_RT, colclip_rt ? colclip_rt : config.rt);
 	if (m_features.texture_barrier && (config.require_one_barrier || config.require_full_barrier) && config.ps.IsFeedbackLoopDepth())
-		PSSetShaderResource(TEXTURE_DEPTH, m_features.depth_feedback ? config.ds : m_ds_as_rt);
+		PSSetShaderResource(TEXTURE_DEPTH, m_features.depth_feedback ? config.ds : draw_ds_as_rt);
 
 	SetupSampler(config.sampler);
 
@@ -3491,7 +3510,7 @@ void GSDeviceOGL::RenderHW(GSHWDrawConfig& config)
 	// Pretty sure GL is supposed to guarantee that the blend unit is coherent with previous pixel write out, so calling this a bug.
 	bool broken_blend_coherency_barrier = false;
 	if (m_bugs.broken_blend_coherency)
-		broken_blend_coherency_barrier = (config.IsFeedbackLoopRT(psel.ps) || psel.ps.blend_c == 1) && GLState::rt == config.rt;
+		broken_blend_coherency_barrier = (config.IsFeedbackLoopRT(psel.ps) || psel.ps.blend_c == 1) && GLState::current_rt == config.rt;
 	if (config.require_one_barrier || !m_features.texture_barrier)
 	{
 		broken_blend_coherency_barrier = false;
@@ -3566,15 +3585,15 @@ void GSDeviceOGL::RenderHW(GSHWDrawConfig& config)
 
 	// Avoid changing framebuffer just to switch from rt+depth to rt and vice versa.
 	bool fb_optimization_needs_barrier = false;
-	if (!(draw_rt || draw_ds_as_rt) && draw_ds && GLState::rt && GLState::rt->GetSize() == draw_ds->GetSize())
+	if (!(draw_rt || draw_ds_as_rt) && draw_ds && GLState::current_rt && config.tex != GLState::current_rt && GLState::current_rt->GetSize() == draw_ds->GetSize())
 	{
-		draw_rt = GLState::rt;
-		fb_optimization_needs_barrier = !GLState::rt_written && GLState::ds == draw_ds;
+		draw_rt = GLState::current_rt;
+		fb_optimization_needs_barrier = !GLState::rt_written && GLState::current_ds == draw_ds;
 	}
-	else if (!(draw_ds || draw_ds_as_rt) && draw_rt && GLState::ds && GLState::ds->GetSize() == draw_rt->GetSize())
+	else if (!(draw_ds || draw_ds_as_rt) && draw_rt && GLState::current_ds && config.tex != GLState::current_ds && GLState::current_ds->GetSize() == draw_rt->GetSize())
 	{
-		draw_ds = GLState::ds;
-		fb_optimization_needs_barrier = !GLState::ds_written && GLState::rt == draw_rt;
+		draw_ds = GLState::current_ds;
+		fb_optimization_needs_barrier = !GLState::ds_written && GLState::current_rt == draw_rt;
 	}
 
 	// Be careful of the rt already being bound and the blend using the RT without a barrier.

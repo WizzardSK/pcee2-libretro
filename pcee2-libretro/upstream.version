@@ -6,5 +6,5 @@
 #
 # Bump both lines in the same commit that merges upstream; CMake warns when the
 # recorded commit is not an ancestor of the tree being built.
-PCSX2_VERSION=v2.9.81-22-g81526d4dc7
-PCSX2_COMMIT=81526d4dc7cc70e4ae75abb35a789417456c6d43
+PCSX2_VERSION=v2.9.138
+PCSX2_COMMIT=ab0b401f99729ef8da3009f9af28d8ee96e0e7ba

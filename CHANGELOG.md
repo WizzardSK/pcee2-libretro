@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- Merged up to upstream PCSX2 v2.9.138: texture-cache and hardware-renderer fixes, replacement textures from zip files, memory-card conversion fixes, VMA 3.4 and `vkCmdPipelineBarrier2` in the Vulkan renderer. The shader cache is rebuilt once.
 - macOS: new Renderer choice Metal (Hardware, copied to frontend). PCSX2's own Metal renderer draws on a Metal device of its own and each frame is copied back to RetroArch, as the Software renderer's are, whatever video driver RetroArch runs; libretro has no Metal context to hand the frame over directly. Its shaders are built into the core. Like the other hardware renderers, switching to or from it takes effect at the next start of the content.
 - GS dumps for renderer bugs: with the new option Debug > GS Dump Trigger File enabled, a file named `gsdump.trigger` in `system/pcsx2/` records one (it holds the number of frames, 2 if empty, and is removed when the dump starts), with a PNG of the frame beside it; RetroArch has no hotkey for PCSX2's GS dump. A `.gs` dump also loads as content and plays in PCSX2's dump replayer, so one dump gives every renderer the same frames to compare (a compressed `.gs.xz` or `.gs.zst` once unpacked).
 - New option Graphics > Raster Order Views (Experimental), off by default as in standalone PCSX2: blending and depth effects read the render target in the shader instead of through a texture barrier, which on Apple GPUs splits the render pass every time.

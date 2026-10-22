@@ -4833,7 +4833,7 @@ bool GSState::SpriteDrawWithoutGaps()
 			else
 			{
 				const int dpY = v[i + 1].XYZ.Y - v[i].XYZ.Y;
-				if ((std::abs(dpY - first_dpY) >= 16 && (i + 2) < next_count) || std::abs(this_start_X - last_pX) >= 16)
+				if ((std::abs(dpY - first_dpY) >= 16 && (i + 2) < next_count) || (this_start_X - last_pX) >= 16)
 					return false;
 			}
 		}
