@@ -8,6 +8,11 @@ name: 🤖 Android Libretro Core Builds
 on:
   push:
     branches:
+      # With the core builds, as on the buildbot, which builds Android with
+      # every other platform.
+      - libretro
+      - libretro-arm64
+      - "libretro-arm64-*"
       - libretro-android
       - "libretro-android-*"
   workflow_dispatch:
