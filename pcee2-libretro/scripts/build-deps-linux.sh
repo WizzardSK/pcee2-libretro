@@ -109,7 +109,20 @@ clone https://github.com/ianlancetaylor/libbacktrace libbacktrace "$LIBBACKTRACE
 # expects the system glslang), so build the real thing from source. The glslang
 # override that goes with it is explained in deps.versions.
 clone https://github.com/google/shaderc shaderc "$SHADERC"
-(cd shaderc && python3 utils/git-sync-deps)
+# git-sync-deps clones its six repositories from GitHub in parallel, which is
+# what runs into GitHub's anonymous rate limit on a shared runner (see clone()
+# above; buildbot, 23 Oct 2026). Same remedy: no prompt, a few tries.
+for attempt in 1 2 3 4; do
+	if (cd shaderc && GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=true python3 utils/git-sync-deps); then
+		break
+	fi
+	if [ "$attempt" = 4 ]; then
+		echo "FATAL: shaderc's git-sync-deps failed" >&2
+		exit 1
+	fi
+	echo "git-sync-deps failed (attempt $attempt), retrying in $((attempt * 30))s" >&2
+	sleep $((attempt * 30))
+done
 # git-sync-deps has just put DEPS' revision in place; move it forward. Fetching
 # the bare commit keeps this pinned rather than tracking whatever main is today.
 if [ "$(git -C shaderc/third_party/glslang rev-parse HEAD)" != "$GLSLANG" ]; then
