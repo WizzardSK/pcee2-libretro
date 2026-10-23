@@ -250,6 +250,12 @@ libretro-build-windows-x64:
     # CMAKE_FIND_ROOT_PATH workaround and the static .a shaderc path.
     # MinGW/Ninja is a single-config generator, so the .dll lands straight in bin.
     EXTRA_PATH: bin
+    # MXE's own FindFreetype.cmake (in the image since Oct 2026) looks FreeType
+    # up through MXE's pkg-config, which reads only MXE's prefix plus this
+    # variable; without it neither plutosvg nor the core finds the FreeType in
+    # deps ("Target plutosvg links to Freetype::Freetype but the target was not
+    # found").
+    PKG_CONFIG_PATH_x86_64_w64_mingw32_static: $CI_PROJECT_DIR/deps/lib/pkgconfig
 
 # Android. Both ABIs the Play Store build ships; API 24 is the floor because the
 # frontend's VFS handles are wrapped in stdio streams through funopen64, which

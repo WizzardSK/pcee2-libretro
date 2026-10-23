@@ -81,9 +81,14 @@ clone https://github.com/sammycage/plutovg plutovg "$PLUTOVG"
 "$CMAKE" --build plutovg/build --parallel "$NPROCS"
 "$CMAKE" --install plutovg/build
 
+# CMAKE_FIND_ROOT_PATH: in the Windows cross-build, MXE's FindFreetype finds
+# the library in the directory pkg-config names, and MXE's toolchain searches
+# only under its find roots, so the prefix has to be one of them (as for the
+# core in .gitlab-ci.yml). No-op natively.
 clone https://github.com/sammycage/plutosvg plutosvg "$PLUTOSVG"
 "$CMAKE" -S plutosvg -B plutosvg/build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_PREFIX_PATH="$PREFIX" \
+	-DCMAKE_FIND_ROOT_PATH="$PREFIX" \
 	-DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=OFF \
 	-DPLUTOSVG_ENABLE_FREETYPE=ON -DPLUTOSVG_BUILD_EXAMPLES=OFF
 "$CMAKE" --build plutosvg/build --parallel "$NPROCS"
