@@ -121,7 +121,7 @@ the exact steps on all three platforms.
 | Texture Filtering | Nearest / Bilinear (PS2/Forced/Forced-no-sprites) | default PS2 |
 | Trilinear Filtering | Auto / Off / PS2 / Forced | |
 | Anisotropic Filtering | Off–16x | |
-| Dithering | Off / Scaled / Unscaled | default Unscaled |
+| Dithering | Off / Scaled / Unscaled / Force 32-bit | default Unscaled |
 | Hardware Mipmapping | enabled / disabled | |
 | Deinterlacing | Automatic + 8 manual modes | default GameDB-driven |
 | FXAA | enabled / disabled | |
