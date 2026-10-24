@@ -177,8 +177,11 @@ elseif("${PCSX2_TARGET_PROCESSOR}" STREQUAL "arm64" OR "${PCSX2_TARGET_PROCESSOR
 		# instructions that fault on them.
 		add_compile_options("-march=armv8-a+crc")
 	else()
-		# Require atomic rmw instructions
-		add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-march=armv8.1-a>")
+		# armv8.0, as for Android: ARMv8.0 boards and TVs (Cortex-A53/A73)
+		# have no LSE atomics, and an armv8.1 build dies on its first atomic
+		# with SIGILL, before anything is logged. Outline atomics pick LSE at
+		# run time where the CPU has it.
+		add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-march=armv8-a>" "$<$<COMPILE_LANGUAGE:C,CXX>:-moutline-atomics>")
 	endif()
 
 	# If we're running on Linux, we need to detect the page/cache line size.
