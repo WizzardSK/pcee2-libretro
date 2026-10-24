@@ -68,14 +68,18 @@ static void PostLoadPrep()
 {
 	resetCache();
 //	WriteCP0Status(cpuRegs.CP0.n.Status.val);
+	// The old mappings go first, then the restored ones are applied: done
+	// entry by entry, an old entry overlapping the restored layout unmapped
+	// pages an earlier restored entry had just mapped (a state loaded right at
+	// the start, over the BIOS's layout, came up black). Unchanged entries are
+	// applied again too, as an overlapping old one may have removed their pages.
 	for (int i = 0; i < 48; i++)
 	{
 		if (std::memcmp(&s_tlb_backup[i], &tlb[i], sizeof(tlbs)) != 0)
-		{
 			UnmapTLB(s_tlb_backup[i], i);
-			MapTLB(tlb[i], i);
-		}
 	}
+	for (int i = 0; i < 48; i++)
+		MapTLB(tlb[i], i);
 
 	if (EmuConfig.Gamefixes.GoemonTlbHack) GoemonPreloadTlb();
 	CBreakPoints::SetSkipFirst(BREAKPOINT_EE, 0);
