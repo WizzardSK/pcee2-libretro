@@ -4,7 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
-- Linux arm64: the core is built for ARMv8.0, so it starts on CPUs without the ARMv8.1 atomics (Cortex-A53, Cortex-A73, as in LG webOS TVs); it was built for ARMv8.1 and crashed right after the video driver started, with nothing in the log. Where the CPU has the atomics, they are still used, picked at run time (alex).
+- Linux arm64 and webOS: the core is built for ARMv8.0, so it starts on CPUs without the ARMv8.1 atomics (Cortex-A53, Cortex-A73, as in LG webOS TVs); it was built for ARMv8.1 and crashed right after the video driver started, with nothing in the log. Where the CPU has the atomics, they are still used, picked at run time (alex).
 - Graphics > Dithering has Force 32-bit, as in standalone PCSX2: the hardware renderers keep 16-bit colors at full 32-bit precision, without dithering; it breaks rendering in some games (Immersion95, #63).
 - Software renderer (and the others when copied to RetroArch): the frame goes to RetroArch at the size the GS drew it, unfiltered. It was stretched with bilinear filtering into a fixed 640x480 (times the upscale) picture, so it came out soft, and letterboxed in it to its aspect, so a 480p game had black bars (Immersion95, #60, #61).
 - Progressive scan (480p) games are shown at 4:3, as with paraLLEl-GS, not stretched to 3:2: PCSX2's Auto 4:3/3:2 stayed in effect whatever the Aspect Ratio option said. The option's 4:3 and 16:9 now also apply with every renderer; before, only the aspect reported before the first frame followed them (Immersion95, #61).
