@@ -1,0 +1,67 @@
+name: webOS preflight
+
+# The buildbot's webOS job (.gitlab-ci.yml, libretro-build-webos-aarch64)
+# replayed on a GitHub runner, for a webOS core to test before the nightly:
+# the buildbot's image is not reachable from here, so the same SDK comes from
+# the release RetroArch's own webOS workflow uses (cscd98/buildroot-nc4).
+on:
+  workflow_dispatch:
+
+jobs:
+  build_webos_aarch64:
+    name: "webOS aarch64"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build python3 git pkg-config curl
+
+      - name: webOS SDK
+        run: |
+          curl -fsSL --retry 5 --retry-all-errors -o /tmp/sdk.tar.gz \
+            https://github.com/cscd98/buildroot-nc4/releases/download/webos-c14c7bd/aarch64-webos-linux-gnu_sdk-buildroot-x86_64.tar.gz
+          tar xzf /tmp/sdk.tar.gz -C /tmp
+          rm /tmp/sdk.tar.gz
+          /tmp/aarch64-webos-linux-gnu_sdk-buildroot/relocate-sdk.sh
+
+      - name: Build Dependencies and Core
+        run: |
+          export NUMPROC=$(nproc)
+          export BUILD_DIR=build/webos-aarch64
+          . /tmp/aarch64-webos-linux-gnu_sdk-buildroot/environment-setup
+          # The job's cmake wrapper: the toolchain file on a configure only
+          cat > /tmp/webos-cmake <<WRAPPER
+          #!/bin/sh
+          case "\$1" in
+            --build|--install|--open|-E|--find-package|--system-information)
+              exec /usr/bin/cmake "\$@" ;;
+          esac
+          exec /usr/bin/cmake -DCMAKE_TOOLCHAIN_FILE="$CMAKE_TOOLCHAIN_FILE" "\$@"
+          WRAPPER
+          chmod +x /tmp/webos-cmake
+          CMAKE=/tmp/webos-cmake HOST=aarch64-webos-linux-gnu PCEE2_SDL_STATIC=1 \
+            bash pcee2-libretro/scripts/build-deps-linux.sh "$PWD/deps"
+          /usr/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$CMAKE_TOOLCHAIN_FILE" \
+            -DENABLE_LIBRETRO=ON -DENABLE_QT_UI=OFF -DENABLE_TESTS=OFF -DDISABLE_ADVANCE_SIMD=ON \
+            -DUSE_VULKAN=OFF -DWEBOS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.18 \
+            -DCMAKE_PREFIX_PATH="$PWD/deps" -DCMAKE_FIND_ROOT_PATH="$PWD/deps" \
+            . -B"$BUILD_DIR"
+          /usr/bin/cmake --build "$BUILD_DIR" --target pcee2_libretro --config Release -- -j "$NUMPROC"
+          mkdir artifact
+          mv "$BUILD_DIR"/bin/pcee2_libretro.so artifact/
+          aarch64-webos-linux-gnu-strip --strip-unneeded artifact/pcee2_libretro.so
+          cp pcee2-libretro/pcee2_libretro.info artifact/
+          aarch64-webos-linux-gnu-readelf -d artifact/pcee2_libretro.so | grep NEEDED
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcee2_libretro-webos-aarch64
+          path: artifact/*
