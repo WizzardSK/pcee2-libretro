@@ -137,6 +137,32 @@ jobs:
           name: pcee2_libretro-linux-aarch64
           path: artifact/*
 
+      # For a RetroArch that has no 64-bit system libraries beside it (webOS
+      # TV: 64-bit RetroArch on a 32-bit system, alex): the core with every
+      # library it needs except glibc's own in lib/ next to it, found there
+      # through a RUNPATH of $ORIGIN/lib on the core and $ORIGIN on each.
+      - name: Prepare Bundled Artifact
+        run: |
+          sudo apt-get install -y patchelf
+          mkdir -p bundled/lib
+          cp build/bin/pcee2_libretro.so pcee2-libretro/pcee2_libretro.info bundled/
+          ldd build/bin/pcee2_libretro.so | awk '/=> \//{print $3}' | while read -r lib; do
+            case "$(basename "$lib")" in
+              libc.so.*|libm.so.*|libdl.so.*|libpthread.so.*|librt.so.*|ld-linux-*) continue ;;
+            esac
+            cp -L "$lib" bundled/lib/
+          done
+          for lib in bundled/lib/*; do patchelf --set-rpath '$ORIGIN' "$lib"; done
+          patchelf --set-rpath '$ORIGIN/lib' bundled/pcee2_libretro.so
+          ls -la bundled/lib
+          readelf -d bundled/pcee2_libretro.so | grep -i runpath
+
+      - name: Upload Bundled Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcee2_libretro-linux-aarch64-bundled
+          path: bundled/
+
   # Windows the way the libretro buildbot builds it: a MinGW cross-build from
   # Linux, not MSVC. The buildbot's image is MXE (x86_64-w64-mingw32.static);
   # its registry is out of reach from here, so Ubuntu's posix-threads MinGW
