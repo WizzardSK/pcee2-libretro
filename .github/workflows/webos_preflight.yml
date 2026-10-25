@@ -6,6 +6,8 @@ name: webOS preflight
 # the release RetroArch's own webOS workflow uses (cscd98/buildroot-nc4).
 on:
   workflow_dispatch:
+  push:
+    branches: [webos-preflight]
 
 jobs:
   build_webos_aarch64:
