@@ -142,10 +142,8 @@ include:
   - APPLE_PLATFORM=$PCEE2_APPLE_PLATFORM OSX_ARCH=arm64 bash pcee2-libretro/scripts/build-deps-macos.sh "$CI_PROJECT_DIR/deps"
 
 .pcee2-setup-android: &pcee2-setup-android
-  - export DEBIAN_FRONTEND=noninteractive
-  - apt-get update
-  # ca-certificates comes with the image (since October 2026)
-  - apt-get install -y --no-install-recommends cmake ninja-build python3 git
+  # cmake, ninja-build, python3, git and ca-certificates come with the image
+  # (Ubuntu 26.04, October 2026), so nothing is installed here
   # The template's own before_script - the one that sets the NUMPROC its build
   # line passes to -j - is replaced by this one, so set it here, capped by
   # available RAM the same way the Linux jobs do.
