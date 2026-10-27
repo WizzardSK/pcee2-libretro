@@ -226,9 +226,9 @@ libretro-build-windows-x64:
     - .core-defs
   before_script:
     - !reference [.libretro-windows-cmake, before_script]
-    # The MXE image is a build image, but the deps recipe additionally needs
-    # ninja, python3 (shaderc's git-sync-deps) and git.
-    - apt-get update && apt-get install -y --no-install-recommends ninja-build python3 git ca-certificates
+    # The deps recipe needs ninja, python3 (shaderc's git-sync-deps) and git,
+    # which the MXE gcc16 image carries (with ca-certificates), so nothing is
+    # installed here
     - |
       if [ ! -f "$CI_PROJECT_DIR/deps/lib/libshaderc_combined.a" ]; then
         CMAKE=x86_64-w64-mingw32.static-cmake HOST=x86_64-w64-mingw32.static \
