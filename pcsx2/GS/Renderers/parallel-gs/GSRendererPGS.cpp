@@ -69,6 +69,8 @@ static retro_vulkan_image vsync_descs[32];
 /* Images the frontend has finished with, offered back to the renderer
  * for the next frame's scanout instead of a fresh one each frame. */
 static std::vector<ImageHandle> spare_vsync_images;
+/* TEMP lag probe: the serial retro_run handed over last, and the newest one */
+u64 g_pgs_probe_presented_serial = 0, g_pgs_probe_newest_serial = 0;
 
 static void pgs_recycle_released_images();
 
@@ -630,6 +632,7 @@ void GSRendererPGS::VSync(u32 field, bool registers_written)
 			new_base_height >> vsync.high_resolution_scanout);
 
 		const u64 serial = ++next_serial;
+		g_pgs_probe_newest_serial = serial;
 		{
 			std::lock_guard<std::mutex> lock(present_mutex);
 			// A frame retro_run never took will not be taken any more
@@ -759,6 +762,7 @@ bool ParallelGSRenderer::PresentFrame(retro_hw_render_interface_vulkan* vulkan, 
 			return false;
 		frame = published;
 		consumed_serial = frame.serial;
+		g_pgs_probe_presented_serial = frame.serial;
 	}
 
 	/* The frontend's slot for this frame, and the wait that says it is done

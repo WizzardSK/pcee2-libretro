@@ -2697,6 +2697,14 @@ void retro_reset(void)
 // start of retro_run(), while the CPU thread is parked, so Pad state writes
 // don't race the SIO reads.
 static u64 s_probe_total_runs = 0; // TEMP lag probe: every retro_run
+// TEMP lag probe: retro_runs still to trace after a press, VM frames done,
+// and whether this run handed a frame over
+static int s_probe_trace = 0;
+static std::atomic<u64> s_probe_vm_frames{0};
+static bool s_probe_presented = false;
+#ifdef HAVE_PARALLEL_GS
+extern u64 g_pgs_probe_presented_serial, g_pgs_probe_newest_serial;
+#endif
 static void UpdateInput()
 {
 	if (!s_input_poll_cb || !s_input_state_cb)
@@ -2745,8 +2753,11 @@ static void UpdateInput()
 		const long phase = (static_cast<long>(s_probe_run) - s_probe_first) % s_probe_period;
 		probe_down = phase < 8;
 		if (phase == 0)
+		{
 			Console.WriteLn("PCEE2_PRESS down at run %llu, retro_run %llu", static_cast<unsigned long long>(s_probe_run),
 				static_cast<unsigned long long>(s_probe_total_runs));
+			s_probe_trace = 24;
+		}
 	}
 
 	for (u32 port = 0; port < static_cast<u32>(s_pad_map.size()); port++)
@@ -3430,6 +3441,7 @@ void retro_run(void)
 		{
 			if (vulkan && vulkan->set_image && ParallelGSRenderer::PresentFrame(vulkan, &pgs_width, &pgs_height))
 			{
+				s_probe_presented = true;
 				s_hw_frame_seen = true;
 				s_hw_last_width = pgs_width;
 				s_hw_last_height = pgs_height;
@@ -3447,6 +3459,7 @@ void retro_run(void)
 #endif
 		if (vulkan && vulkan->set_image && VKLibretro::ConsumeFrame(&frame))
 		{
+			s_probe_presented = true;
 			s_hw_frame_seen = true;
 			s_hw_last_width = frame.width;
 			s_hw_last_height = frame.height;
@@ -3542,6 +3555,23 @@ void retro_run(void)
 		}
 	}
 #endif
+	if (s_probe_trace > 0)
+	{
+		s_probe_trace--;
+#ifdef HAVE_PARALLEL_GS
+		if (s_parallel_gs)
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, serial %llu of newest %llu",
+				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
+				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented,
+				static_cast<unsigned long long>(g_pgs_probe_presented_serial), static_cast<unsigned long long>(g_pgs_probe_newest_serial));
+		else
+#endif
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d",
+				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
+				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented);
+	}
+	s_probe_presented = false;
+
 	// Readback path. Written as its own condition rather than an else on the blocks
 	// above, which compile out one by one as the renderers are switched off.
 	if (!HWRenderActive())
@@ -4007,6 +4037,7 @@ void Host::PumpMessagesOnCPUThread()
 	// frames arrive asynchronously via FramebufferReadbackCallback on the GS
 	// thread; nothing to read back here
 	static u32 s_frame_counter = 0;
+	s_probe_vm_frames.fetch_add(1, std::memory_order_relaxed);
 	if ((s_frame_counter++ % 120) == 0)
 	{
 		u32 width, height;
