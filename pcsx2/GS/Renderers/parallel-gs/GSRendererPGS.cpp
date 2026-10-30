@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include <atomic>
 // TEMP lag probe (Libretro.cpp)
-extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm;
+extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm, g_probe_gs_vsyncs, g_probe_publish_gsv;
 
 using namespace Vulkan;
 using namespace ParallelGS;
@@ -639,6 +639,7 @@ void GSRendererPGS::VSync(u32 field, bool registers_written)
 		{
 			std::lock_guard<std::mutex> lock(present_mutex);
 			g_probe_publish_vm.store(s_probe_vm_frames.load());
+			g_probe_publish_gsv.store(g_probe_gs_vsyncs.load());
 			// A frame retro_run never took will not be taken any more
 			if (published.serial && published.serial != consumed_serial)
 				released_serials.push_back(published.serial);

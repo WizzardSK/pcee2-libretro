@@ -18,7 +18,7 @@
 #include "libretro_vulkan.h"
 #include <atomic>
 // TEMP lag probe (Libretro.cpp)
-extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm;
+extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm, g_probe_gs_vsyncs, g_probe_publish_gsv;
 
 namespace VKLibretro
 {
@@ -206,6 +206,7 @@ namespace VKLibretro
 	{
 		std::unique_lock<std::mutex> lock(s_frame_mutex);
 		g_probe_publish_vm.store(s_probe_vm_frames.load());
+		g_probe_publish_gsv.store(g_probe_gs_vsyncs.load());
 		s_frame = frame;
 		s_frame_serial++;
 		// Block the GS thread until retro_run picks the frame up (or pacing

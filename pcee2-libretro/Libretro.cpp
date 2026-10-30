@@ -2703,6 +2703,11 @@ static int s_probe_trace = 0;
 std::atomic<u64> s_probe_vm_frames{0};
 // the VM frames done when the GS thread published the frame handed over last
 std::atomic<u64> g_probe_publish_vm{0};
+// TEMP lag probe: vsyncs the GS thread has taken (GSvsync), and how many it had
+// taken when it published the picture handed over - one less than "vm frames"
+// means the picture is a vsync behind the VM
+std::atomic<u64> g_probe_gs_vsyncs{0};
+std::atomic<u64> g_probe_publish_gsv{0};
 static bool s_probe_presented = false;
 #ifdef HAVE_PARALLEL_GS
 extern u64 g_pgs_probe_presented_serial, g_pgs_probe_newest_serial;
@@ -2760,6 +2765,23 @@ static void UpdateInput()
 				static_cast<unsigned long long>(s_probe_total_runs));
 			s_probe_trace = 24;
 		}
+	}
+
+	// TEMP lag probe: a real press of any of port 1's buttons traces the next
+	// 24 retro_runs too, so a count by frame advance can be laid over the log
+	{
+		static u32 s_probe_held = 0;
+		u32 held = 0;
+		for (const auto& [retro_id, ds2_bind] : button_map)
+			if (s_input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, retro_id))
+				held |= 1u << retro_id;
+		if ((held & ~s_probe_held) && s_probe_trace == 0)
+		{
+			Console.WriteLn("PCEE2_PRESS real press at retro_run %llu, vm frames %llu",
+				static_cast<unsigned long long>(s_probe_total_runs), static_cast<unsigned long long>(s_probe_vm_frames.load()));
+			s_probe_trace = 24;
+		}
+		s_probe_held = held;
 	}
 
 	for (u32 port = 0; port < static_cast<u32>(s_pad_map.size()); port++)
@@ -3562,17 +3584,19 @@ void retro_run(void)
 		s_probe_trace--;
 #ifdef HAVE_PARALLEL_GS
 		if (s_parallel_gs)
-			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu, serial %llu of newest %llu",
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu, gs vsyncs %llu at publish %llu, serial %llu of newest %llu",
 				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
 				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented,
 				static_cast<unsigned long long>(g_probe_publish_vm.load()),
+				static_cast<unsigned long long>(g_probe_gs_vsyncs.load()), static_cast<unsigned long long>(g_probe_publish_gsv.load()),
 				static_cast<unsigned long long>(g_pgs_probe_presented_serial), static_cast<unsigned long long>(g_pgs_probe_newest_serial));
 		else
 #endif
-			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu",
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu, gs vsyncs %llu at publish %llu",
 				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
 				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented,
-				static_cast<unsigned long long>(g_probe_publish_vm.load()));
+				static_cast<unsigned long long>(g_probe_publish_vm.load()),
+				static_cast<unsigned long long>(g_probe_gs_vsyncs.load()), static_cast<unsigned long long>(g_probe_publish_gsv.load()));
 	}
 	s_probe_presented = false;
 

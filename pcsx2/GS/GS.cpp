@@ -6,6 +6,7 @@
 #include "ImGui/FullscreenUI.h"
 #include "ImGui/ImGuiManager.h"
 #include "GS/GS.h"
+#include <atomic>
 #include "GS/GSCapture.h"
 #include "GS/GSExtra.h"
 #include "GS/GSGL.h"
@@ -607,8 +608,11 @@ void GSgifTransfer3(u8* mem, u32 size)
 	g_gs_renderer->Transfer<2>(const_cast<u8*>(mem), size);
 }
 
+extern std::atomic<u64> g_probe_gs_vsyncs; // TEMP lag probe (Libretro.cpp)
+
 void GSvsync(u32 field, bool registers_written)
 {
+	g_probe_gs_vsyncs.fetch_add(1, std::memory_order_relaxed);
 #ifdef HAVE_PARALLEL_GS
 	if (ParallelGSRenderer::IsOpen())
 	{
