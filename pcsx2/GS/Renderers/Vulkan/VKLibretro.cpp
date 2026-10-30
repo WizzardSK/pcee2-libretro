@@ -16,6 +16,9 @@
 // from the core frontend's bundled header.
 #define VK_NO_PROTOTYPES
 #include "libretro_vulkan.h"
+#include <atomic>
+// TEMP lag probe (Libretro.cpp)
+extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm;
 
 namespace VKLibretro
 {
@@ -202,6 +205,7 @@ namespace VKLibretro
 	void PublishFrame(const Frame& frame)
 	{
 		std::unique_lock<std::mutex> lock(s_frame_mutex);
+		g_probe_publish_vm.store(s_probe_vm_frames.load());
 		s_frame = frame;
 		s_frame_serial++;
 		// Block the GS thread until retro_run picks the frame up (or pacing

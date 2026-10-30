@@ -2700,7 +2700,9 @@ static u64 s_probe_total_runs = 0; // TEMP lag probe: every retro_run
 // TEMP lag probe: retro_runs still to trace after a press, VM frames done,
 // and whether this run handed a frame over
 static int s_probe_trace = 0;
-static std::atomic<u64> s_probe_vm_frames{0};
+std::atomic<u64> s_probe_vm_frames{0};
+// the VM frames done when the GS thread published the frame handed over last
+std::atomic<u64> g_probe_publish_vm{0};
 static bool s_probe_presented = false;
 #ifdef HAVE_PARALLEL_GS
 extern u64 g_pgs_probe_presented_serial, g_pgs_probe_newest_serial;
@@ -3560,15 +3562,17 @@ void retro_run(void)
 		s_probe_trace--;
 #ifdef HAVE_PARALLEL_GS
 		if (s_parallel_gs)
-			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, serial %llu of newest %llu",
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu, serial %llu of newest %llu",
 				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
 				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented,
+				static_cast<unsigned long long>(g_probe_publish_vm.load()),
 				static_cast<unsigned long long>(g_pgs_probe_presented_serial), static_cast<unsigned long long>(g_pgs_probe_newest_serial));
 		else
 #endif
-			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d",
+			Console.WriteLn("PCEE2_PRESS trace: retro_run %llu, audio_ahead %d, got_frame %d, vm frames %llu, presented %d, published at vm %llu",
 				static_cast<unsigned long long>(s_probe_total_runs), audio_ahead, got_frame,
-				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented);
+				static_cast<unsigned long long>(s_probe_vm_frames.load()), s_probe_presented,
+				static_cast<unsigned long long>(g_probe_publish_vm.load()));
 	}
 	s_probe_presented = false;
 
