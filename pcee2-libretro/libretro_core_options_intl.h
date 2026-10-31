@@ -2352,47 +2352,47 @@ struct retro_core_options_v2 options_ca = {
 #define CATEGORY_AUDIO_LABEL_CHS "音频"
 #define CATEGORY_AUDIO_INFO_0_CHS "声音输出与缓冲设置。"
 #define CATEGORY_DEBUG_LABEL_CHS "调试"
-#define CATEGORY_DEBUG_INFO_0_CHS NULL
+#define CATEGORY_DEBUG_INFO_0_CHS "用于报告软件缺陷/Bug 的调试工具。"
 #define PCSX2_BIOS_LABEL_CHS NULL
 #define PCSX2_BIOS_INFO_0_CHS "使用的 BIOS 镜像文件，读取自 <system>/pcsx2/bios。需要重启核心生效。"
 #define PCSX2_FAST_BOOT_LABEL_CHS "快速启动"
 #define PCSX2_FAST_BOOT_INFO_0_CHS "跳过 BIOS 开机动画。需要重启核心生效。"
 #define PCSX2_RENDERER_LABEL_CHS "渲染器"
-#define PCSX2_RENDERER_INFO_0_CHS NULL
+#define PCSX2_RENDERER_INFO_0_CHS "硬件渲染器 API 或软件渲染器。切换至软件渲染器或从其切出可即时生效；在不同硬件 API 之间切换则需重新启动游戏内容方可生效。paraLLEl-GS 需要 RetroArch 的 Vulkan 视频驱动，在重新启动内容后生效，且不会绘制光枪准星。"
 #define OPTION_VAL_VULKAN_CHS "Vulkan (硬件加速)"
 #define OPTION_VAL_PARALLEL_GS_CHS NULL
 #define OPTION_VAL_OPENGL_CHS NULL
-#define OPTION_VAL_METAL_CHS NULL
+#define OPTION_VAL_METAL_CHS "Metal (硬件渲染，已同步至前端)"
 #define OPTION_VAL_SOFTWARE_CHS "软件"
-#define PCSX2_PGS_SUPER_SAMPLING_LABEL_CHS NULL
-#define PCSX2_PGS_SUPER_SAMPLING_INFO_0_CHS NULL
+#define PCSX2_PGS_SUPER_SAMPLING_LABEL_CHS "paraLLEl-GS 超采样"
+#define PCSX2_PGS_SUPER_SAMPLING_INFO_0_CHS "仅限 paraLLEl-GS。超采样抗锯齿：与分辨率放大不同，3D 画面保持与叠加在其之上的 2D 画面相同的分辨率。2 倍高分辨率扫描输出至少需要 4 倍有序采样；4 倍扫描输出需要 16 倍有序采样；完整场高则需要 32 倍有序采样。即时生效。"
 #define OPTION_VAL_0_CHS "原生"
 #define OPTION_VAL_1_CHS NULL
-#define OPTION_VAL_2_CHS NULL
-#define OPTION_VAL_3_CHS NULL
-#define OPTION_VAL_4_CHS NULL
-#define OPTION_VAL_5_CHS NULL
-#define OPTION_VAL_6_CHS NULL
-#define OPTION_VAL_7_CHS NULL
-#define PCSX2_PGS_HIGH_RES_SCANOUT_LABEL_CHS NULL
-#define PCSX2_PGS_HIGH_RES_SCANOUT_INFO_0_CHS NULL
+#define OPTION_VAL_2_CHS "4x SSAA (稀疏网格)"
+#define OPTION_VAL_3_CHS "4x SSAA (有序，支持高分辨率)"
+#define OPTION_VAL_4_CHS "8x SSAA (有序，支持高分辨率)"
+#define OPTION_VAL_5_CHS "16x SSAA (有序，支持高分辨率)"
+#define OPTION_VAL_6_CHS "16x SSAA (有序，支持高分辨率 4x)"
+#define OPTION_VAL_7_CHS "32x SSAA (有序，支持高分辨率 4x 完整)"
+#define PCSX2_PGS_HIGH_RES_SCANOUT_LABEL_CHS "paraLLEl-GS 高分辨率扫描输出 (实验性)"
+#define PCSX2_PGS_HIGH_RES_SCANOUT_INFO_0_CHS "仅限 paraLLEl-GS。通过超采样以高于原生分辨率的方式进行扫描输出（2 倍：640x448 变为 1280x896，4 倍：2560x1792）。并非所有游戏都兼容此功能。抗锯齿 4 倍模式会根据相邻像素重建每个像素（画面更柔和、边缘更细）；完整场高可为每次渲染一个场的游戏提供完整的纵向高度。即时生效。"
 #define OPTION_VAL_1_PCSX2_PGS_HIGH_RES_SCANOUT_CHS NULL
 #define OPTION_VAL_2_PCSX2_PGS_HIGH_RES_SCANOUT_CHS NULL
-#define OPTION_VAL_3_PCSX2_PGS_HIGH_RES_SCANOUT_CHS NULL
-#define OPTION_VAL_4_PCSX2_PGS_HIGH_RES_SCANOUT_CHS NULL
-#define OPTION_VAL_5_PCSX2_PGS_HIGH_RES_SCANOUT_CHS NULL
-#define PCSX2_PGS_SUPER_SAMPLE_TEXTURES_LABEL_CHS NULL
-#define PCSX2_PGS_SUPER_SAMPLE_TEXTURES_INFO_0_CHS NULL
-#define PCSX2_PGS_SHARP_BACKBUFFER_LABEL_CHS NULL
-#define PCSX2_PGS_SHARP_BACKBUFFER_INFO_0_CHS NULL
-#define PCSX2_PGS_DISABLE_MIPMAPS_LABEL_CHS NULL
-#define PCSX2_PGS_DISABLE_MIPMAPS_INFO_0_CHS NULL
+#define OPTION_VAL_3_PCSX2_PGS_HIGH_RES_SCANOUT_CHS "4 x (抗锯齿)"
+#define OPTION_VAL_4_PCSX2_PGS_HIGH_RES_SCANOUT_CHS "4 x (完整字段高度)"
+#define OPTION_VAL_5_PCSX2_PGS_HIGH_RES_SCANOUT_CHS "4x (抗锯齿，完整字段高度)"
+#define PCSX2_PGS_SUPER_SAMPLE_TEXTURES_LABEL_CHS "paraLLEl-GS 超采样纹理 (实验性)"
+#define PCSX2_PGS_SUPER_SAMPLE_TEXTURES_INFO_0_CHS "仅限 paraLLEl-GS。将超采样结果反馈给读取图像回读的特效（如模糊、后处理）。可能对高分辨率扫描输出有帮助；但也可能会引起画面故障。即时生效。"
+#define PCSX2_PGS_SHARP_BACKBUFFER_LABEL_CHS "paraLLEl-GS 锐利后备缓冲区 (实验性)"
+#define PCSX2_PGS_SHARP_BACKBUFFER_INFO_0_CHS "仅限 paraLLEl-GS。用于规避那些在图像扫描输出前添加额外位块传输 (blit) 通道的游戏，在这些游戏中可使画面更清晰。即时生效。"
+#define PCSX2_PGS_DISABLE_MIPMAPS_LABEL_CHS "paraLLEl-GS 强制纹理 LOD 0"
+#define PCSX2_PGS_DISABLE_MIPMAPS_INFO_0_CHS "仅限 paraLLEl-GS。跳过多级渐远纹理 (Mipmapping) 并始终采样全尺寸纹理：画面更清晰，但会导致少数游戏渲染错误。即时生效。"
 #define PCSX2_UPSCALE_MULTIPLIER_LABEL_CHS "内部分辨率"
 #define PCSX2_UPSCALE_MULTIPLIER_INFO_0_CHS "硬件渲染器的内部渲染分辨率倍率。同时会缩放输出帧缓冲区。即时生效。"
-#define OPTION_VAL_1_PCSX2_UPSCALE_MULTIPLIER_CHS NULL
-#define OPTION_VAL_2_PCSX2_UPSCALE_MULTIPLIER_CHS NULL
-#define OPTION_VAL_3_PCSX2_UPSCALE_MULTIPLIER_CHS NULL
-#define OPTION_VAL_4_PCSX2_UPSCALE_MULTIPLIER_CHS NULL
+#define OPTION_VAL_1_PCSX2_UPSCALE_MULTIPLIER_CHS "1倍原生 (640x480)"
+#define OPTION_VAL_2_PCSX2_UPSCALE_MULTIPLIER_CHS "2倍原生 (1280x960)"
+#define OPTION_VAL_3_PCSX2_UPSCALE_MULTIPLIER_CHS "3倍原生 (1920x1440)"
+#define OPTION_VAL_4_PCSX2_UPSCALE_MULTIPLIER_CHS "4倍原生 (2560x1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_CHS "硬件数据回读模式"
 #define PCSX2_HW_DOWNLOAD_MODE_INFO_0_CHS "处理游戏读取已渲染画面数据（如《GT赛车3》热浪效果、拍照模式等）时的 GPU->CPU 数据回读方式。“精确 (Accurate)”会在贴图渲染型 GPU 上暂停整个渲染管线；“不同步 (Unsynchronized)”不暂停管线直接返回旧数据（大幅提速，但可能使对应特效异常）；“禁用 (Disabled)”则直接跳过回读。"
 #define OPTION_VAL_ACCURATE_CHS "精确（默认）"
@@ -2406,8 +2406,8 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_HIGH_CHS "高"
 #define OPTION_VAL_FULL_CHS "完全（较慢）"
 #define OPTION_VAL_MAXIMUM_CHS "极限（非常慢）"
-#define PCSX2_ROV_LABEL_CHS NULL
-#define PCSX2_ROV_INFO_0_CHS NULL
+#define PCSX2_ROV_LABEL_CHS "光栅化器顺序视图 (ROV) (实验性)"
+#define PCSX2_ROV_INFO_0_CHS "允许混合与深度特效在着色器中直接读取渲染目标，而无需通过纹理屏障。在 Apple GPU (MoltenVK) 上，每个纹理屏障都会拆分渲染通道，开销极高；在 GPU 支持的情况下，此选项可避免这种情况。可能会导致图形渲染故障。默认关闭，与独立版 PCSX2 一致。"
 #define PCSX2_TEXTURE_FILTERING_LABEL_CHS "纹理过滤"
 #define PCSX2_TEXTURE_FILTERING_INFO_0_CHS "“双线性 (PS2)”模式还原实机效果；“强制”模式则对所有纹理进行平滑处理。"
 #define OPTION_VAL_NEAREST_CHS "最邻"
@@ -2423,19 +2423,19 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_8_CHS NULL
 #define OPTION_VAL_16_CHS NULL
 #define PCSX2_DITHERING_LABEL_CHS "抖动处理 (Dithering)"
-#define PCSX2_DITHERING_INFO_0_CHS NULL
+#define PCSX2_DITHERING_INFO_0_CHS "未缩放（默认）可复制 PS2 的抖动效果；关闭此项可以减少高分辨率下的色带瑕疵 (banding artifacts)。“强制 32 位”（仅限硬件渲染器）可在保持完全 32 位精度的同时保留 16 位色彩，且不进行抖动，但在某些游戏中会导致画面渲染错误。"
 #define OPTION_VAL_1_PCSX2_DITHERING_CHS "已缩放 (Scaled)"
 #define OPTION_VAL_2_PCSX2_DITHERING_CHS "未缩放（默认）"
-#define OPTION_VAL_3_PCSX2_DITHERING_CHS NULL
+#define OPTION_VAL_3_PCSX2_DITHERING_CHS "强制32位"
 #define PCSX2_MIPMAPPING_LABEL_CHS "硬件 Mipmap 多级纹理映射"
 #define PCSX2_DEINTERLACE_MODE_LABEL_CHS "去隔行扫描 (Deinterlacing)"
 #define PCSX2_DEINTERLACE_MODE_INFO_0_CHS "“自动”将根据游戏数据库 (GameDB) 为每个游戏自动推荐最合适的去隔行模式。"
 #define OPTION_VAL_2_PCSX2_DEINTERLACE_MODE_CHS "织合模式 (Weave - 顶场优先 TFF)"
 #define OPTION_VAL_3_PCSX2_DEINTERLACE_MODE_CHS "织合模式 (Weave - 底场优先 BFF)"
 #define OPTION_VAL_4_PCSX2_DEINTERLACE_MODE_CHS "逐行扫描/跳场 (Bob - 顶场优先 TFF)"
-#define OPTION_VAL_5_PCSX2_DEINTERLACE_MODE_CHS NULL
-#define OPTION_VAL_6_PCSX2_DEINTERLACE_MODE_CHS NULL
-#define OPTION_VAL_7_PCSX2_DEINTERLACE_MODE_CHS NULL
+#define OPTION_VAL_5_PCSX2_DEINTERLACE_MODE_CHS "Bob（底场优先，BFF）"
+#define OPTION_VAL_6_PCSX2_DEINTERLACE_MODE_CHS "混合（顶场优先，TFF）"
+#define OPTION_VAL_7_PCSX2_DEINTERLACE_MODE_CHS "混合（底场优先，BFF）"
 #define OPTION_VAL_8_PCSX2_DEINTERLACE_MODE_CHS "自适应 (Adaptive - 顶场优先 TFF)"
 #define OPTION_VAL_9_CHS "自适应 (Adaptive - 底场优先 BFF)"
 #define PCSX2_FXAA_LABEL_CHS "FXAA 快速近似抗锯齿"
@@ -2479,8 +2479,8 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_20FF20_CHS "绿色"
 #define OPTION_VAL_FFC020_CHS "蓝色"
 #define OPTION_VAL_20E0FF_CHS "黄色"
-#define PCSX2_USB_MOUSE_LABEL_CHS NULL
-#define PCSX2_USB_MOUSE_INFO_0_CHS NULL
+#define PCSX2_USB_MOUSE_LABEL_CHS "USB 鼠标"
+#define PCSX2_USB_MOUSE_INFO_0_CHS "将 USB 鼠标连接至 USB 端口，其移动由对应手柄端口的前端鼠标控制（USB 端口 1 对应 1 号玩家）。适用于支持鼠标的游戏，如《24小时反恐 (Police 24/7)》。若该端口已配置光枪，则保持光枪不变。需重新启动生效。"
 #define PCSX2_RUMBLE_LABEL_CHS "手柄震动"
 #define PCSX2_RUMBLE_INFO_0_CHS "将 DualShock 2 手柄的震动信号转发至前端的震动支持系统。"
 #define PCSX2_AXIS_SCALE_LABEL_CHS "摇杆轴向缩放"
@@ -2491,7 +2491,7 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_150_PCSX2_AXIS_SCALE_CHS NULL
 #define PCSX2_AXIS_DEADZONE_LABEL_CHS "模拟输入死区"
 #define PCSX2_AXIS_DEADZONE_INFO_0_CHS "在模拟手柄内部应用的摇杆死区，该死区会叠加在前端设定的死区之上。"
-#define OPTION_VAL_0_PCSX2_AXIS_DEADZONE_CHS NULL
+#define OPTION_VAL_0_PCSX2_AXIS_DEADZONE_CHS "0% (默认)"
 #define OPTION_VAL_5_PCSX2_AXIS_DEADZONE_CHS NULL
 #define OPTION_VAL_10_CHS NULL
 #define OPTION_VAL_15_CHS NULL
@@ -2542,8 +2542,8 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_CHS "槽位 1 记忆卡镜像"
 #define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_CHS "从 <system>/pcsx2/memcards 目录中选择现有的 .ps2 记忆卡文件。更改会在游戏运行期间矢量立即生效。"
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_CHS "槽位 2 记忆卡镜像"
-#define PCSX2_GSDUMP_TRIGGER_LABEL_CHS NULL
-#define PCSX2_GSDUMP_TRIGGER_INFO_0_CHS NULL
+#define PCSX2_GSDUMP_TRIGGER_LABEL_CHS "GS 转储触发器文件"
+#define PCSX2_GSDUMP_TRIGGER_INFO_0_CHS "启用后，在 <system>/pcsx2 目录下创建一个名为 gsdump.trigger 的文件，用于记录其输出帧的 GS 转储（若文件为空则记录 2 帧）随后该触发文件会被自动删除；转储文件及该帧的 PNG 截图将保存在其旁。GS 转储文件 (.gs) 可作为游戏内容加载，并在任意渲染器上回放相同的画面帧，用于向开发团队反馈渲染器缺陷/Bug。"
 
 struct retro_core_option_v2_category option_cats_chs[] = {
 	{"system", CATEGORY_SYSTEM_LABEL_CHS, CATEGORY_SYSTEM_INFO_0_CHS},
@@ -4723,10 +4723,10 @@ struct retro_core_options_v2 options_da = {
 #define OPTION_VAL_8_DE NULL
 #define OPTION_VAL_16_DE NULL
 #define PCSX2_DITHERING_LABEL_DE NULL
-#define PCSX2_DITHERING_INFO_0_DE NULL
+#define PCSX2_DITHERING_INFO_0_DE "„Unskaliert“ (Standard) bildet das Dithering der PS2 nach; „Aus“ kann bei hohen Auflösungen Banding-Artefakte reduzieren. „32 Bit erzwingen“ (Hardware-Renderer) erhält 16-Bit-Farben mit voller 32-Bit-Präzision und ohne Dithering, führt jedoch bei einigen Spielen zu Darstellungsfehlern."
 #define OPTION_VAL_1_PCSX2_DITHERING_DE "Skaliert"
 #define OPTION_VAL_2_PCSX2_DITHERING_DE "Nicht skaliert (Standard)"
-#define OPTION_VAL_3_PCSX2_DITHERING_DE NULL
+#define OPTION_VAL_3_PCSX2_DITHERING_DE "32 Bit erzwingen"
 #define PCSX2_MIPMAPPING_LABEL_DE "Hardware-Mipmapping"
 #define PCSX2_DEINTERLACE_MODE_LABEL_DE NULL
 #define PCSX2_DEINTERLACE_MODE_INFO_0_DE "Verwendet automatisch den von GameDB für das jeweilige Spiel empfohlenen Modus."
@@ -6492,7 +6492,7 @@ struct retro_core_options_v2 options_eo = {
 #define CATEGORY_AUDIO_LABEL_ES NULL
 #define CATEGORY_AUDIO_INFO_0_ES "Salida y búferes de sonido."
 #define CATEGORY_DEBUG_LABEL_ES "Depuración"
-#define CATEGORY_DEBUG_INFO_0_ES NULL
+#define CATEGORY_DEBUG_INFO_0_ES "Herramientas para informar de fallos."
 #define PCSX2_BIOS_LABEL_ES NULL
 #define PCSX2_BIOS_INFO_0_ES "Selecciona la imagen a usar de la BIOS ubicada en <system>/pcsx2/bios. Es necesario reiniciar."
 #define PCSX2_FAST_BOOT_LABEL_ES "Arranque rápido"
@@ -6502,7 +6502,7 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_VULKAN_ES NULL
 #define OPTION_VAL_PARALLEL_GS_ES NULL
 #define OPTION_VAL_OPENGL_ES NULL
-#define OPTION_VAL_METAL_ES NULL
+#define OPTION_VAL_METAL_ES "Metal (Hardware, copiado al front-end)"
 #define OPTION_VAL_SOFTWARE_ES NULL
 #define PCSX2_PGS_SUPER_SAMPLING_LABEL_ES "Supermuestreo de paraLLEl-GS"
 #define PCSX2_PGS_SUPER_SAMPLING_INFO_0_ES "Solo para paraLLEl-GS. Suavizado de bordes por supermuestreo, a diferencia de los reescalados, los gráficos 3D conservarán la misma resolución que los gráficos 2D que haya superpuestos. Para el doble de resolución se necesita mínimo × 4 ordenado, para el cuádruple se necesita × 16 ordenado; para toda la altura del campo se necesita × 32 ordenado. Esta opción se aplicará al instante."
@@ -6546,8 +6546,8 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_HIGH_ES "Alta"
 #define OPTION_VAL_FULL_ES "Completa (lenta)"
 #define OPTION_VAL_MAXIMUM_ES "Máxima (muy lenta)"
-#define PCSX2_ROV_LABEL_ES NULL
-#define PCSX2_ROV_INFO_0_ES NULL
+#define PCSX2_ROV_LABEL_ES "Vista ordenada del rasterizador (experimental)"
+#define PCSX2_ROV_INFO_0_ES "Permite que los efectos de mezcla y profundidad puedan leer el objetivo de renderizado del shader en vez de tener que pasar por una barrera de texturas. En el caso de las GPU de Apple (MoltenVK), toda barrera de texturas fragmentará la pasada de renderizado, lo que consume más recursos; esto evita esa fragmentación si la GPU lo admite. Podría provocar fallos gráficos. Esta opción está desactivada por defecto, al igual que en la aplicación independiente."
 #define PCSX2_TEXTURE_FILTERING_LABEL_ES "Filtrado de texturas"
 #define PCSX2_TEXTURE_FILTERING_INFO_0_ES "Bilineal (estilo PS2) replica el filtro de la consola, los modos forzados suavizarán todas las texturas."
 #define OPTION_VAL_NEAREST_ES "Vecino más próximo"
@@ -6563,10 +6563,10 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_8_ES "× 8"
 #define OPTION_VAL_16_ES "× 16"
 #define PCSX2_DITHERING_LABEL_ES "Tramado"
-#define PCSX2_DITHERING_INFO_0_ES NULL
+#define PCSX2_DITHERING_INFO_0_ES "Sin escalar (predeterminado) replicará el tramado de PS2, desactivar esta opción podría reducir los artefactos de bandas de color en resoluciones altas. Forzar 32 bits (solo para renderizadores por hardware) mostrará los colores a 16 bits con la precisión completa a 32 bits y sin tramar, pero provocará fallos de renderizado en algunos juegos."
 #define OPTION_VAL_1_PCSX2_DITHERING_ES "Escalado"
 #define OPTION_VAL_2_PCSX2_DITHERING_ES "Sin escalar (predeterminado)"
-#define OPTION_VAL_3_PCSX2_DITHERING_ES NULL
+#define OPTION_VAL_3_PCSX2_DITHERING_ES "Forzar 32 bits"
 #define PCSX2_MIPMAPPING_LABEL_ES "Mipmapping por hardware"
 #define PCSX2_DEINTERLACE_MODE_LABEL_ES "Desentrelazado"
 #define PCSX2_DEINTERLACE_MODE_INFO_0_ES "El valor automático utilizará el modo recomendado para cada juego por la base de datos."
@@ -6682,8 +6682,8 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_ES "Memory Card de la ranura 1"
 #define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_ES "Selecciona una Memory Card ya existente en formato .ps2 ubicada en <system>/pcsx2/memcards. Los cambios con un contenido en marcha se aplicarán inmediatamente."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_ES "Memory Card de la ranura 2"
-#define PCSX2_GSDUMP_TRIGGER_LABEL_ES NULL
-#define PCSX2_GSDUMP_TRIGGER_INFO_0_ES NULL
+#define PCSX2_GSDUMP_TRIGGER_LABEL_ES "Archivo desencadenador de volcado del GS"
+#define PCSX2_GSDUMP_TRIGGER_INFO_0_ES "Al activar esta opción, un archivo llamado gsdump.trigger guardado en <system>/pcsx2 registrará un volcado del GS con los fotogramas indicados (2 si se deja en blanco) y se eliminará; irá acompañado del volcado y de una imagen PNG del fotograma. Un volcado del GS (.gs) se cargará como si fuese un contenido y reproducirá los mismos fotogramas en cualquier renderizador de cara a informar de fallos de los renderizadores."
 
 struct retro_core_option_v2_category option_cats_es[] = {
 	{"system", CATEGORY_SYSTEM_LABEL_ES, CATEGORY_SYSTEM_INFO_0_ES},
@@ -8403,10 +8403,10 @@ struct retro_core_options_v2 options_fr = {
 #define OPTION_VAL_8_GA NULL
 #define OPTION_VAL_16_GA NULL
 #define PCSX2_DITHERING_LABEL_GA "Díodán"
-#define PCSX2_DITHERING_INFO_0_GA NULL
+#define PCSX2_DITHERING_INFO_0_GA "Déanann neamhscálaithe (réamhshocraithe) macasamhlú ar dhíthriú PS2; is féidir le múchadh artifactanna bandála a laghdú ag ardtaifigh. Coinníonn fórsa 32-giotán (rindreálaithe crua-earraí) dathanna 16-giotán ag cruinneas iomlán 32-giotán, gan dhíthriú, ach briseann sé an rindreáil i roinnt cluichí."
 #define OPTION_VAL_1_PCSX2_DITHERING_GA "Scálaithe"
 #define OPTION_VAL_2_PCSX2_DITHERING_GA "Gan scálú (Réamhshocrú)"
-#define OPTION_VAL_3_PCSX2_DITHERING_GA NULL
+#define OPTION_VAL_3_PCSX2_DITHERING_GA "Cuir i bhfeidhm 32 giotán"
 #define PCSX2_MIPMAPPING_LABEL_GA "Mipmapáil crua-earraí"
 #define PCSX2_DEINTERLACE_MODE_LABEL_GA "Dí-idirfhíseáil"
 #define PCSX2_DEINTERLACE_MODE_INFO_0_GA "Úsáideann uathoibríoch an modh atá molta ag GameDB in aghaidh an chluiche."
@@ -16606,9 +16606,9 @@ struct retro_core_options_v2 options_sr = {
 #define CATEGORY_GRAPHICS_LABEL_SV "Grafik"
 #define CATEGORY_GRAPHICS_INFO_0_SV "Renderare, upplösning och bildkvalitet."
 #define CATEGORY_PATCHES_LABEL_SV "Patchar"
-#define CATEGORY_PATCHES_INFO_0_SV "Inbyggda spelpatchar, till exempel bredbild och avstängd sammanflätning, samt fusk."
+#define CATEGORY_PATCHES_INFO_0_SV "Inbyggda spelpatchar (bredbild, avstängd sammanflätning) och fusk."
 #define CATEGORY_PERFORMANCE_LABEL_SV "Prestanda"
-#define CATEGORY_PERFORMANCE_INFO_0_SV "Hastighetshack. Kan förstöra spel."
+#define CATEGORY_PERFORMANCE_INFO_0_SV "Hastighetsoptimeringar. Kan göra att spel slutar fungera."
 #define CATEGORY_AUDIO_LABEL_SV "Ljud"
 #define CATEGORY_AUDIO_INFO_0_SV "Ljudutdata och buffring."
 #define CATEGORY_DEBUG_LABEL_SV "Felsökning"
@@ -16623,7 +16623,7 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_PARALLEL_GS_SV NULL
 #define OPTION_VAL_OPENGL_SV "OpenGL (hårdvara)"
 #define OPTION_VAL_METAL_SV "Metal (maskinvara, kopierat till användargränssnittet)"
-#define OPTION_VAL_SOFTWARE_SV "Mjukvara"
+#define OPTION_VAL_SOFTWARE_SV "Programvara"
 #define PCSX2_PGS_SUPER_SAMPLING_LABEL_SV "paraLLEl-GS-supersampling"
 #define PCSX2_PGS_SUPER_SAMPLING_INFO_0_SV "Endast paraLLEl-GS. Supersamplad kantutjämning: till skillnad från uppskalning behåller 3D samma upplösning som 2D ovanpå. 2× högupplöst avläsning behöver minst 4× ordnad; 4× behöver 16× ordnad; full fälthöjd behöver 32× ordnad. Tillämpas direkt."
 #define OPTION_VAL_0_SV "Inbyggd"
@@ -16646,47 +16646,47 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_PGS_SHARP_BACKBUFFER_LABEL_SV "paraLLEl-GS-skarp bakbuffert (experimentell)"
 #define PCSX2_PGS_SHARP_BACKBUFFER_INFO_0_SV "Endast paraLLEl-GS. Kringgår spel som lägger till extra blit-pass före bildens avläsning, vilket kan göra bilden skarpare i dessa spel. Tillämpas direkt."
 #define PCSX2_PGS_DISABLE_MIPMAPS_LABEL_SV "paraLLEl-GS: tvinga textur-LOD0"
-#define PCSX2_PGS_DISABLE_MIPMAPS_INFO_0_SV "Endast paraLLEl-GS. Hoppar över mipmapping och samplar alltid texturen i full storlek: skarpare, men några spel ritas fel. Tillämpas direkt."
+#define PCSX2_PGS_DISABLE_MIPMAPS_INFO_0_SV "Endast paraLLEl-GS. Hoppar över mipmapping och läser alltid av texturen i full storlek: skarpare, men några spel ritas fel. Tillämpas direkt."
 #define PCSX2_UPSCALE_MULTIPLIER_LABEL_SV "Intern upplösning"
-#define PCSX2_UPSCALE_MULTIPLIER_INFO_0_SV "Multiplikator för intern renderingsupplösning för hårdvarurenderaren. Skalar även utdataframebufferten. Tillämpas direkt."
+#define PCSX2_UPSCALE_MULTIPLIER_INFO_0_SV "Multiplikator för hårdvarurenderarens interna upplösning. Skalar även utdataframebufferten. Tillämpas direkt."
 #define OPTION_VAL_1_PCSX2_UPSCALE_MULTIPLIER_SV "1× ursprunglig (640×480)"
 #define OPTION_VAL_2_PCSX2_UPSCALE_MULTIPLIER_SV "2× ursprunglig (1280×960)"
 #define OPTION_VAL_3_PCSX2_UPSCALE_MULTIPLIER_SV "3× ursprunglig (1920×1440)"
 #define OPTION_VAL_4_PCSX2_UPSCALE_MULTIPLIER_SV "4× ursprunglig (2560×1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_SV "Hårdvarunedladdningsläge"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_SV "Hur återläsningar från GPU till CPU hanteras när ett spel läser renderade data (värmedaller i GT3, fotolägen …). Noggrann stoppar hela bearbetningskedjan på blockrenderande GPU:er. Osynkroniserad returnerar inaktuella data utan att stanna, vilket ger en stor hastighetsvinst men kan ge fel i dessa effekter. Av hoppar över dem."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_SV "Hur GPU->CPU-återläsningar hanteras när ett spel läser renderade data (värmedaller i GT3, fotolägen...). Noggrann stoppar hela bearbetningskedjan på blockrenderande GPU:er. Osynkroniserad returnerar inaktuella data utan att stanna, vilket ger en stor hastighetsvinst men kan ge fel i dessa effekter. Av hoppar över dem."
 #define OPTION_VAL_ACCURATE_SV "Noggrann (standard)"
 #define OPTION_VAL_UNSYNCHRONIZED_SV "Osynkroniserad (snabb)"
 #define OPTION_VAL_DISABLED_SV "Inaktiverad (snabbast)"
 #define PCSX2_BLENDING_ACCURACY_LABEL_SV "Blandningsnoggrannhet"
-#define PCSX2_BLENDING_ACCURACY_INFO_0_SV "Högre nivåer emulerar fler PS2-blandningseffekter korrekt, till en GPU-kostnad."
+#define PCSX2_BLENDING_ACCURACY_INFO_0_SV "Högre nivåer emulerar fler PS2-blandningseffekter korrekt, på bekostnad av GPU-prestanda."
 #define OPTION_VAL_MINIMUM_SV "Minsta"
 #define OPTION_VAL_BASIC_SV "Grundläggande (rekommenderas)"
-#define OPTION_VAL_MEDIUM_SV NULL
+#define OPTION_VAL_MEDIUM_SV "Medel"
 #define OPTION_VAL_HIGH_SV "Hög"
 #define OPTION_VAL_FULL_SV "Fullständig (långsam)"
 #define OPTION_VAL_MAXIMUM_SV "Maximal (mycket långsam)"
 #define PCSX2_ROV_LABEL_SV "Rasterordningsvyer (experimentellt)"
-#define PCSX2_ROV_INFO_0_SV "Låter blandnings- och djupeffekter läsa renderingsmålet i shadern i stället för via en texturbarriär. På Apple-GPU:er (MoltenVK) delar varje texturbarriär upp renderingspasset, vilket är kostsamt. Detta undviker dem där GPU:n har stöd för det. Kan orsaka grafikfel. Av som standard, precis som i fristående PCSX2."
+#define PCSX2_ROV_INFO_0_SV "Låter blandnings- och djupeffekter läsa renderingsmålet i shadern i stället för via en texturbarriär. På GPU:er från Apple (MoltenVK) delar varje texturbarriär upp renderingspasset, vilket är kostsamt. Detta undviker dem där GPU:n har stöd för det. Kan orsaka grafikfel. Av som standard, precis som i fristående PCSX2."
 #define PCSX2_TEXTURE_FILTERING_LABEL_SV "Texturfiltrering"
 #define PCSX2_TEXTURE_FILTERING_INFO_0_SV "Bilinjär (PS2) efterliknar konsolen; tvingade lägen mjukar ut alla texturer."
 #define OPTION_VAL_NEAREST_SV "Närmsta"
 #define OPTION_VAL_BILINEAR_PS2_SV "Bilinjär (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_SV "Bilinjär (tvingad)"
-#define OPTION_VAL_BILINEAR_FORCED_SPRITE_SV "Bilinjär (tvingad, utom sprites)"
+#define OPTION_VAL_BILINEAR_FORCED_SPRITE_SV "Bilinjär (tvingad, utom bildobjekt)"
 #define PCSX2_TRILINEAR_FILTERING_LABEL_SV "Trilinjära filter"
 #define OPTION_VAL_AUTO_SV "Automatisk (standard)"
-#define OPTION_VAL_PS2_SV "Trilinjära (PS2)"
-#define OPTION_VAL_FORCED_SV "Trilinjära (tvingad)"
+#define OPTION_VAL_PS2_SV "Trilinjär (PS2)"
+#define OPTION_VAL_FORCED_SV "Trilinjär (tvingad)"
 #define PCSX2_ANISOTROPIC_FILTERING_LABEL_SV "Anisotropisk filtrering"
-#define PCSX2_ANISOTROPIC_FILTERING_INFO_0_SV "Minskar texturaliasing vid branta vinklar."
+#define PCSX2_ANISOTROPIC_FILTERING_INFO_0_SV "Minskar kantartefakter i texturer vid branta vinklar."
 #define OPTION_VAL_8_SV NULL
 #define OPTION_VAL_16_SV NULL
 #define PCSX2_DITHERING_LABEL_SV NULL
-#define PCSX2_DITHERING_INFO_0_SV NULL
+#define PCSX2_DITHERING_INFO_0_SV "Oskalad (standard) efterliknar PS2:s dithering. Av kan minska bandningsartefakter vid höga upplösningar. Tvinga 32 bitar (hårdvarurenderare) behåller 16 bitars färger med full 32 bitars precision utan dithering, men kan göra att vissa spel renderas fel."
 #define OPTION_VAL_1_PCSX2_DITHERING_SV "Skalad"
 #define OPTION_VAL_2_PCSX2_DITHERING_SV "Oskalad (standard)"
-#define OPTION_VAL_3_PCSX2_DITHERING_SV NULL
+#define OPTION_VAL_3_PCSX2_DITHERING_SV "Tvinga 32 bitar"
 #define PCSX2_MIPMAPPING_LABEL_SV "Hårdvarumipmappning"
 #define PCSX2_DEINTERLACE_MODE_LABEL_SV "Avsammanflätning"
 #define PCSX2_DEINTERLACE_MODE_INFO_0_SV "Automatisk använder det läge som GameDB rekommenderar för varje spel."
@@ -16710,11 +16710,11 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_150_SV NULL
 #define OPTION_VAL_200_SV NULL
 #define PCSX2_FRAME_LIMITER_LABEL_SV "Bildfrekvensbegränsare"
-#define PCSX2_FRAME_LIMITER_INFO_0_SV "Vad som håller emuleraren i full hastighet. Gränssnitt låter RetroArch styra takten, som bromsar genom att låta kärnan vänta på ljudet den lämnar över. Intern använder i stället PCSX2:s egen begränsare – för en enhet där väntan aldrig sker eftersom ljuddrivrutinen får buffertunderskridning i stället för att blockera. Emulerarens egen hastighetsvariation når då skärmen som ojämna bildrutetider."
+#define PCSX2_FRAME_LIMITER_INFO_0_SV "Vad som håller emuleraren i full hastighet. Gränssnitt låter RetroArch styra takten, som bromsar genom att låta kärnan vänta på ljudet den lämnar över. Intern använder i stället PCSX2:s egen begränsare - för en enhet där väntan aldrig sker eftersom ljuddrivrutinen får buffertunderskridning i stället för att blockera. Emulerarens egen hastighetsvariation når då skärmen som ojämna bildrutetider."
 #define OPTION_VAL_FRONTEND_SV "Gränssnitt (RetroArch)"
 #define OPTION_VAL_INTERNAL_SV "Intern (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SV "Hoppa över visning av dubblettbilder"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV "Lämna inte över en bildruta som GS aldrig ritade om – ett spel i 30 fps levererar då 30 unika bildrutor i stället för 60 där varannan upprepas. Stäng av detta om ett filter för bildrutegenerering eller interpolering behöver få varje bildruta som en egen."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV "Lämna inte över en bildruta som GS aldrig ritade om - ett spel i 30 fps levererar då 30 unika bildrutor i stället för 60 där varannan upprepas. Stäng av detta om ett filter för bildrutegenerering eller interpolering behöver få varje bildruta som en egen."
 #define PCSX2_CAS_SHARPNESS_LABEL_SV "CAS-skärpa"
 #define PCSX2_ASPECT_RATIO_LABEL_SV "Bildformat"
 #define PCSX2_ASPECT_RATIO_INFO_0_SV "Automatisk rapporterar 16:9 när bredbildspatchar är aktiverade, annars 4:3."
@@ -16722,7 +16722,7 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_4_3_SV NULL
 #define OPTION_VAL_16_9_SV NULL
 #define PCSX2_MULTITAP_LABEL_SV NULL
-#define PCSX2_MULTITAP_INFO_0_SV "Aktivera multitap-adaptern för upp till 8 handkontroller. Spelarordningen följer de fysiska platserna (port 1: 1A–1D, sedan port 2: 2A–2D). Omstart rekommenderas."
+#define PCSX2_MULTITAP_INFO_0_SV "Aktivera multitap-adaptern för upp till 8 handkontroller. Spelarordningen följer de fysiska platserna (port 1: 1A-1D, sedan port 2: 2A-2D). Omstart rekommenderas."
 #define OPTION_VAL_DISABLED_PCSX2_MULTITAP_SV "Inaktiverad (2 spelare)"
 #define OPTION_VAL_PORT1_SV "Port 1 (5 spelare)"
 #define OPTION_VAL_PORT2_SV "Port 2 (5 spelare)"
@@ -16731,7 +16731,7 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_LIGHTGUN_INFO_0_SV "Emulera en Namco GunCon 2 på en USB-port, som siktas med gränssnittets ljuspistol (eller en mus som mappats som ljuspistol) på motsvarande kontrollport. Gun Reload skjuter utanför skärmen; kalibreringsskottet som vissa spel begär utförs med Gun Trigger och Gun Reload samtidigt, eller R3. Kräver omstart."
 #define OPTION_VAL_USB1_SV "USB-port 1"
 #define OPTION_VAL_USB2_SV "USB-port 2"
-#define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SV "Vulkanrenderare"
+#define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SV "Båda portarna"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SV "Hårkors för ljuspistol"
 #define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SV "Rita ett hårkors där GunCon 2 siktar i den valda färgen. Av som standard, precis som på konsolen. Kräver omstart."
 #define OPTION_VAL_FFFFFF_SV "Vit"
@@ -16740,8 +16740,8 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_FFC020_SV "Blå"
 #define OPTION_VAL_20E0FF_SV "Gul"
 #define PCSX2_USB_MOUSE_LABEL_SV "USB-mus"
-#define PCSX2_USB_MOUSE_INFO_0_SV "Anslut en USB-mus till en USB-port och styr den med klientdelens mus för motsvarande handkontrollsport, till exempel USB-port 1 för spelare 1. För spel som använder en sådan, exempelvis Police 24/7. En port med ljuspistol behåller pistolen. Kräver omstart."
-#define PCSX2_RUMBLE_LABEL_SV "Starta i felsökningsläge"
+#define PCSX2_USB_MOUSE_INFO_0_SV "Anslut en USB-mus till en USB-port och styr den med klientdelens mus för motsvarande handkontrollsport (USB-port 1: spelare 1). För spel som använder en sådan, exempelvis Police 24/7. En port med ljuspistol behåller pistolen. Kräver omstart."
+#define PCSX2_RUMBLE_LABEL_SV "Vibration"
 #define PCSX2_RUMBLE_INFO_0_SV "Vidarebefordra vibration från DualShock 2 till klientdelens vibrationsstöd."
 #define PCSX2_AXIS_SCALE_LABEL_SV "Skala för analog axel"
 #define PCSX2_AXIS_SCALE_INFO_0_SV "Skalar spakindata som en riktig DualShock 2 (PCSX2-standard är 133 %). Minska om diagonaler känns begränsade."
@@ -16754,12 +16754,12 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_0_PCSX2_AXIS_DEADZONE_SV "0 % (standard)"
 #define OPTION_VAL_5_PCSX2_AXIS_DEADZONE_SV "5 %"
 #define OPTION_VAL_10_SV "10 %"
-#define OPTION_VAL_15_SV NULL
-#define OPTION_VAL_20_SV NULL
-#define OPTION_VAL_30_SV NULL
+#define OPTION_VAL_15_SV "15 %"
+#define OPTION_VAL_20_SV "20 %"
+#define OPTION_VAL_30_SV "30 %"
 #define PCSX2_WIDESCREEN_PATCHES_LABEL_SV "Bredbildspatchar"
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_SV "Aktivera inbyggda bredbildspatchar för 16:9 där de finns. Tillämpas bäst innan ett spel startas."
-#define PCSX2_NO_INTERLACING_PATCHES_LABEL_SV "Patchar för ingen sammanflätning"
+#define PCSX2_NO_INTERLACING_PATCHES_LABEL_SV "Patchar utan sammanflätning"
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_SV "Aktivera inbyggda patchar för progressiv utdata där de finns. Tillämpas bäst innan ett spel startas."
 #define PCSX2_CHEATS_LABEL_SV "Fusk"
 #define PCSX2_CHEATS_INFO_0_SV "Tillämpa fusken i system/pcsx2/cheats/, .pnach-filer som namnges efter spelets serie och CRC, som i fristående PCSX2. Använd dem helst innan ett spel startas."
@@ -16768,32 +16768,32 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_INSTANT_VU1_LABEL_SV "Omedelbar VU1"
 #define PCSX2_INSTANT_VU1_INFO_0_SV "Kör VU1 till slut direkt (ignoreras när MTVU är aktiverat). Ger vanligen högre hastighet."
 #define PCSX2_EE_CYCLE_RATE_LABEL_SV "EE-cykelfrekvens"
-#define PCSX2_EE_CYCLE_RATE_INFO_0_SV "Underklocka eller överklocka den emulerade Emotion Engine. Standard är 100 %. Kan förstöra spel."
+#define PCSX2_EE_CYCLE_RATE_INFO_0_SV "Underklocka eller överklocka den emulerade Emotion Engine. Standard är 100 %. Kan göra att spel slutar fungera."
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_SV "50 % (underklockad)"
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_SV "60 % (underklockad)"
 #define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_SV "75 % (underklockad)"
-#define OPTION_VAL_0_PCSX2_EE_CYCLE_RATE_SV "100% (Standard)"
+#define OPTION_VAL_0_PCSX2_EE_CYCLE_RATE_SV "100 % (standard)"
 #define OPTION_VAL_1_PCSX2_EE_CYCLE_RATE_0_SV "130 % (överklockad)"
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_RATE_0_SV "180 % (överklockad)"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_RATE_0_SV "300 % (överklockad)"
 #define PCSX2_EE_CYCLE_SKIP_LABEL_SV "EE-cykelhopp"
-#define PCSX2_EE_CYCLE_SKIP_INFO_0_SV "Låter EE hoppa över cykler. Hjälper vissa spel med hög VU-aktivitet, men förstör andra."
+#define PCSX2_EE_CYCLE_SKIP_INFO_0_SV "Låter EE hoppa över cykler. Hjälper vissa spel med hög VU-aktivitet, men gör att andra slutar fungera."
 #define OPTION_VAL_0_PCSX2_EE_CYCLE_SKIP_SV "Inaktiverad (standard)"
 #define OPTION_VAL_1_PCSX2_EE_CYCLE_SKIP_SV "Lätt"
 #define OPTION_VAL_2_PCSX2_EE_CYCLE_SKIP_SV "Måttlig"
 #define OPTION_VAL_3_PCSX2_EE_CYCLE_SKIP_SV "Maximalt"
 #define PCSX2_CPU_RECOMPILER_LABEL_SV "CPU-omkompilerare (JIT)"
-#define PCSX2_CPU_RECOMPILER_INFO_0_SV "Diagnostisk huvudströmbrytare. Aktiverad kör EE-, IOP- och VU0/VU1-dynarec-kompilatorerna (JIT, snabb, standard). Inaktiverad tvingar varje CPU till en tolk, som är mycket långsammare men isolerar JIT-fel: om en krasch fortfarande sker när detta är avstängt är rekompilatorn inte orsaken. De fyra växlarna per CPU nedan träder bara i kraft när detta är Aktiverat. Kräver omstart."
+#define PCSX2_CPU_RECOMPILER_INFO_0_SV "Diagnostisk huvudströmbrytare. Aktiverad kör EE-, IOP- och VU0/VU1-dynarec-kompilatorerna (JIT, snabb, standard). Inaktiverad tvingar varje CPU till en tolk, som är mycket långsammare men isolerar JIT-fel: om en krasch fortfarande sker när detta är avstängt är omkompileraren inte orsaken. De fyra växlarna per CPU nedan träder bara i kraft när detta är Aktiverat. Kräver omstart."
 #define OPTION_VAL_ENABLED_SV "Aktiverad (JIT, standard)"
 #define OPTION_VAL_DISABLED_PCSX2_CPU_RECOMPILER_SV "Inaktiverad (tolk)"
-#define PCSX2_REC_EE_LABEL_SV "  – EE-omkompilerare"
+#define PCSX2_REC_EE_LABEL_SV "  - EE-omkompilerare"
 #define PCSX2_REC_EE_INFO_0_SV "Diagnostik. Inaktivera endast Emotion Engine-dynarec (EE) och lämna de andra på för att dela upp vilken rekompilator som orsakar en krasch. Kräver omstart."
 #define OPTION_VAL_ENABLED_PCSX2_REC_EE_SV "Aktiverad (standard)"
-#define PCSX2_REC_IOP_LABEL_SV "  – IOP-omkompilerare"
+#define PCSX2_REC_IOP_LABEL_SV "  - IOP-omkompilerare"
 #define PCSX2_REC_IOP_INFO_0_SV "Diagnostik. Inaktivera endast IOP-dynarec (R3000) och lämna de andra på för att dela upp vilken rekompilator som orsakar en krasch. Kräver omstart."
-#define PCSX2_REC_VU0_LABEL_SV "  – VU0-omkompilerare"
+#define PCSX2_REC_VU0_LABEL_SV "  - VU0-omkompilerare"
 #define PCSX2_REC_VU0_INFO_0_SV "Diagnostik. Inaktivera endast VU0 microVU-dynarec och lämna de andra på för att dela upp vilken rekompilator som orsakar en krasch. Kräver omstart."
-#define PCSX2_REC_VU1_LABEL_SV "  – VU1-omkompilerare"
+#define PCSX2_REC_VU1_LABEL_SV "  - VU1-omkompilerare"
 #define PCSX2_REC_VU1_INFO_0_SV "Diagnostik. Inaktivera endast VU1 microVU-dynarec och lämna de andra på för att dela upp vilken rekompilator som orsakar en krasch. Kräver omstart."
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_SV "Plats 1 aktiverad"
 #define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_SV "Aktivera PS2-minneskortet i plats 1. Ändringar tillämpas direkt när innehåll körs."
@@ -19364,7 +19364,7 @@ struct retro_core_options_v2 options_val = {
 #define CATEGORY_MEMORY_CARDS_LABEL_VN "Thẻ nhớ"
 #define CATEGORY_MEMORY_CARDS_INFO_0_VN "Thiết lập khe thẻ nhớ PS2."
 #define CATEGORY_GRAPHICS_LABEL_VN "Đồ họa"
-#define CATEGORY_GRAPHICS_INFO_0_VN "Trình kết xuất, độ phân giải và chất lượng hình ảnh."
+#define CATEGORY_GRAPHICS_INFO_0_VN "Trình Dựng hình, độ phân giải và chất lượng hình ảnh."
 #define CATEGORY_PATCHES_LABEL_VN "Bản vá"
 #define CATEGORY_PATCHES_INFO_0_VN "Các bản vá trò chơi tích hợp sẵn (màn hình rộng, loại bỏ xen kẽ) và mã gian lận."
 #define CATEGORY_PERFORMANCE_LABEL_VN "Hiệu năng"
@@ -19377,8 +19377,8 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_BIOS_INFO_0_VN "Tệp BIOS được sử dụng, lấy từ <system>/pcsx2/bios. Yêu cầu khởi động lại."
 #define PCSX2_FAST_BOOT_LABEL_VN "Khởi động nhanh"
 #define PCSX2_FAST_BOOT_INFO_0_VN "Bỏ qua hoạt ảnh khởi động BIOS. Yêu cầu khởi động lại."
-#define PCSX2_RENDERER_LABEL_VN "Renderer (Trình kết xuất)"
-#define PCSX2_RENDERER_INFO_0_VN "Giao diện lập trình kết xuất phần cứng hoặc bộ kết xuất phần mềm. Chuyển sang hoặc rời khỏi chế độ Phần mềm có hiệu lực ngay lập tức; chuyển đổi giữa các giao diện lập trình phần cứng sẽ có hiệu lực khi khởi động lại nội dung. paraLLEl-GS cần trình điều khiển video Vulkan của RetroArch, có hiệu lực khi khởi động lại nội dung và không hiển thị tâm ngắm súng quang."
+#define PCSX2_RENDERER_LABEL_VN "Renderer (Trình Dựng hình)"
+#define PCSX2_RENDERER_INFO_0_VN "Giao diện lập trình Dựng hình phần cứng hoặc bộ Dựng hình phần mềm. Chuyển sang hoặc rời khỏi chế độ Phần mềm có hiệu lực ngay lập tức; chuyển đổi giữa các giao diện lập trình phần cứng sẽ có hiệu lực khi khởi động lại nội dung. paraLLEl-GS cần trình điều khiển video Vulkan của RetroArch, có hiệu lực khi khởi động lại nội dung và không hiển thị tâm ngắm súng quang."
 #define OPTION_VAL_VULKAN_VN "Vulkan (Phần cứng)"
 #define OPTION_VAL_PARALLEL_GS_VN NULL
 #define OPTION_VAL_OPENGL_VN "OpenGL (Phần cứng)"
@@ -19395,7 +19395,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_6_VN "SSAA 16x (có thứ tự, hỗ trợ độ phân giải cao gấp 4 lần)"
 #define OPTION_VAL_7_VN "SSAA 32x (có thứ tự, hỗ trợ độ phân giải cao gấp 4 lần toàn bộ chiều cao)"
 #define PCSX2_PGS_HIGH_RES_SCANOUT_LABEL_VN "quét xuất độ phân giải cao paraLLEl-GS (Thử nghiệm)"
-#define PCSX2_PGS_HIGH_RES_SCANOUT_INFO_0_VN "chỉ dành cho paraLLEl-GS. Quét xuất hình ảnh ở độ phân giải cao hơn độ phân giải gốc từ các mẫu siêu cấp (2x: 640x448 thành 1280x896, 4x: 2560x1792). Không phải trò chơi nào cũng hoạt động với tính năng này. Các chế độ gấp 4 lần có khử răng cưa sẽ tái tạo từng điểm ảnh từ các điểm ảnh lân cận (hình ảnh mềm hơn, ít nhấp nháy hơn); chế độ toàn bộ chiều cao trường hình ảnh cho phép các trò chơi kết xuất từng trường hình ảnh một hiển thị toàn bộ chiều cao. Có hiệu lực ngay lập tức."
+#define PCSX2_PGS_HIGH_RES_SCANOUT_INFO_0_VN "chỉ dành cho paraLLEl-GS. Quét xuất hình ảnh ở độ phân giải cao hơn độ phân giải gốc từ các mẫu siêu cấp (2x: 640x448 thành 1280x896, 4x: 2560x1792). Không phải trò chơi nào cũng hoạt động với tính năng này. Các chế độ gấp 4 lần có khử răng cưa sẽ tái tạo từng điểm ảnh từ các điểm ảnh lân cận (hình ảnh mềm hơn, ít nhấp nháy hơn); chế độ toàn bộ chiều cao trường hình ảnh cho phép các trò chơi Dựng hình từng trường hình ảnh một hiển thị toàn bộ chiều cao. Có hiệu lực ngay lập tức."
 #define OPTION_VAL_1_PCSX2_PGS_HIGH_RES_SCANOUT_VN NULL
 #define OPTION_VAL_2_PCSX2_PGS_HIGH_RES_SCANOUT_VN NULL
 #define OPTION_VAL_3_PCSX2_PGS_HIGH_RES_SCANOUT_VN "4x (khử răng cưa)"
@@ -19408,13 +19408,13 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_PGS_DISABLE_MIPMAPS_LABEL_VN "buộc mức chi tiết kết cấu LOD0 paraLLEl-GS"
 #define PCSX2_PGS_DISABLE_MIPMAPS_INFO_0_VN "chỉ dành cho paraLLEl-GS. Bỏ qua việc tạo và sử dụng các mức kết cấu thu nhỏ, luôn lấy mẫu kết cấu ở kích thước đầy đủ: hình ảnh sắc nét hơn nhưng một số trò chơi có thể hiển thị sai. Có hiệu lực ngay lập tức."
 #define PCSX2_UPSCALE_MULTIPLIER_LABEL_VN "Độ phân giải nội bộ"
-#define PCSX2_UPSCALE_MULTIPLIER_INFO_0_VN "Hệ số tăng độ phân giải kết xuất nội bộ cho trình kết xuất phần cứng. Đồng thời tăng tỷ lệ khung hình đệm đầu ra. Có hiệu lực ngay lập tức."
+#define PCSX2_UPSCALE_MULTIPLIER_INFO_0_VN "Hệ số tăng độ phân giải Dựng hình nội bộ cho trình Dựng hình phần cứng. Đồng thời tăng tỷ lệ khung hình đệm đầu ra. Có hiệu lực ngay lập tức."
 #define OPTION_VAL_1_PCSX2_UPSCALE_MULTIPLIER_VN "1x độ phân giải gốc (640x480)"
 #define OPTION_VAL_2_PCSX2_UPSCALE_MULTIPLIER_VN "2x độ phân giải gốc (1280x960)"
 #define OPTION_VAL_3_PCSX2_UPSCALE_MULTIPLIER_VN "3x độ phân giải gốc (1920x1440)"
 #define OPTION_VAL_4_PCSX2_UPSCALE_MULTIPLIER_VN "4x độ phân giải gốc (2560x1920)"
 #define PCSX2_HW_DOWNLOAD_MODE_LABEL_VN "Chế độ tải dữ liệu phần cứng"
-#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_VN "Cách xử lý việc đọc dữ liệu từ GPU về CPU khi trò chơi đọc lại dữ liệu đã kết xuất (hiệu ứng méo nhiệt GT3, chế độ chụp ảnh...). Chính xác sẽ làm toàn bộ quy trình xử lý phải chờ trên GPU dạng lát; Không đồng bộ trả về dữ liệu cũ mà không làm dừng quy trình xử lý (tăng tốc đáng kể, nhưng có thể gây lỗi các hiệu ứng đó); Tắt sẽ bỏ qua các lần đọc dữ liệu này."
+#define PCSX2_HW_DOWNLOAD_MODE_INFO_0_VN "Cách xử lý việc đọc dữ liệu từ GPU về CPU khi trò chơi đọc lại dữ liệu đã Dựng hình (hiệu ứng méo nhiệt GT3, chế độ chụp ảnh...). Chính xác sẽ làm toàn bộ quy trình xử lý phải chờ trên GPU dạng lát; Không đồng bộ trả về dữ liệu cũ mà không làm dừng quy trình xử lý (tăng tốc đáng kể, nhưng có thể gây lỗi các hiệu ứng đó); Tắt sẽ bỏ qua các lần đọc dữ liệu này."
 #define OPTION_VAL_ACCURATE_VN "Chính xác (Mặc định)"
 #define OPTION_VAL_UNSYNCHRONIZED_VN "Không đồng bộ (Nhanh)"
 #define OPTION_VAL_DISABLED_VN "Tắt (Nhanh nhất)"
@@ -19427,7 +19427,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_FULL_VN "Đầy đủ (Chậm)"
 #define OPTION_VAL_MAXIMUM_VN "Tối đa (Rất chậm)"
 #define PCSX2_ROV_LABEL_VN "Chế độ xem thứ tự điểm ảnh (thử nghiệm)"
-#define PCSX2_ROV_INFO_0_VN "Cho phép các hiệu ứng hòa trộn và độ sâu đọc mục tiêu kết xuất trực tiếp trong bộ đổ bóng thay vì thông qua hàng rào kết cấu. Trên bộ xử lý đồ họa của Apple (MoltenVK), mỗi hàng rào kết cấu đều chia lượt kết xuất thành nhiều phần, gây tốn kém tài nguyên; thiết lập này giúp tránh các hàng rào đó khi bộ xử lý đồ họa hỗ trợ. Có thể gây ra lỗi hiển thị đồ họa. Mặc định tắt, giống như bản PCSX2 độc lập."
+#define PCSX2_ROV_INFO_0_VN "Cho phép các hiệu ứng hòa trộn và độ sâu đọc mục tiêu Dựng hình trực tiếp trong bộ đổ bóng thay vì thông qua hàng rào kết cấu. Trên bộ xử lý đồ họa của Apple (MoltenVK), mỗi hàng rào kết cấu đều chia lượt Dựng hình thành nhiều phần, gây tốn kém tài nguyên; thiết lập này giúp tránh các hàng rào đó khi bộ xử lý đồ họa hỗ trợ. Có thể gây ra lỗi hiển thị đồ họa. Mặc định tắt, giống như bản PCSX2 độc lập."
 #define PCSX2_TEXTURE_FILTERING_LABEL_VN "Lọc kết cấu"
 #define PCSX2_TEXTURE_FILTERING_INFO_0_VN "Bilinear (PS2) mô phỏng cách xử lý của máy chơi game; các chế độ bắt buộc sẽ làm mượt tất cả kết cấu."
 #define OPTION_VAL_NEAREST_VN "Gần nhất"
@@ -19443,7 +19443,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_8_VN NULL
 #define OPTION_VAL_16_VN NULL
 #define PCSX2_DITHERING_LABEL_VN NULL
-#define PCSX2_DITHERING_INFO_0_VN "Không chia tỷ lệ (mặc định) tái tạo hiệu ứng chấm màu của PS2; Tắt có thể giảm hiện tượng phân dải màu ở độ phân giải cao. Ép 32 bit (trình kết xuất phần cứng) giữ màu 16 bit ở độ chính xác đầy đủ của 32 bit, không cần tạo nhiễu màu, nhưng khiến một số trò chơi bị lỗi hiển thị."
+#define PCSX2_DITHERING_INFO_0_VN "Không chia tỷ lệ (mặc định) tái tạo hiệu ứng chấm màu của PS2; Tắt có thể giảm hiện tượng phân dải màu ở độ phân giải cao. Ép 32 bit (trình Dựng hình phần cứng) giữ màu 16 bit ở độ chính xác đầy đủ của 32 bit, không cần tạo nhiễu màu, nhưng khiến một số trò chơi bị lỗi hiển thị."
 #define OPTION_VAL_1_PCSX2_DITHERING_VN "Theo tỷ lệ"
 #define OPTION_VAL_2_PCSX2_DITHERING_VN "Không thay đổi tỷ lệ (Mặc định)"
 #define OPTION_VAL_3_PCSX2_DITHERING_VN "Ép 32 bit"
@@ -19474,7 +19474,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_FRONTEND_VN "Giao diện chính (RetroArch)"
 #define OPTION_VAL_INTERNAL_VN "Nội bộ (PCSX2)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN "Bỏ qua việc xuất các khung hình trùng lặp"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Không chuyển cho giao diện chính một khung hình mà GS không kết xuất lại - trò chơi 30 fps khi đó sẽ hiển thị 30 khung hình riêng biệt thay vì 60 khung hình với mỗi khung thứ hai bị lặp lại. Tắt tùy chọn này nếu bộ lọc tạo khung hình hoặc nội suy cần nhận từng khung hình dưới dạng một khung hình riêng."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Không chuyển cho giao diện chính một khung hình mà GS không Dựng hình lại - trò chơi 30 fps khi đó sẽ hiển thị 30 khung hình riêng biệt thay vì 60 khung hình với mỗi khung thứ hai bị lặp lại. Tắt tùy chọn này nếu bộ lọc tạo khung hình hoặc nội suy cần nhận từng khung hình dưới dạng một khung hình riêng."
 #define PCSX2_CAS_SHARPNESS_LABEL_VN "Độ sắc nét CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_VN "Tỷ lệ khung hình"
 #define PCSX2_ASPECT_RATIO_INFO_0_VN "Tự động báo tỷ lệ 16:9 khi bản vá màn hình rộng được bật, 4:3 trong các trường hợp khác."
@@ -19563,7 +19563,7 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_VN "Chọn thẻ .ps2 có sẵn từ <system>/pcsx2/memcards. Thay đổi có hiệu lực ngay lập tức khi nội dung đang chạy."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_VN "Thẻ nhớ Khe cắm 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_VN "Tệp kích hoạt ghi dữ liệu GS"
-#define PCSX2_GSDUMP_TRIGGER_INFO_0_VN "Khi tính năng này được bật, một tệp có tên là gsdump.trigger nằm trong thư mục <system>/pcsx2 sẽ ghi lại dữ liệu GS của các khung hình được xử lý (mặc định là 2 khung hình nếu không chỉ định cụ thể), sau đó tệp này sẽ tự động bị xóa; dữ liệu GS cùng với một tệp ảnh PNG của khung hình đó sẽ được lưu tại cùng vị trí. Dữ liệu GS (.gs) có thể được tải vào chương trình để phát lại các khung hình tương tự trên bất kỳ bộ kết xuất nào, giúp ích cho việc báo cáo các lỗi liên quan đến bộ kết xuất đó."
+#define PCSX2_GSDUMP_TRIGGER_INFO_0_VN "Khi tính năng này được bật, một tệp có tên là gsdump.trigger nằm trong thư mục <system>/pcsx2 sẽ ghi lại dữ liệu GS của các khung hình được xử lý (mặc định là 2 khung hình nếu không chỉ định cụ thể), sau đó tệp này sẽ tự động bị xóa; dữ liệu GS cùng với một tệp ảnh PNG của khung hình đó sẽ được lưu tại cùng vị trí. Dữ liệu GS (.gs) có thể được tải vào chương trình để phát lại các khung hình tương tự trên bất kỳ bộ Dựng hình nào, giúp ích cho việc báo cáo các lỗi liên quan đến bộ Dựng hình đó."
 
 struct retro_core_option_v2_category option_cats_vn[] = {
 	{"system", CATEGORY_SYSTEM_LABEL_VN, CATEGORY_SYSTEM_INFO_0_VN},
