@@ -95,6 +95,8 @@
 
 #include "fmt/format.h"
 
+extern std::atomic<u64> s_probe_vm_frames, g_probe_publish_vm, g_probe_gs_vsyncs, g_probe_publish_gsv; // TEMP lag probe
+
 namespace LibretroHost
 {
 	// libretro callbacks
@@ -398,6 +400,9 @@ namespace LibretroHost
 		s_frame_width = width;
 		s_frame_height = height;
 		s_frame_serial++;
+		// TEMP lag probe: the VM frame and GS vsync a read-back frame belongs to (#62)
+		g_probe_publish_vm.store(s_probe_vm_frames.load());
+		g_probe_publish_gsv.store(g_probe_gs_vsyncs.load());
 	}
 
 	// Runs on the GS thread whenever SkipDuplicateFrames drops a vsync, i.e.
