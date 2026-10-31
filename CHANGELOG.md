@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- One frame less input lag with Skip Presenting Duplicate Frames off and with paraLLEl-GS, as with it on and in standalone PCSX2: from the start of the game, each frame handed to RetroArch was the one run before the input, and the frame for that input was emulated only after RetroArch had it. A frame the emulator finished without being asked for one (the first after boot) counted as the next one asked for. Skip Presenting Duplicate Frames hid this, because its extra runs brought the two back in step (Immersion95, #62).
 - A savestate loaded right at the start (RetroArch's Auto Load State) no longer comes up black with repeated TLB misses: when the state's memory mapping overlapped the BIOS's one it replaced, part of the restored mapping was removed again (村林千春).
 - Linux arm64 and webOS: the core is built for ARMv8.0, so it starts on CPUs without the ARMv8.1 atomics (Cortex-A53, Cortex-A73, as in LG webOS TVs); it was built for ARMv8.1 and crashed right after the video driver started, with nothing in the log. Where the CPU has the atomics, they are still used, picked at run time (alex).
 - Graphics > Dithering has Force 32-bit, as in standalone PCSX2: the hardware renderers keep 16-bit colors at full 32-bit precision, without dithering; it breaks rendering in some games (Immersion95, #63).

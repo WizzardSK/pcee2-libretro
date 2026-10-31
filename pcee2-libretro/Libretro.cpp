@@ -139,11 +139,21 @@ namespace LibretroHost
 	static unsigned s_disc_initial_index = 0;
 	static std::string s_disc_initial_path;
 
-	// frame pacing: retro_run() posts a run token, CPU thread posts frame-done
+	// frame pacing: retro_run() posts a run token, CPU thread posts frame-done.
+	// Tokens are numbered, and retro_run() waits for the frame of the token it
+	// posted, not for any frame done. The CPU thread finishes its first frame
+	// after boot without a token, and a frame still running when a wait timed
+	// out finishes after it; a plain "frame done" flag took either for the
+	// next run's frame, and from then on every run handed over the frame of
+	// the run before it while its own ran after it returned - a frame more
+	// input lag than standalone (issue #62).
 	static std::mutex s_frame_mutex;
 	static std::condition_variable s_frame_cv;
 	static bool s_run_token = false;
-	static bool s_frame_ready = false;
+	static u64 s_run_seq = 0;   // tokens retro_run() has posted
+	static u64 s_taken_seq = 0; // the token the CPU thread is running a frame for
+	static u64 s_done_seq = 0;  // the token whose frame the CPU thread finished last
+	static bool s_session_ended = false; // the CPU thread left the session
 
 	// Frames the GS dropped as duplicates (see GSSetDuplicateFrameCallback),
 	// counted on the GS thread and spent in retro_run(): one dropped frame buys
@@ -1421,7 +1431,7 @@ void LibretroHost::CPUThreadMain()
 		// wake up a potentially waiting retro_run()
 		{
 			std::unique_lock lock(s_frame_mutex);
-			s_frame_ready = true;
+			s_session_ended = true;
 		}
 		s_frame_cv.notify_all();
 
@@ -2542,7 +2552,10 @@ bool retro_load_game(const struct retro_game_info* game)
 	{
 		std::unique_lock lock(s_frame_mutex);
 		s_run_token = false;
-		s_frame_ready = false;
+		s_run_seq = 0;
+		s_taken_seq = 0;
+		s_done_seq = 0;
+		s_session_ended = false;
 		s_frame_width = 0;
 		s_frame_height = 0;
 		s_frame_serial = 0;
@@ -3317,11 +3330,12 @@ void retro_run(void)
 	for (u32 run = 0; !audio_ahead; run++)
 	{
 		PaceFrameRun();
+		const u64 seq = ++s_run_seq;
 		s_run_token = true;
 		s_frame_cv.notify_all();
 
-		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
-		s_frame_ready = false;
+		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200),
+			[seq]() { return s_done_seq >= seq || s_session_ended; });
 
 		// The CPU thread signals at its vsync, right after queueing that
 		// vsync for the GS thread, which then still has the frame to draw.
@@ -3998,7 +4012,7 @@ void Host::PumpMessagesOnCPUThread()
 	// pacing: signal frame done, then wait for the next run token, servicing
 	// queued CPU work (savestates, resets, ...) while parked
 	std::unique_lock lock(s_frame_mutex);
-	s_frame_ready = true;
+	s_done_seq = s_taken_seq;
 	s_frame_cv.notify_all();
 	for (;;)
 	{
@@ -4018,6 +4032,7 @@ void Host::PumpMessagesOnCPUThread()
 		break;
 	}
 	s_run_token = false;
+	s_taken_seq = s_run_seq;
 }
 
 s32 Host::Internal::GetTranslatedStringImpl(
