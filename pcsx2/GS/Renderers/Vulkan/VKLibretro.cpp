@@ -221,6 +221,12 @@ namespace VKLibretro
 		return true;
 	}
 
+	bool DropFrame()
+	{
+		Frame unused;
+		return ConsumeFrame(&unused);
+	}
+
 	bool HasFrame()
 	{
 		std::lock_guard<std::mutex> lock(s_frame_mutex);

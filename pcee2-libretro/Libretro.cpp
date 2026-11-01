@@ -3327,8 +3327,30 @@ void retro_run(void)
 
 	std::unique_lock lock(s_frame_mutex);
 	bool got_frame = false;
+	// Vulkan (not paraLLEl-GS, which presents from here itself) parks the GS
+	// thread on each frame it publishes until a run takes it.
+#ifdef ENABLE_VULKAN
+	const bool vk_parked = s_hw_render == HWRender::Vulkan && !s_parallel_gs;
+#else
+	constexpr bool vk_parked = false;
+#endif
 	for (u32 run = 0; !audio_ahead; run++)
 	{
+#ifdef ENABLE_VULKAN
+		// A frame waiting before this run's token was drawn from earlier
+		// input: presenting it now would put every frame after it one behind
+		// as well (Immersion95, #64). Skipped instead; the run's own frame
+		// follows.
+		if (vk_parked && run == 0 && VKLibretro::DropFrame())
+		{
+			// logged at 1, 2, 4, 8... so a steady stream of them shows
+			static u64 s_stale_frames = 0;
+			s_stale_frames++;
+			if ((s_stale_frames & (s_stale_frames - 1)) == 0)
+				Console.WriteLnFmt("Vulkan: a frame drawn before this run was skipped ({} so far)", s_stale_frames);
+		}
+#endif
+		const u64 drops_before = s_duplicate_frames.load(std::memory_order_acquire);
 		PaceFrameRun();
 		const u64 seq = ++s_run_seq;
 		s_run_token = true;
@@ -3352,7 +3374,25 @@ void retro_run(void)
 		// still be waiting when this run starts, and taking it for this
 		// vsync's handed over the frame before (Immersion95, #62). Those wait
 		// for every queued vsync, the read-back of the last included.
-		if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
+		// Vulkan waits for the frame itself: the GS thread takes the vsync off
+		// its queue before it has drawn and published the frame, so an empty
+		// queue came before the frame, the run took nothing, and the frame was
+		// taken by the next run instead - a frame behind for good with Skip
+		// Presenting Duplicate Frames off, where every vsync publishes one
+		// (Immersion95, #64). A vsync with nothing to publish is one the GS
+		// reports as a dropped duplicate.
+		if (vk_parked && got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
+		{
+			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+			while (!PresentFramePending() && s_duplicate_frames.load(std::memory_order_acquire) == drops_before &&
+				   std::chrono::steady_clock::now() < deadline)
+			{
+				lock.unlock();
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				lock.lock();
+			}
+		}
+		else if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
 		{
 			const bool parked = s_hw_render != HWRender::None;
 			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
