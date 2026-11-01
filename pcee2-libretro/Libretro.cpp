@@ -3346,10 +3346,17 @@ void retro_run(void)
 		// thread to have taken every queued vsync, or to have published a
 		// frame - a HW path parks it in PublishFrame until this run takes it.
 		// Bounded, so a stuck GS thread cannot stall the frontend for good.
+		// A frame read back (Software, and the renderers copied to the
+		// frontend) is not parked: the GS thread reads it back inside the
+		// vsync it belongs to and goes on, so the previous vsync's frame can
+		// still be waiting when this run starts, and taking it for this
+		// vsync's handed over the frame before (Immersion95, #62). Those wait
+		// for every queued vsync, the read-back of the last included.
 		if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
 		{
+			const bool parked = s_hw_render != HWRender::None;
 			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
-			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !PresentFramePending() &&
+			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !(parked && PresentFramePending()) &&
 				   std::chrono::steady_clock::now() < deadline)
 			{
 				lock.unlock();
