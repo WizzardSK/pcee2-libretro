@@ -3425,6 +3425,18 @@ void retro_run(void)
 		lock.lock();
 	}
 
+	// This frame's audio goes to the frontend before its picture. A frontend
+	// syncing to audio blocks on the write until the audio before it has
+	// played, and it shows the picture as soon as it gets it when it does not
+	// wait for vsync (a VRR display). Handed over after the picture, as it
+	// was, the block came at the end of each call and the picture at the
+	// end of the frame's emulation after it, so every frame was shown as much
+	// later as it took longer to emulate - uneven on screen once retro_run()
+	// waits for the frame of its own run (Immersion95, #65). Before it, the
+	// picture follows the block, which goes by the audio playing. The CPU
+	// thread is parked again at this point; safe to drain the audio buffer.
+	OutputAudio();
+
 #ifdef ENABLE_VULKAN
 	if (s_hw_render == HWRender::Vulkan)
 	{
@@ -3597,9 +3609,6 @@ void retro_run(void)
 				(s_frame_width ? s_frame_width : DEFAULT_WIDTH) * sizeof(u32));
 		}
 	}
-
-	// CPU thread is parked again at this point; safe to drain the audio buffer
-	OutputAudio();
 }
 
 // Fixed upper bound for uncompressed PS2 state data (EE 32MB + IOP 2MB + GS +
