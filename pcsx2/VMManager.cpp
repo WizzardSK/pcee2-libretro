@@ -1353,7 +1353,7 @@ bool VMManager::LoadArcadeManifest(const std::string& filename, Error* error)
 		return false;
 	}
 
-	const std::string acgamedir = Path::GetDirectory(filename);
+	const std::string acgamedir(Path::GetDirectory(filename));
 	std::string basedir = acgamedir;
 	const std::string subdir = INI.GetStringValue("data", "subdir", serial.c_str());
 	if (!subdir.empty())
