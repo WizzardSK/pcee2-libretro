@@ -8,6 +8,7 @@
 #include "R3000A.h"
 #include "Counters.h"
 #include "IopCounters.h"
+#include "IopMem.h"
 
 #include "GS.h"
 #include "GS/GS.h"
@@ -30,6 +31,7 @@ uint g_FrameCount = 0;
 Counter counters[4];
 SyncCounter hsyncCounter;
 SyncCounter vsyncCounter;
+bool s_sys256_mode = false;
 
 u64 nextStartCounter;	// records the cpuRegs.cycle value of the last call to rcntUpdate()
 s32 nextDeltaCounter;	// delta from nextsCounter, in cycles, until the next rcntUpdate()
@@ -202,7 +204,7 @@ void rcntInit()
 
 static void vSyncInfoCalc(vSyncTimingInfo* info, double framesPerSecond, u32 scansPerFrame)
 {
-	constexpr double clock = static_cast<double>(PS2CLK);
+	const double clock = static_cast<double>(PS2CLK);
 
 	const u64 Frame = clock * 10000ULL / framesPerSecond;
 	const u64 Scanline = Frame / scansPerFrame;

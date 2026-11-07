@@ -2,10 +2,18 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #include "common/Assertions.h"
+#include "Common.h" // g_ArcadeMode
 #include "common/Path.h"
 #include "common/StringUtil.h"
 
 #include "IopDma.h"
+#include "ACATA.h"
+#include "ACATAPI.h"
+#include "ACCORE.h"
+#include "ACUART.h"
+#include "ACJV.h"
+#include "ACRAM.h"
+#include "IopHw.h"
 
 #ifdef _WIN32
 #include "common/RedtapeWindows.h"
@@ -23,6 +31,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "DEV9.h"
+#include "ACDEV.h"
 #include "Config.h"
 #include "smap.h"
 
@@ -213,6 +222,8 @@ int DEV9irqHandler(void)
 	//dev9Ru16(SPD_R_INTR_STAT)|= dev9.irqcause;
 	//DevCon.WriteLn("DEV9: DEV9irqHandler %x, %x", dev9.irqcause, dev9.irqmask);
 	if (dev9.irqcause & dev9.irqmask)
+		return 1;
+	if (g_ArcadeMode && ACCORE::hasPendingInterrupt()) // S246 arcade: ATA/ATAPI interrupts go through ACCORE
 		return 1;
 	return 0;
 }
@@ -937,6 +948,15 @@ u16 DEV9read16(u32 addr)
 
 u32 DEV9read32(u32 addr)
 {
+	if (g_ArcadeMode)
+	{
+		if (addr >= ACDEV_BASE && addr < ACDEV_ROMDIR_POKE_END)
+			return 0; // rom0:ACDEV makes ROMDRV look for a romdir filesystem here; only arcade TOOLs had one
+		const u32 hard = dev9Ru32(addr);
+		Console.Error("DEV9: Unknown 32bit read at address %lx value %x", addr, hard);
+		return hard;
+	}
+
 	if (!EmuConfig.DEV9.EthEnable && !EmuConfig.DEV9.HddEnable)
 		return 0;
 
@@ -1023,7 +1043,9 @@ void DEV9write16(u32 addr, u16 value)
 	}
 
 	dev9Ru16(addr) = value;
-	Console.Error("DEV9: *Unknown 16bit write at address %lx value %x", addr, value);
+	// the arcade ACFLASH module probes its flash chips at 0x10000000
+	if (!g_ArcadeMode || addr != 0x10000000)
+		Console.Error("DEV9: *Unknown 16bit write at address %lx value %x", addr, value);
 	return;
 }
 
@@ -1063,8 +1085,57 @@ void DEV9write32(u32 addr, u32 value)
 	}
 }
 
+// The Namco System 246/256 board: the media (ATA/ATAPI) and its RAM come over DMA8 (size in bytes)
+static void ArcadeReadDMA8Mem(u32* pMem, int size)
+{
+	// Instant ATAPI DMA: data was pre-read into a buffer during the ATAPI command.
+	if (ACATAPI::dma_read(pMem, size)) {
+		psxDMA8Interrupt();
+	} else if (ACCORE::DMA::PendTrasnfType == ACCORE::DMA::ATAPI || ACCORE::DMA::PendTrasnfType == ACCORE::DMA::ATA) {
+		ACATA::TH::IO_Read(pMem, size);
+		ACCORE::DMA::PendTrasnfType = ACCORE::DMA::NONE;
+		ACATA::R_STATUS = ATA_STAT_READY;
+		ACATA::R_NSECTOR = 0x03;
+		psxDMA8Interrupt();
+		ACCORE::intr(ACCORE::INTRN_ATA);
+	} else {
+		const u32 dma_target = psxHu32(0x1410); // check if DMA targets ACRAM (0x14xxxxxx)
+		if ((dma_target & 0xFF000000) == 0x14000000) {
+			ACRAM::DmaRead(pMem, size, ACRAM::BankFromDmaTarget(dma_target));
+		} else {
+			Console.Error("%s: requested DMA transfer of 0x%-8X bytes while no pending transfer (%d)", __FUNCTION__, size, ACCORE::DMA::PendTrasnfType);
+		}
+		psxDMA8Interrupt();
+	}
+}
+
+static bool ArcadeWriteDMA8Mem(u32* pMem, int size)
+{
+	if (ACCORE::DMA::PendTrasnfType == ACCORE::DMA::ATA_WRITE) {
+		ACATA::TH::IO_Write(pMem, size);
+		ACCORE::DMA::PendTrasnfType = ACCORE::DMA::NONE;
+		ACATA::R_STATUS = ATA_STAT_READY;
+		psxDMA8Interrupt();
+		ACCORE::intr(ACCORE::INTRN_ATA);
+		return true;
+	}
+	const u32 dma_target = psxHu32(0x1410);
+	if ((dma_target & 0xFF000000) == 0x14000000) {
+		ACRAM::DmaWrite(pMem, size, ACRAM::BankFromDmaTarget(dma_target));
+		psxDMA8Interrupt();
+		return true;
+	}
+	return false; // the network adapter (SMAP) of the games that have one
+}
+
 void DEV9readDMA8Mem(u32* pMem, int size)
 {
+	if (g_ArcadeMode)
+	{
+		ArcadeReadDMA8Mem(pMem, size);
+		return;
+	}
+
 	if (!EmuConfig.DEV9.EthEnable && !EmuConfig.DEV9.HddEnable)
 		return;
 
@@ -1093,6 +1164,9 @@ void DEV9readDMA8Mem(u32* pMem, int size)
 
 void DEV9writeDMA8Mem(u32* pMem, int size)
 {
+	if (g_ArcadeMode && ArcadeWriteDMA8Mem(pMem, size))
+		return;
+
 	if (!EmuConfig.DEV9.EthEnable && !EmuConfig.DEV9.HddEnable)
 		return;
 
@@ -1119,6 +1193,13 @@ void DEV9writeDMA8Mem(u32* pMem, int size)
 
 void DEV9async(u32 cycles)
 {
+	if (g_ArcadeMode)
+	{
+		if (ACUART::s_device)
+			ACUART::s_device->Tick(cycles);
+		ACJV::UpdateFcaFrame(); // free-run the FCA-1 input frame
+		return;
+	}
 	smap_async(cycles);
 	dev9.ata->Async(cycles);
 }

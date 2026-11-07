@@ -82,6 +82,9 @@
 #include "pcsx2/SaveState.h"
 #include "pcsx2/USB/USB.h"
 #include "pcsx2/VMManager.h"
+#include "pcsx2/Common.h"
+#include "pcsx2/DEV9/ACJV.h"
+#include "pcsx2/Input/InputManager.h"
 #include "pcsx2/ps2/BiosTools.h"
 
 #include "svnrev.h"
@@ -116,6 +119,8 @@ namespace LibretroHost
 	static std::thread s_cpu_thread;
 	static std::atomic_bool s_running{false};
 	static VMBootParameters s_boot_params;
+	// the content is a Namco System 246/256 game (.acgame)
+	static bool s_arcade_content = false;
 	static std::mutex s_session_mutex;
 	static std::condition_variable s_session_cv;
 	static bool s_boot_requested = false;
@@ -704,6 +709,37 @@ void LibretroHost::SettingsOverride()
 	s_settings_interface.SetIntValue("EmuCore", "SavestateCompressionType",
 		static_cast<int>(SavestateCompressionMethod::Uncompressed));
 
+	// A Namco System 246/256 game runs on the arcade board's own BIOS (zone COH-H),
+	// whatever the option says; a retail game never gets that one picked for it
+	if (s_arcade_content)
+	{
+		FileSystem::FindResultsArray files;
+		FileSystem::FindFiles(EmuFolders::Bios.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+		for (const FILESYSTEM_FIND_DATA& fd : files)
+		{
+			u32 version, region;
+			std::string description, zone;
+			if (IsBIOS(fd.FileName.c_str(), version, description, region, zone) && zone == "COH-H")
+			{
+				const std::string filename(Path::GetFileName(fd.FileName));
+				Console.WriteLnFmt("Arcade BIOS: {} ({})", filename, description);
+				s_settings_interface.SetStringValue("Filenames", "BIOS", filename.c_str());
+				break;
+			}
+		}
+	}
+
+	else
+	{
+		// the arcade BIOS an earlier arcade game left set is no BIOS for this one
+		const std::string current = s_settings_interface.GetStringValue("Filenames", "BIOS");
+		u32 version, region;
+		std::string description, zone;
+		if (!current.empty() && IsBIOS(Path::Combine(EmuFolders::Bios, current).c_str(), version, description, region, zone) &&
+			zone == "COH-H")
+			s_settings_interface.SetStringValue("Filenames", "BIOS", "");
+	}
+
 	// pick the first valid BIOS image from <system>/pcsx2/bios if none is configured
 	if (s_settings_interface.GetStringValue("Filenames", "BIOS").empty())
 	{
@@ -713,7 +749,7 @@ void LibretroHost::SettingsOverride()
 		{
 			u32 version, region;
 			std::string description, zone;
-			if (IsBIOS(fd.FileName.c_str(), version, description, region, zone))
+			if (IsBIOS(fd.FileName.c_str(), version, description, region, zone) && zone != "COH-H")
 			{
 				const std::string filename(Path::GetFileName(fd.FileName));
 				Console.WriteLnFmt("Auto-selected BIOS: {} ({})", filename, description);
@@ -1797,7 +1833,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	std::memset(info, 0, sizeof(*info));
 	info->library_name = "PCEE2";
 	info->library_version = GIT_REV;
-	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs";
+	info->valid_extensions = "iso|chd|cue|m3u|cso|zso|gz|bin|mdf|nrg|elf|irx|gs|acgame";
 	info->need_fullpath = true;
 	info->block_extract = true;
 }
@@ -2294,6 +2330,7 @@ bool retro_load_game(const struct retro_game_info* game)
 	// retro_game_info instead, and an empty path there means the same thing,
 	// not a load to refuse.
 	const bool no_content = (game == nullptr) || !game->path || game->path[0] == '\0';
+	s_arcade_content = !no_content && StringUtil::EndsWithNoCase(game->path, ".acgame");
 
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
 	if (!s_environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt))
@@ -2696,6 +2733,180 @@ void retro_reset(void)
 // Translate libretro joypad/analog state into DualShock2 binds. Called at the
 // start of retro_run(), while the CPU thread is parked, so Pad state writes
 // don't race the SIO reads.
+// Namco System 246/256: the RetroPads and lightguns drive the board's JVS I/O
+// instead of the PS2 pads. Each game's buttons come with the PS2 pad button
+// its home port used, and that is the RetroPad button they get here.
+static int RetroIdForGeneric(GenericInputBinding g)
+{
+	switch (g)
+	{
+		case GenericInputBinding::DPadUp:    return RETRO_DEVICE_ID_JOYPAD_UP;
+		case GenericInputBinding::DPadDown:  return RETRO_DEVICE_ID_JOYPAD_DOWN;
+		case GenericInputBinding::DPadLeft:  return RETRO_DEVICE_ID_JOYPAD_LEFT;
+		case GenericInputBinding::DPadRight: return RETRO_DEVICE_ID_JOYPAD_RIGHT;
+		case GenericInputBinding::Cross:     return RETRO_DEVICE_ID_JOYPAD_B;
+		case GenericInputBinding::Circle:    return RETRO_DEVICE_ID_JOYPAD_A;
+		case GenericInputBinding::Square:    return RETRO_DEVICE_ID_JOYPAD_Y;
+		case GenericInputBinding::Triangle:  return RETRO_DEVICE_ID_JOYPAD_X;
+		case GenericInputBinding::L1:        return RETRO_DEVICE_ID_JOYPAD_L;
+		case GenericInputBinding::R1:        return RETRO_DEVICE_ID_JOYPAD_R;
+		case GenericInputBinding::L2:        return RETRO_DEVICE_ID_JOYPAD_L2;
+		case GenericInputBinding::R2:        return RETRO_DEVICE_ID_JOYPAD_R2;
+		case GenericInputBinding::L3:        return RETRO_DEVICE_ID_JOYPAD_L3;
+		case GenericInputBinding::R3:        return RETRO_DEVICE_ID_JOYPAD_R3;
+		case GenericInputBinding::Start:     return RETRO_DEVICE_ID_JOYPAD_START;
+		case GenericInputBinding::Select:    return RETRO_DEVICE_ID_JOYPAD_SELECT;
+		default:                             return -1;
+	}
+}
+
+static void UpdateArcadeInput()
+{
+	const JVS_MODE mode = ACJV::GetMode();
+	const auto pad = [](u32 port, unsigned id) { return s_input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, id) != 0; };
+	const auto stick = [](u32 port, unsigned index, unsigned axis) {
+		return static_cast<float>(s_input_state_cb(port, RETRO_DEVICE_ANALOG, index, axis)) / 32767.0f;
+	};
+	// a binding's state: its RetroPad button, or a stick past half way for the stick directions
+	const auto held = [&](u32 port, GenericInputBinding g) {
+		switch (g)
+		{
+			case GenericInputBinding::LeftStickUp:     return stick(port, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y) < -0.5f;
+			case GenericInputBinding::LeftStickDown:   return stick(port, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_Y) > 0.5f;
+			case GenericInputBinding::LeftStickLeft:   return stick(port, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) < -0.5f;
+			case GenericInputBinding::LeftStickRight:  return stick(port, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) > 0.5f;
+			case GenericInputBinding::RightStickUp:    return stick(port, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y) < -0.5f;
+			case GenericInputBinding::RightStickDown:  return stick(port, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_Y) > 0.5f;
+			case GenericInputBinding::RightStickLeft:  return stick(port, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X) < -0.5f;
+			case GenericInputBinding::RightStickRight: return stick(port, RETRO_DEVICE_INDEX_ANALOG_RIGHT, RETRO_DEVICE_ID_ANALOG_X) > 0.5f;
+			default:
+			{
+				const int id = RetroIdForGeneric(g);
+				return id >= 0 && pad(port, static_cast<unsigned>(id));
+			}
+		}
+	};
+
+	static bool s_coin_held[2], s_test_held;
+	const bool lightgun = (mode == JVS_MODE::LIGHTGUN);
+	const GunMapping& gm = ACJV::GetGunMapping();
+	for (u32 p = 0; p < JVS_PLAYER_COUNT; p++)
+	{
+		u16 all = 0, pressed = 0;
+		const auto add = [&](std::span<const InputBindingInfo> list, bool directions_and_start_only) {
+			for (const InputBindingInfo& bi : list)
+			{
+				const std::string_view name(bi.name);
+				if (name.ends_with("_Service"))
+					continue; // L3 below, so Select stays the coin
+				if (directions_and_start_only && !(name.ends_with("_Up") || name.ends_with("_Down") || name.ends_with("_Left") ||
+													 name.ends_with("_Right") || name.ends_with("_Start")))
+					continue;
+				const u16 mask = static_cast<u16>(bi.bind_index);
+				all |= mask;
+				if (held(p, bi.generic_mapping))
+					pressed |= mask;
+			}
+		};
+
+		if (mode == JVS_MODE::TWINSTICK)
+		{
+			if (p == 0)
+				add(ACJV::GetTwinstickBindings(), false);
+		}
+		else if (!lightgun)
+		{
+			add(p == 0 ? ACJV::GetButtonBindings() : ACJV::GetP2ButtonBindings(), true);
+			std::span<const InputBindingInfo> layout = ACJV::GetFightingButtons();
+			if (layout.empty())
+				layout = ACJV::GetStandardButtons();
+			if (layout.empty() && p == 0)
+				layout = ACJV::GetRacingButtons();
+			if (!layout.empty())
+				add(layout, false);
+			else if (mode != JVS_MODE::DRIVE && mode != JVS_MODE::DRUM)
+				add(p == 0 ? ACJV::GetButtonBindings() : ACJV::GetP2ButtonBindings(), false); // the generic buttons 1-6
+		}
+		// the service switch: L3
+		all |= JVS_BTN_SERVICE;
+		if (pad(p, RETRO_DEVICE_ID_JOYPAD_L3))
+			pressed |= JVS_BTN_SERVICE;
+		if (!lightgun)
+		{
+			ACJV::SetButtonState(p, all & ~pressed, false);
+			ACJV::SetButtonState(p, pressed, true);
+		}
+
+		// a coin per press of Select
+		const bool coin = pad(p, RETRO_DEVICE_ID_JOYPAD_SELECT) ||
+						  s_input_state_cb(p, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SELECT);
+		if (coin && !s_coin_held[p])
+			ACJV::InsertCoin(p);
+		s_coin_held[p] = coin;
+	}
+
+	// the test switch (DIP 1): R3 on the first RetroPad toggles it
+	const bool test = pad(0, RETRO_DEVICE_ID_JOYPAD_R3);
+	if (test && !s_test_held)
+		ACJV::ToggleDIPSwitchState(0);
+	s_test_held = test;
+
+	if (mode == JVS_MODE::DRIVE)
+	{
+		const float x = stick(0, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X);
+		const float gas = static_cast<float>(s_input_state_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_BUTTON, RETRO_DEVICE_ID_JOYPAD_R2)) / 32767.0f;
+		const float brake = static_cast<float>(s_input_state_cb(0, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_BUTTON, RETRO_DEVICE_ID_JOYPAD_L2)) / 32767.0f;
+		const bool left = pad(0, RETRO_DEVICE_ID_JOYPAD_LEFT), right = pad(0, RETRO_DEVICE_ID_JOYPAD_RIGHT);
+		ACJV::SetWheelAxis(0, right ? 1.0f : std::max(x, 0.0f));
+		ACJV::SetWheelAxis(1, left ? 1.0f : std::max(-x, 0.0f));
+		// a digital R2/L2 reports no analog value: full travel then
+		ACJV::SetWheelAxis(2, pad(0, RETRO_DEVICE_ID_JOYPAD_R2) ? std::max(gas, gas > 0.0f ? gas : 1.0f) : gas);
+		ACJV::SetWheelAxis(3, pad(0, RETRO_DEVICE_ID_JOYPAD_L2) ? std::max(brake, brake > 0.0f ? brake : 1.0f) : brake);
+	}
+	else if (mode == JVS_MODE::DRUM)
+	{
+		// Taiko: Don = Left / B on the inner drum, Ka = L / R on the rim (the PS2 Tatacon wiring)
+		static constexpr std::pair<unsigned, u32> drum[2][4] = {
+			{{RETRO_DEVICE_ID_JOYPAD_LEFT, 0}, {RETRO_DEVICE_ID_JOYPAD_B, 3}, {RETRO_DEVICE_ID_JOYPAD_L, 5}, {RETRO_DEVICE_ID_JOYPAD_R, 4}},
+			{{RETRO_DEVICE_ID_JOYPAD_LEFT, 2}, {RETRO_DEVICE_ID_JOYPAD_B, 7}, {RETRO_DEVICE_ID_JOYPAD_L, 1}, {RETRO_DEVICE_ID_JOYPAD_R, 6}},
+		};
+		for (u32 p = 0; p < 2; p++)
+			for (const auto& [id, channel] : drum[p])
+				ACJV::SetDrumHit(channel, pad(p, id));
+	}
+	else if (lightgun)
+	{
+		// the frontend's lightguns: aim across the picture, offscreen while Reload is held
+		const u16 trig[2] = {gm.p1_trigger, gm.p2_trigger};
+		const u16 start[2] = {gm.p1_start ? gm.p1_start : static_cast<u16>(JVS_BTN_START), gm.p2_start};
+		u16 all = 0, pressed = 0;
+		for (u32 p = 0; p < 2; p++)
+		{
+			const auto gun = [&](unsigned id) { return s_input_state_cb(p, RETRO_DEVICE_LIGHTGUN, 0, id); };
+			const bool offscreen = gun(RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN) || gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+			const float x = (static_cast<float>(gun(RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X)) + 32767.0f) / 65534.0f;
+			const float y = (static_cast<float>(gun(RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y)) + 32767.0f) / 65534.0f;
+			ACJV::SetGunAimSource(p, true);
+			ACJV::SetGunRelativeAim(p, offscreen ? -1.0f : x, offscreen ? -1.0f : y);
+
+			// one trigger bit per gun; a 1-player cabinet's second gun shares the first's bits on player 2
+			const u32 target = (p == 1 && !trig[1]) ? 1 : 0;
+			const u16 t = (p == 0 || !trig[1]) ? trig[0] : trig[1];
+			const u16 s = (p == 0 || !start[1]) ? start[0] : start[1];
+			const bool fire = gun(RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) || gun(RETRO_DEVICE_ID_LIGHTGUN_RELOAD);
+			const bool st = gun(RETRO_DEVICE_ID_LIGHTGUN_START) || pad(p, RETRO_DEVICE_ID_JOYPAD_START);
+			const bool pedal = gun(RETRO_DEVICE_ID_LIGHTGUN_AUX_A) || pad(p, RETRO_DEVICE_ID_JOYPAD_B);
+			ACJV::SetButtonState(target, t, fire);
+			ACJV::SetButtonState(target, s, st);
+			if (gm.board == GunBoardModel::CameraVN)
+				ACJV::SetGunForceOffscreen(pedal);
+			else if (gm.pedal)
+				ACJV::SetButtonState(p, gm.pedal, pedal);
+			(void)all; (void)pressed;
+		}
+	}
+}
+
 static void UpdateInput()
 {
 	if (!s_input_poll_cb || !s_input_state_cb)
@@ -2707,6 +2918,12 @@ static void UpdateInput()
 		return;
 
 	s_input_poll_cb();
+
+	if (g_ArcadeMode)
+	{
+		UpdateArcadeInput();
+		return;
+	}
 
 	static constexpr std::pair<unsigned, u32> button_map[] = {
 		{RETRO_DEVICE_ID_JOYPAD_UP, PadDualshock2::Inputs::PAD_UP},

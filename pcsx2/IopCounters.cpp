@@ -244,9 +244,9 @@ static void _rcntTestTarget(int i)
 	PSXCNT_LOG("IOP Counter[%d] target 0x%I64x >= 0x%I64x (mode: %x)",
 			   i, psxCounters[i].count, psxCounters[i].target, psxCounters[i].mode.modeval);
 
+	// Target interrupt
 	if (psxCounters[i].mode.targetIntr)
 	{
-		// Target interrupt
 		_rcntFireInterrupt(i, false);
 	}
 
@@ -431,7 +431,7 @@ void psxVBlankStart()
 {
 	cdvdVsync();
 	iopIntcIrq(0);
-	
+
 	_psxCheckStartGate(1);
 	_psxCheckStartGate(3);
 
@@ -479,7 +479,7 @@ void psxRcntUpdate()
 		_rcntTestTarget(i);
 	}
 
-	const u32 spu2_delta = (psxRegs.cycle - lClocks) % 768;
+	const u32 spu2_delta = (psxRegs.cycle - lClocks) % psxCounters[6].rate;
 	psxCounters[6].startCycle = psxRegs.cycle - spu2_delta;
 	psxCounters[6].deltaCycles = psxCounters[6].rate;
 	SPU2async();

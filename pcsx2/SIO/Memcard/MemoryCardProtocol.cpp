@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #include "SIO/Memcard/MemoryCardProtocol.h"
+#include "Common.h" // g_ArcadeMode
 
 #include "SIO/Sio.h"
 #include "SIO/Sio2.h"
@@ -517,7 +518,8 @@ void MemoryCardProtocol::AuthF3()
 	}
 	else
 	{
-		mcd->term = Terminator::READY;
+		if (!g_ArcadeMode)
+			mcd->term = Terminator::READY;
 		The2bTerminator(5);
 	}
 }

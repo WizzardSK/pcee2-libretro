@@ -120,6 +120,7 @@ extern SyncCounter vsyncCounter;
 extern s32 nextDeltaCounter;		// delta until the next counter event (must be signed)
 extern u64 nextStartCounter;
 extern uint g_FrameCount;
+extern bool s_sys256_mode;
 
 extern void rcntUpdate_hScanline();
 extern void rcntUpdate_vSync();

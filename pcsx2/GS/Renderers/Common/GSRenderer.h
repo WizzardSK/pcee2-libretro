@@ -61,6 +61,7 @@ public:
 	void DumpSavedMetrics();
 	bool IsSavingMetrics();
 	void PresentCurrentFrame();
+	static GSVector4 GetLastDrawRect();
 	bool BeginCapture(std::string filename, const GSVector2i& size = GSVector2i(0, 0));
 	void EndCapture();
 };

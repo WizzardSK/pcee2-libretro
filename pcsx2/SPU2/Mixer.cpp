@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #include "Host/AudioStream.h"
+#include "Common.h" // g_ArcadeMode
 #include "SPU2/Debug.h"
 #include "SPU2/defs.h"
 #include "SPU2/spu2.h"
@@ -522,13 +523,29 @@ static __forceinline StereoOut32 MixCore(const uint coreidx, const VoiceMixSet& 
 void spu2Mix()
 {
 	// Note: Playmode 4 is SPDIF, which overrides other inputs.
+	// When SPDIF is active (e.g. Time Crisis 4 EXSOUND board), read core 0
+	// input at HiFi rate (2x) since the S/PDIF transmitter consumes data at
+	// double the normal ADMA rate.
+	// ReadInput_HiFi returns packed 32-bit values; split into two 16-bit
+	// samples for left and right channels.
+	StereoOut32 RawInput0;
+	if ((PlayMode & 4) && g_ArcadeMode)
+	{
+		StereoOut32 hifi = Cores[0].ReadInput_HiFi();
+		RawInput0.Left = (s16)(hifi.Left & 0xFFFF);
+		RawInput0.Right = (s16)(hifi.Left >> 16);
+	}
+	else
+	{
+		RawInput0 = Cores[0].ReadInput();
+	}
 	StereoOut32 InputData[2] =
 		{
 			// SPDIF is on Core 0:
 			// Fixme:
 			// 1. We do not have an AC3 decoder for the bitstream.
 			// 2. Games usually provide a normal ADMA stream as well and want to see it getting read!
-			/*(PlayMode&4) ? StereoOut32::Empty : */ ApplyVolume(Cores[0].ReadInput(), Cores[0].InpVol),
+			/*(PlayMode&4) ? StereoOut32::Empty : */ ApplyVolume(RawInput0, Cores[0].InpVol),
 
 			// CDDA is on Core 1:
 			(PlayMode & 8) ? StereoOut32::Empty : ApplyVolume(Cores[1].ReadInput(), Cores[1].InpVol)};
@@ -546,7 +563,17 @@ void spu2Mix()
 
 	StereoOut32 Ext(MixCore(0, VoiceData[0], InputData[0], StereoOut32::Empty));
 
-	if ((PlayMode & 4) || (Cores[0].Mute != 0))
+	// When PlayMode=4 (SPDIF), the game routes ADMA input to the S/PDIF
+	// transmitter (e.g. Time Crisis 4 EXSOUND board). Since we don't emulate S/PDIF
+	// output, mix the raw ADMA input directly (bypassing InpVol/MMIX, as
+	// real SPDIF output is a direct digital stream).
+	if ((PlayMode & 4) && g_ArcadeMode)
+	{
+		Ext.Left += RawInput0.Left;
+		Ext.Right += RawInput0.Right;
+	}
+
+	if ((Cores[0].Mute != 0) || ((PlayMode & 4) && !g_ArcadeMode))
 		Ext = StereoOut32::Empty;
 	else
 	{

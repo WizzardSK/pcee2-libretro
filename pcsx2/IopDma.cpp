@@ -189,6 +189,10 @@ void psxDma9(u32 madr, u32 bcr, u32 chcr)
 	sif0.iop.end = false;
 
 	SIF0Dma();
+
+	// Arcade: clear dma9 busy now so each queued sceSifSetDma re-kicks and reads the reused bounce buffer fresh (else the movies corrupt)
+	if (g_ArcadeMode && !sif0.iop.busy)
+		HW_DMA9_CHCR &= ~0x01000000;
 }
 
 void psxDma10(u32 madr, u32 bcr, u32 chcr)

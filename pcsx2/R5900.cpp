@@ -276,6 +276,7 @@ static __fi bool _cpuTestInterrupts()
 		TESTINT(VU_MTVU_BUSY, MTVUInterrupt);
 		TESTINT(DMAC_VIF1, vif1Interrupt);
 		TESTINT(DMAC_GIF, gifInterrupt);
+		TESTINT(DMAC_GIF_UNIT, Gif_FinishIRQEvent);
 		TESTINT(DMAC_SIF0, EEsif0Interrupt);
 		TESTINT(DMAC_SIF1, EEsif1Interrupt);
 		// Profile-guided Optimization (sorta)
@@ -696,6 +697,20 @@ void eeloadHook()
 		if (!elfname.empty())
 		{
 			// Find and save location of default/fallback call "rom0:OSDSYS"; to be used later by eeloadHook2()
+			if (g_ArcadeMode)
+			{
+				// the COH-H EELOAD names rom0:OSDSYS more than once: point every one at the game's ELF
+				g_osdsys_str = 0;
+				for (u32 scan = EELOAD_START; scan < EELOAD_START + EELOAD_SIZE; scan += 8) // strings are 64-bit aligned
+				{
+					if (!strcmp((char*)PSM(scan), "rom0:OSDSYS"))
+					{
+						strcpy((char*)PSM(scan), elfname.c_str());
+						g_osdsys_str = scan;
+					}
+				}
+			}
+			else
 			for (g_osdsys_str = EELOAD_START; g_osdsys_str < EELOAD_START + EELOAD_SIZE; g_osdsys_str += 8) // strings are 64-bit aligned
 			{
 				if (!strcmp((char*)PSM(g_osdsys_str), "rom0:OSDSYS"))

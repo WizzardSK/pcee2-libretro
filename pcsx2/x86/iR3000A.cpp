@@ -713,11 +713,10 @@ static void psxRecompileIrxImport()
 	const std::string libname = iopMemReadString(import_table + 12, 8);
 
 	irxHLE hle = irxImportHLE(libname, index);
-#ifdef PCSX2_DEVBUILD
 	const irxDEBUG debug = irxImportDebug(libname, index);
+#ifdef PCSX2_DEVBUILD
 	const char* funcname = irxImportFuncname(libname, index);
 #else
-	const irxDEBUG debug = 0;
 	const char* funcname = nullptr;
 #endif
 

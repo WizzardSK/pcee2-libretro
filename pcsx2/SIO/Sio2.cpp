@@ -3,6 +3,8 @@
 
 #include "Common.h"
 #include "Host.h"
+#include "IopHw.h"
+#include "R3000A.h"
 #include "IopDma.h"
 #include "Recording/InputRecording.h"
 #include "SIO/Memcard/MemoryCardProtocol.h"
@@ -87,6 +89,7 @@ void Sio2::SoftReset()
 	// Clear dmaBlockSize, in case the next SIO2 command is not sent over DMA11.
 	dmaBlockSize = 0;
 	queueComplete = false;
+	transferBytes = 0;
 
 	// Anything in g_Sio2FifoIn which was not necessary to consume should be cleared out prior to the next SIO2 cycle.
 	while (!g_Sio2FifoIn.empty())
@@ -112,10 +115,39 @@ void Sio2::SetCtrl(u32 value)
 {
 	this->ctrl = value;
 
-	if (this->ctrl & Sio2Ctrl::START_TRANSFER)
+	if ((this->ctrl & Sio2Ctrl::START_TRANSFER) && !g_ArcadeMode)
 	{
 		Interrupt();
 	}
+	else if (this->ctrl & Sio2Ctrl::START_TRANSFER)
+	{
+		// arcade: the transfer takes its serial time before the interrupt (the dongle's mcman races without it)
+		this->ctrl &= ~Sio2Ctrl::START_TRANSFER;
+
+		const u32 cmd0 = CmdQueue[0];
+		const u32 cmdPort = cmd0 & 0x3;
+		const u32 send1 = PortCtrl0[cmdPort];
+		const u32 send2 = PortCtrl1[cmdPort];
+		const bool useBaud1 = (cmd0 >> 30) & 1;
+		const u32 baudDiv = useBaud1 ? (send1 >> 24) : ((send1 >> 16) & 0xFF);
+		const u32 interBytePer = (send2 >> 16) & 0xFF;
+		const u32 cyclesPerByte = 8 * (baudDiv + 1) + interBytePer;
+
+		// Compute byte count from queued command lengths (more accurate than DMA transfer size)
+		u32 serialBytes = 0;
+		for (size_t i = 0; i < queuePosition; i++)
+			serialBytes += (CmdQueue[i] >> 8) & Sio2Cmd::COMMAND_LENGTH_MASK;
+		if (serialBytes == 0)
+			serialBytes = static_cast<u32>(transferBytes);
+
+		const u32 delay = serialBytes * cyclesPerByte + 64;
+		PSX_INT(IopEvt_SIO2, delay);
+	}
+}
+
+void sio2DelayedInterrupt()
+{
+	g_Sio2.Interrupt();
 }
 
 void Sio2::SetCmd(size_t position, u32 value)
@@ -267,13 +299,15 @@ void Sio2::Memcard()
 		return;
 	}
 
+	const u8 commandByte = g_Sio2FifoIn.front();
+
 	SetCmdStat(mcd->IsPresent() ? CmdStat::CONNECTED : CmdStat::DISCONNECTED);
 
-	const u8 commandByte = g_Sio2FifoIn.front();
 	g_Sio2FifoIn.pop_front();
 	const u8 responseByte = mcd->IsPresent() ? 0x00 : 0xff;
 	g_Sio2FifoOut.push_back(responseByte);
 	g_Sio2FifoOut.push_back(responseByte);
+
 	u8 ps1Input = 0;
 	u8 ps1Output = 0;
 
@@ -281,6 +315,12 @@ void Sio2::Memcard()
 	{
 		case MemcardCommand::PROBE:
 			g_MemoryCardProtocol.Probe();
+			break;
+		case MemcardCommand::GET_TERMINATOR:
+			g_MemoryCardProtocol.GetTerminator();
+			break;
+		case MemcardCommand::SET_TERMINATOR:
+			g_MemoryCardProtocol.SetTerminator();
 			break;
 		case MemcardCommand::UNKNOWN_WRITE_DELETE_END:
 			g_MemoryCardProtocol.UnknownWriteDeleteEnd();
@@ -292,12 +332,6 @@ void Sio2::Memcard()
 			break;
 		case MemcardCommand::GET_SPECS:
 			g_MemoryCardProtocol.GetSpecs();
-			break;
-		case MemcardCommand::SET_TERMINATOR:
-			g_MemoryCardProtocol.SetTerminator();
-			break;
-		case MemcardCommand::GET_TERMINATOR:
-			g_MemoryCardProtocol.GetTerminator();
 			break;
 		case MemcardCommand::WRITE_DATA:
 			g_MemoryCardProtocol.WriteData();
@@ -416,6 +450,7 @@ void Sio2::Write(u8 data)
 	}
 
 	g_Sio2FifoIn.push_back(data);
+	transferBytes++;
 
 	// We have received as many command bytes as we expect, and...
 	//

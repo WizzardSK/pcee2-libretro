@@ -3,9 +3,11 @@
 
 #include "SIO/Sio.h"
 
+#include "Common.h"
 #include "SIO/SioTypes.h"
 #include "SIO/Memcard/MemoryCardProtocol.h"
 #include "Counters.h"
+#include "VMManager.h"
 
 #include "Host.h"
 #include "IconsPromptFont.h"
@@ -24,9 +26,10 @@ void sioNextFrame() {
 }
 
 void sioSetGameSerial( const std::string& serial ) {
+	// Arcade dongles are always physically present — skip AutoEject
 	for ( uint port = 0; port < 2; ++port ) {
 		for ( uint slot = 0; slot < 4; ++slot ) {
-			if ( mcds[port][slot].ReIndex( serial ) ) {
+			if ( mcds[port][slot].ReIndex( serial ) && !g_ArcadeMode ) {
 				AutoEject::Set( port, slot );
 			}
 		}

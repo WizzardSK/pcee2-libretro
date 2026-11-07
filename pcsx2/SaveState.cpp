@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #include "Achievements.h"
+#include "Common.h" // g_ArcadeMode
 #include "BuildVersion.h"
 #include "CDVD/CDVD.h"
 #include "COP0.h"
@@ -544,6 +545,56 @@ public:
 	uint GetDataSize() const override { return Ps2MemSize::ExposedIopRam; }
 };
 
+#include "DEV9/ACRAM.h"
+#include "DEV9/ACSRAM.h"
+#include "DEV9/ACJV.h"
+
+// The Namco System 246/256 board's memories: written only while an arcade game
+// runs (an empty entry otherwise), and optional, so states of retail games and
+// states from builds without the board load as before
+class ArcadeMemorySavestateEntry : public MemorySavestateEntry
+{
+public:
+	bool FreezeIn(zip_file_t* zf) const override
+	{
+		if (!zf || !g_ArcadeMode || !GetDataPtr())
+			return true;
+		return MemorySavestateEntry::FreezeIn(zf);
+	}
+	bool FreezeOut(SaveStateBase& writer) const override
+	{
+		if (!g_ArcadeMode || !GetDataPtr())
+			return writer.IsOkay();
+		return MemorySavestateEntry::FreezeOut(writer);
+	}
+	bool IsRequired() const override { return false; }
+};
+
+class SavestateEntry_ACRAM final : public ArcadeMemorySavestateEntry
+{
+public:
+	const char* GetFilename() const override { return "ACRAM.bin"; }
+	u8* GetDataPtr() const override { return ACRAM::mem; }
+	u32 GetDataSize() const override { return ACRAM_MAX_SIZE; }
+};
+
+class SavestateEntry_ACSRAM final : public ArcadeMemorySavestateEntry
+{
+public:
+	const char* GetFilename() const override { return "ACSRAM.bin"; }
+	u8* GetDataPtr() const override { return ACSRAM::buffer; }
+	u32 GetDataSize() const override { return ACSRAM_MAX_SIZE; }
+};
+
+// the coin counters; if anything else of the JVS needs keeping, move to a struct
+class SavestateEntry_JVSSTATE final : public ArcadeMemorySavestateEntry
+{
+public:
+	const char* GetFilename() const override { return "jvs_state.bin"; }
+	u8* GetDataPtr() const override { return (u8*)ACJV::coin; }
+	u32 GetDataSize() const override { return sizeof(ACJV::coin); }
+};
+
 class SavestateEntry_HwRegs final : public MemorySavestateEntry
 {
 public:
@@ -700,6 +751,9 @@ class SaveStateEntry_Achievements final : public BaseSavestateEntry
 static const std::unique_ptr<BaseSavestateEntry> SavestateEntries[] = {
 	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_EmotionMemory),
 	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_IopMemory),
+	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_ACRAM),
+	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_ACSRAM),
+	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_JVSSTATE),
 	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_HwRegs),
 	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_IopHwRegs),
 	std::unique_ptr<BaseSavestateEntry>(new SavestateEntry_Scratchpad),

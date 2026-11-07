@@ -6,6 +6,7 @@
 #include "Gif_Unit.h"
 #include "Vif_Dma.h"
 #include "MTVU.h"
+#include "R5900.h"
 
 Gif_Unit gifUnit;
 
@@ -172,12 +173,36 @@ bool Gif_HandlerAD_Debug(u8* pMem)
 	return 0;
 }
 
-void Gif_FinishIRQ()
+static constexpr int GS_FINISH_DRAW_DELAY = 0x10000; // GS draw latency: how long after the GIF drains to assert CSR.FINISH
+
+void Gif_FinishIRQEvent()
 {
 	if (gifUnit.gsFINISH.gsFINISHPending)
 	{
 		CSRreg.FINISH = true;
 		gifUnit.gsFINISH.gsFINISHPending = false;
+	}
+	if (CSRreg.FINISH && !GSIMR.FINISHMSK && !gifUnit.gsFINISH.gsFINISHFired)
+	{
+		gsIrq();
+		gifUnit.gsFINISH.gsFINISHFired = true;
+	}
+}
+
+void Gif_FinishIRQ()
+{
+	// The arcade games need the GS draw latency modelled before FINISH is
+	// signalled; retail games keep signalling it at once
+	if (!g_ArcadeMode)
+	{
+		Gif_FinishIRQEvent();
+		return;
+	}
+	if (gifUnit.gsFINISH.gsFINISHPending)
+	{
+		if (!(cpuRegs.interrupt & (1 << DMAC_GIF_UNIT)))
+			CPU_INT(DMAC_GIF_UNIT, GS_FINISH_DRAW_DELAY);
+		return;
 	}
 	if (CSRreg.FINISH && !GSIMR.FINISHMSK && !gifUnit.gsFINISH.gsFINISHFired)
 	{

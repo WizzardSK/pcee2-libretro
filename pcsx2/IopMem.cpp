@@ -7,6 +7,12 @@
 #include "ps2/pgif.h" // for PSX kernel TTY in iopMemWrite32
 #include "SPU2/spu2.h"
 #include "DEV9/DEV9.h"
+#include "DEV9/ACATA.h"
+#include "DEV9/ACRAM.h"
+#include "DEV9/ACSRAM.h"
+#include "DEV9/ACJV.h"
+#include "DEV9/ACCORE.h"
+#include "DEV9/ACUART.h"
 #include "IopHw.h"
 
 uptr *psxMemWLUT = nullptr;
@@ -111,9 +117,23 @@ u8 iopMemRead8(u32 mem)
 			default:
 				return psxHu8(mem);
 		}
-	}
-	else if (t == 0x1f40)
-	{
+	} else if (g_ArcadeMode && t == ACSRAM_RANGE) {
+		return ACSRAM::Read16(mem);
+	// Arcade HW 8-bit dispatch: IOP firmware does byte reads on 16-bit MMIO.
+	// Without this, byte reads to ACRAM/ATA/JVS/ACCORE returned 0.
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACRAM_RANGE) {
+		u16 val16 = ACRAM::Read16(mem & ~1);
+		return (mem & 1) ? (u8)(val16 >> 8) : (u8)val16;
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACATA_RANGE) {
+		u16 val16 = ACATA::read16(mem & ~1);
+		return (mem & 1) ? (u8)(val16 >> 8) : (u8)val16;
+	} else if (g_ArcadeMode && t == ACJV_RANGE) {
+		u16 val16 = ACJV::Read16(mem & ~1);
+		return (mem & 1) ? (u8)(val16 >> 8) : (u8)val16;
+	} else if (g_ArcadeMode && t == 0x1241) {
+		u16 val16 = ACCORE::Read16(mem & ~1);
+		return (mem & 1) ? (u8)(val16 >> 8) : (u8)val16;
+	} else if (t == 0x1f40) {
 		return psxHw4Read8(mem);
 	}
 	else
@@ -135,6 +155,7 @@ u8 iopMemRead8(u32 mem)
 
 u16 iopMemRead16(u32 mem)
 {
+	u16 V;
 	mem &= 0x1fffffff;
 	u32 t = mem >> 16;
 
@@ -149,6 +170,25 @@ u16 iopMemRead16(u32 mem)
 			default:
 				return psxHu16(mem);
 		}
+	} else if (g_ArcadeMode && t == 0x1241) {
+		if (IS_ACUART_RANGE(mem)) {
+			V = ACUART::Read16(mem);
+    		//Console.Error("%-16s %08X:  %04X", "ACUART::Read16", mem, V);
+		} else {
+			V = ACCORE::Read16(mem);
+		}
+		return V;
+	} else if (g_ArcadeMode && t == ACJV_RANGE) {
+		V = ACJV::Read16(mem);
+    	// Console.Error("%-16s %08X:  %04X", "ACJV::read16", mem, V);
+		return V;
+	} else if (g_ArcadeMode && t == ACSRAM_RANGE) {
+		return ACSRAM::Read16(mem);
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACRAM_RANGE) {
+		return ACRAM::Read16(mem);
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACATA_RANGE) {
+		V = ACATA::read16(mem);
+		return V;
 	}
 	else
 	{
@@ -279,6 +319,28 @@ void iopMemWrite8(u32 mem, u8 value)
 	{
 		psxHw4Write8(mem, value);
 	}
+	else if (g_ArcadeMode && (t & 0xFF00) == ACRAM_RANGE)
+	{
+		u16 cur = ACRAM::Read16(mem & ~1);
+		if (mem & 1) cur = (cur & 0x00FF) | ((u16)value << 8);
+		else         cur = (cur & 0xFF00) | value;
+		ACRAM::Write16(mem & ~1, cur);
+	}
+	else if (g_ArcadeMode && (t & 0xFF00) == ACATA_RANGE)
+	{
+		u16 cur = ACATA::read16(mem & ~1);
+		if (mem & 1) cur = (cur & 0x00FF) | ((u16)value << 8);
+		else         cur = (cur & 0xFF00) | value;
+		ACATA::write16(mem & ~1, cur);
+	}
+	else if (g_ArcadeMode && t == ACJV_RANGE)
+	{
+		if (ACJV::enabled) ACJV::Write16(mem & ~1, value);
+	}
+	else if (g_ArcadeMode && t == 0x1241)
+	{
+		ACCORE::Write16(mem & ~1, value);
+	}
 	else
 	{
 		u8* p = (u8 *)(psxMemWLUT[mem >> 16]);
@@ -321,6 +383,24 @@ void iopMemWrite16(u32 mem, u16 value)
 				psxHu16(mem) = value;
 				break;
 		}
+	
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACATA_RANGE) {
+		ACATA::write16(mem, value);
+	} else if (g_ArcadeMode && t == ACJV_RANGE) {
+		if (ACJV::enabled) {
+			ACJV::Write16(mem, value);
+		}
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACRAM_RANGE) {
+		ACRAM::Write16(mem, value);
+	} else if (g_ArcadeMode && t == ACSRAM_RANGE) {
+		ACSRAM::Write16(mem, value);
+	} else if (g_ArcadeMode && t == 0x1241) {
+		if (IS_ACUART_RANGE(mem))
+			ACUART::Write16(mem, value);
+		else
+			ACCORE::Write16(mem, value);
+	} else if (g_ArcadeMode && (t & 0xFF00) == 0x1300) {
+		ACCORE::Interrupt(mem, value);
 	} else
 	{
 		u8* p = (u8 *)(psxMemWLUT[mem >> 16]);
@@ -394,6 +474,8 @@ void iopMemWrite32(u32 mem, u32 value)
 				psxHu32(mem) = value;
 			break;
 		}
+	} else if (g_ArcadeMode && (t & 0xFF00) == ACATA_RANGE) {
+		Console.Error("%-16s %08X:  %08X", "ACATA::Write32", mem, value);
 	} else
 	{
 		//see also Hw.c

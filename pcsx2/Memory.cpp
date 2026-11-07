@@ -23,6 +23,7 @@ BIOS
 */
 
 #include "DEV9/DEV9.h"
+#include "Common.h" // g_ArcadeMode
 #include "IopHw.h"
 #include "GS/Renderers/Common/GSFunctionMap.h"
 #include "GS.h"
@@ -413,7 +414,8 @@ void memMapPhy()
 
 	// Various ROMs (all read-only)
 	vtlb_MapBlock(eeMem->ROM,	0x1fc00000, Ps2MemSize::Rom);
-	vtlb_MapBlock(eeMem->ROM1,	0x1e000000, Ps2MemSize::Rom1);
+	// on a COH-H model (the arcade board) rom1: is declared by rom0:ACDEV elsewhere
+	vtlb_MapBlock(eeMem->ROM1,	g_ArcadeMode ? 0xB0000000 : 0x1e000000, Ps2MemSize::Rom1); //, rom1: is declared by rom0:ACDEV. https://github.com/ps2dev/ps2sdk/blob/566ed82da2c57ed0e86dfbec5b69a8f1d0ecb76b/iop/arcade/acdev/src/acdev.c#L39-L56
 	vtlb_MapBlock(eeMem->ROM2,	0x1e400000, Ps2MemSize::Rom2);
 
 	// IOP memory

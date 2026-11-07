@@ -146,7 +146,11 @@ static bool LoadBiosVersion(std::FILE* fp, u32& version, std::string& descriptio
 			// case 'E': zone = "Russia"; region = 3;  break; // Not implemented
 			case 'C': zone = "China";  region = 6;  break;
 			// case 'A': zone = "Mexico"; region = 7;  break; // Not implemented
-			case 'T': zone = (romver[5]=='Z') ? "COH-H" : "T10K";   region = 8;  break;
+			case 'T': {
+				zone = (romver[5]=='Z') ? "COH-H" : "T10K";
+				region = (romver[5]=='Z') ? 11 : 8;
+				break;
+			}
 			case 'X': zone = "Test";   region = 9;  break;
 			case 'P': zone = "Free";   region = 10; break;
 			// clang-format on
@@ -168,14 +172,20 @@ static bool LoadBiosVersion(std::FILE* fp, u32& version, std::string& descriptio
 
 		char vermaj[3] = {romver[0], romver[1], 0};
 		char vermin[3] = {romver[2], romver[3], 0};
-		description = StringUtil::StdStringFromFormat("%-7s v%s.%s(%c%c/%c%c/%c%c%c%c)  %s %s",
+
+		// let's guess the unit by the EXTINFO serial
+		std::string ConsoleGuess = "";
+		if /**/ (serial == "20040519-145634") ConsoleGuess = "System 256"; // 256 and super256 have exact same bios. but super256 is trapped on overclock mode
+		else if (serial == "20021119-163841") ConsoleGuess = "System 246 Rack C";
+		else if (serial == "20000901-114731") ConsoleGuess = "COH-H Board (A-000-010)";
+		else if (region == 11) ConsoleGuess = ("!! UNKNOWN BOARD PLEASE REPORT !!"); // bios is COH-H but unknown EXTINFO!
+		// here I removed the bios version and date in favor of our system guess string
+		// Why? because sony never updated the date and version on the ROMVER file of the COH-H bios
+		// every one of them will say v1.0(06/03/2000) this is the date when the bios image for the 
+		// arcade TOOL PSALM library & toolset was built
+		description = StringUtil::StdStringFromFormat("%-7s %s %s",
 			zone.c_str(),
-			vermaj, vermin,
-			romver[12], romver[13], // day
-			romver[10], romver[11], // month
-			romver[6], romver[7], romver[8], romver[9], // year!
-			(romver[5] == 'C') ? "Console" : (romver[5] == 'D') ? "Devel" :
-																  "",
+			ConsoleGuess.c_str(),
 			serial.c_str());
 
 		version = static_cast<u32>(strtol(vermaj, (char**)NULL, 0) << 8);

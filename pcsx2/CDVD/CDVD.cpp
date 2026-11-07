@@ -35,6 +35,8 @@
 
 cdvdStruct cdvd;
 
+u32 PS2CLK = PS2CLK_DEFAULT;
+bool g_ArcadeMode = false;
 u32 PSXCLK = 36864000;
 
 static constexpr s32 GMT9_OFFSET_SECONDS = 9 * 60 * 60; // 32400
@@ -46,7 +48,10 @@ static constexpr u8 cdvdParamLength[16] = { 0, 0, 0, 0, 0, 4, 11, 11, 11, 1, 255
 static constexpr size_t NVRAM_SIZE = 1024;
 static u8 s_nvram[NVRAM_SIZE];
 
-static constexpr u32 DEFAULT_MECHA_VERSION = 0x00020603;
+#define MECHACONVER_PCSX2_GENERIC 0x00020603
+#define MECHACONVER_ARCADE 0x0104020a // from a COH-H31100: `0A 02 04 01`
+static constexpr u32 DEFAULT_MECHA_VERSION = MECHACONVER_PCSX2_GENERIC;
+
 static u32 s_mecha_version = 0;
 
 static __fi void SetSCMDResultSize(u8 size) noexcept
@@ -70,7 +75,7 @@ static void CDVDSECTORREADY_INT(u32 eCycle)
 
 	if (EmuConfig.Speedhacks.fastCDVD)
 	{
-		if (eCycle < Cdvd_FullSeek_Cycles && eCycle > 1)
+		if (eCycle < Cdvd_FullSeek_Cycles() && eCycle > 1)
 			eCycle *= 0.5f;
 	}
 
@@ -83,7 +88,7 @@ static void CDVDREAD_INT(u32 eCycle)
 	// Keep long seeks out though, as games may try to push dmas while seeking. (Tales of the Abyss)
 	if (EmuConfig.Speedhacks.fastCDVD)
 	{
-		if (eCycle < Cdvd_FullSeek_Cycles && eCycle > 1)
+		if (eCycle < Cdvd_FullSeek_Cycles() && eCycle > 1)
 			eCycle *= 0.5f;
 	}
 
@@ -135,14 +140,14 @@ const NVMLayout* getNvmLayout() noexcept
 
 static void cdvdCreateNewNVM()
 {
-	std::memset(s_nvram, 0, sizeof(s_nvram));
+	std::memset(s_nvram, g_ArcadeMode ? 0xFF : 0, sizeof(s_nvram));
 
 	// Write NVM ILink area with dummy data (Age of Empires 2)
 	// Also write language data defaulting to English (Guitar Hero 2)
 	// Also write PStwo region defaults
 	const NVMLayout* nvmLayout = getNvmLayout();
 	if (((BiosVersion >> 8) == 2) && ((BiosVersion & 0xff) != 10)) // bios >= 200, except of 0x210 for PSX2 DESR
-		std::memcpy(&s_nvram[nvmLayout->regparams], PStwoRegionDefaults[BiosRegion], 12);
+		std::memcpy(&s_nvram[nvmLayout->regparams], PStwoRegionDefaults[(BiosRegion < std::size(PStwoRegionDefaults)) ? BiosRegion : 8], 12); // COH-H (11): as T10K
 
 	static constexpr u8 ILinkID_Data[8] = {0x00, 0xAC, 0xFF, 0xFF, 0xFF, 0xFF, 0xB9, 0x86};
 	std::memcpy(&s_nvram[nvmLayout->ilinkId], ILinkID_Data, sizeof(ILinkID_Data));
@@ -154,7 +159,7 @@ static void cdvdCreateNewNVM()
 
 	// Config sections first 16 bytes are generally blank expect the last byte which is PS1 mode stuff
 	// So let's ignore that and just write the PS2 mode stuff
-	std::memcpy(&s_nvram[nvmLayout->config1 + 0x10], biosLangDefaults[BiosRegion], 16);
+	std::memcpy(&s_nvram[nvmLayout->config1 + 0x10], biosLangDefaults[(BiosRegion < std::size(biosLangDefaults)) ? BiosRegion : 8], 16); // COH-H (11): as T10K
 }
 
 static std::string cdvdGetNVRAMPath()
@@ -174,6 +179,9 @@ void cdvdLoadNVRAM()
 	}
 	else
 	{
+		// COH-H models dont have this, and system256 doesnt even use anything from the NVM beyond iLinkID
+		if (!g_ArcadeMode)
+		{
 		// Verify NVRAM is sane.
 		const NVMLayout* nvmLayout = getNvmLayout();
 		constexpr u8 zero[16] = {0};
@@ -185,6 +193,7 @@ void cdvdLoadNVRAM()
 			ERROR_LOG("Language or Region Parameters missing, filling in defaults");
 			cdvdCreateNewNVM();
 		}
+		}
 	}
 
 	// Also load the mechacon version while we're here.
@@ -192,7 +201,7 @@ void cdvdLoadNVRAM()
 	fp = FileSystem::OpenManagedCFileTryIgnoreCase(mecfile.c_str(), "rb", &error);
 	if (!fp || std::fread(&s_mecha_version, sizeof(s_mecha_version), 1, fp.get()) != 1)
 	{
-		s_mecha_version = DEFAULT_MECHA_VERSION;
+		s_mecha_version = g_ArcadeMode ? MECHACONVER_ARCADE : DEFAULT_MECHA_VERSION;
 
 		ERROR_LOG("Failed to open or read MEC file at {}: {}, creating default.", Path::GetFileName(nvmfile),
 			error.GetDescription());
@@ -1494,12 +1503,12 @@ static uint cdvdStartSeek(uint newsector, CDVD_MODE_TYPE mode, bool transition_t
 		{
 			// Full Seek
 			CDVD_LOG("CdSeek Begin > to sector %d, from %d - delta=%d [FULL]", cdvd.SeekToSector, cdvd.CurrentSector, delta);
-			seektime = Cdvd_FullSeek_Cycles;
+			seektime = Cdvd_FullSeek_Cycles();
 		}
 		else
 		{
 			CDVD_LOG("CdSeek Begin > to sector %d, from %d - delta=%d [FAST]", cdvd.SeekToSector, cdvd.CurrentSector, delta);
-			seektime = Cdvd_FastSeek_Cycles;
+			seektime = Cdvd_FastSeek_Cycles();
 		}
 		isSeeking = true;
 	}
@@ -2592,6 +2601,16 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 			case 0x12: // sceCdReadILinkId (0:9)
 				SetSCMDResultSize(9);
 				cdvdReadILinkID(&cdvd.SCMDResultBuff[1]);
+				extern std::string ArcadeiLinkID;
+				if (!ArcadeiLinkID.empty()) {
+					constexpr u8 s256Region_ASIA4[8] = {0x32, 0x1F, 0xC7, 0xFA, 0xD6, 0xEE, 0xF0, 0x1C};
+					constexpr u8 s256Region_ASIA5[8] = {0x41, 0x46, 0x53, 0x2F, 0x1E, 0xFD, 0x0F, 0xE0};
+					constexpr u8 s256Region_JAPAN[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+					if (ArcadeiLinkID == "ASIA4") std::memcpy(cdvd.SCMDResultBuff, s256Region_ASIA4, 8);
+					else if (ArcadeiLinkID == "ASIA5") std::memcpy(cdvd.SCMDResultBuff, s256Region_ASIA5, 8);
+					else if (ArcadeiLinkID == "JAPAN") std::memcpy(cdvd.SCMDResultBuff, s256Region_JAPAN, 8);
+					break;
+				}
 				if ((!cdvd.SCMDResultBuff[3]) && (!cdvd.SCMDResultBuff[4])) // nvm file is missing correct iLinkId, return hardcoded one
 				{
 					cdvd.SCMDResultBuff[0] = 0x00;
@@ -2608,7 +2627,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 
 			case 0x13: // sceCdWriteILinkID (8:1)
 				SetSCMDResultSize(1);
-				cdvdWriteILinkID(&cdvd.SCMDParamBuff[1]);
+				cdvdWriteILinkID(&cdvd.SCMDParamBuff[g_ArcadeMode ? 0 : 1]);
 				break;
 
 			case 0x14: // CdCtrlAudioDigitalOut (1:1)

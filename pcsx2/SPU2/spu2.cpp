@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 #include "SPU2/spu2.h"
+#include "Common.h" // g_ArcadeMode
 #include "SPU2/defs.h"
 #include "SPU2/Debug.h"
 #include "SPU2/Dma.h"
@@ -41,7 +42,7 @@ float DCFilterIn[2], DCFilterOut[2];
 
 u32 SPU2::GetConsoleSampleRate()
 {
-	return s_psxmode ? PSX_SAMPLE_RATE : SAMPLE_RATE;
+	return s_psxmode ? PSX_SAMPLE_RATE : g_ArcadeMode ? (PSXCLK / 768) : SAMPLE_RATE; // the System 256 IOP clock raises it
 }
 
 // --------------------------------------------------------------------------------------
