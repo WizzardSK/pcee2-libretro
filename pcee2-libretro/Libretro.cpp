@@ -2763,7 +2763,37 @@ static int RetroIdForGeneric(GenericInputBinding g)
 static void UpdateArcadeInput()
 {
 	const JVS_MODE mode = ACJV::GetMode();
-	const auto pad = [](u32 port, unsigned id) { return s_input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, id) != 0; };
+	// The keyboard as the first player's pad too, with the keys pcee2 gives the PS2
+	// pad (arrows, J/K/L/I, Q/E, 1/3, 2/4, Backspace = Select, Return = Start):
+	// not every frontend setup sends its keyboard as a RetroPad
+	const auto key = [](unsigned id) {
+		switch (id)
+		{
+			case RETRO_DEVICE_ID_JOYPAD_UP:     return RETROK_UP;
+			case RETRO_DEVICE_ID_JOYPAD_DOWN:   return RETROK_DOWN;
+			case RETRO_DEVICE_ID_JOYPAD_LEFT:   return RETROK_LEFT;
+			case RETRO_DEVICE_ID_JOYPAD_RIGHT:  return RETROK_RIGHT;
+			case RETRO_DEVICE_ID_JOYPAD_Y:      return RETROK_j;
+			case RETRO_DEVICE_ID_JOYPAD_B:      return RETROK_k;
+			case RETRO_DEVICE_ID_JOYPAD_A:      return RETROK_l;
+			case RETRO_DEVICE_ID_JOYPAD_X:      return RETROK_i;
+			case RETRO_DEVICE_ID_JOYPAD_L:      return RETROK_q;
+			case RETRO_DEVICE_ID_JOYPAD_R:      return RETROK_e;
+			case RETRO_DEVICE_ID_JOYPAD_L2:     return RETROK_1;
+			case RETRO_DEVICE_ID_JOYPAD_R2:     return RETROK_3;
+			case RETRO_DEVICE_ID_JOYPAD_L3:     return RETROK_2;
+			case RETRO_DEVICE_ID_JOYPAD_R3:     return RETROK_4;
+			case RETRO_DEVICE_ID_JOYPAD_SELECT: return RETROK_BACKSPACE;
+			case RETRO_DEVICE_ID_JOYPAD_START:  return RETROK_RETURN;
+			default:                            return RETROK_UNKNOWN;
+		}
+	};
+	const auto pad = [&key](u32 port, unsigned id) {
+		if (s_input_state_cb(port, RETRO_DEVICE_JOYPAD, 0, id) != 0)
+			return true;
+		const unsigned k = key(id);
+		return port == 0 && k != RETROK_UNKNOWN && s_input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0, k) != 0;
+	};
 	const auto stick = [](u32 port, unsigned index, unsigned axis) {
 		return static_cast<float>(s_input_state_cb(port, RETRO_DEVICE_ANALOG, index, axis)) / 32767.0f;
 	};
