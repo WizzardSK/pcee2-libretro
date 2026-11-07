@@ -545,6 +545,7 @@ void ACJV::SetMacroState(u32 player, u32 index, bool active)
 // Gamepad coin button -> increment JVS coin counter for P1 (slot 0) or P2 (slot 1)
 void ACJV::InsertCoin(u32 slot)
 {
+	Console.WriteLn("ACJV: coin inserted in slot %u", slot + 1);
 	if (slot == 0)
 		ACJV::coin[0]++;
 	else if (slot == 1)
@@ -892,6 +893,15 @@ void do_jvs_packet(const u8* input, u8* output) {
 		u8 cmd = (*input++);
 		inSize--;
 		inWorkChecksum += cmd;
+		{
+			// diagnostics: the first time the game sends each JVS command
+			static bool s_seen_cmd[256];
+			if (!s_seen_cmd[cmd])
+			{
+				s_seen_cmd[cmd] = true;
+				Console.WriteLn("ACJV: first JVS command %02X", cmd);
+			}
+		}
 		switch(cmd) {
 		case JVS::RESET: {
 			JVS_ASSERT(inSize != 0);
@@ -1040,6 +1050,14 @@ void do_jvs_packet(const u8* input, u8* output) {
 			//(*output++) = (m_jvsSystemButtonState == 0x03) ? 0x80 : 0;  //Test
 
 			u16 p1btn = m_jvsButtonState[0] | m_jvsMacroButtonState[0];
+			{
+				static u16 s_last_p1 = 0xFFFF;
+				if (p1btn != s_last_p1)
+				{
+					s_last_p1 = p1btn;
+					Console.WriteLn("ACJV: switches read, P1 %04X", p1btn);
+				}
+			}
 			if (s_lightgun_link_2p)
 				p1btn |= m_gunMapping->link_2p; // test menu reads it as LINK AS : 2 (RIGHT)
 			(*output++) = static_cast<u8>(p1btn);      //Player 1
@@ -1070,6 +1088,14 @@ void do_jvs_packet(const u8* input, u8* output) {
 			u8 slot2Condition = COIN_NORMAL; // see enum COINCOND
 
 			(*output++) = JVS_CMD_SUCCESS;
+			{
+				static u16 s_last_coin = 0xFFFF;
+				if (ACJV::coin[0] != s_last_coin)
+				{
+					s_last_coin = ACJV::coin[0];
+					Console.WriteLn("ACJV: coins read, slot 1 %u", ACJV::coin[0]);
+				}
+			}
 
 			(*output++) = static_cast<u8>(((ACJV::coin[0] >> 8) & 0x3f) | (slot1Condition << 6)); //Coin 1 MSB + slot1condition
 			(*output++) = static_cast<u8>(ACJV::coin[0] & 0x00ff);                                //Coin 1 LSB
