@@ -13,6 +13,13 @@
 
 static constexpr int CYCLES_PER_WORD = 24;
 
+// test: PCEE2_ARCADE_SPU2_PACED=1 keeps the retail (paced) DMA write in arcade mode
+static bool ArcadeOneShotDMA()
+{
+	static const bool paced = std::getenv("PCEE2_ARCADE_SPU2_PACED") != nullptr;
+	return g_ArcadeMode && !paced;
+}
+
 #ifdef PCSX2_DEVBUILD
 
 #define safe_fclose(ptr) \
@@ -261,7 +268,7 @@ void V_Core::FinishDMAwrite()
 	// Transfer all data in one shot. The original deferred partial transfer caused a
 	// ~170ms delay on S246/S256 where real hardware completes in <0.1ms, producing
 	// audio corruption during streaming transitions (e.g. TK5DR attract mode).
-	u32 buff1end = g_ArcadeMode ? ActiveTSA + ReadSize : ActiveTSA + std::min(ReadSize, (u32)0x100 + std::abs(DMAICounter / CYCLES_PER_WORD));
+	u32 buff1end = ArcadeOneShotDMA() ? ActiveTSA + ReadSize : ActiveTSA + std::min(ReadSize, (u32)0x100 + std::abs(DMAICounter / CYCLES_PER_WORD));
 	u32 buff2end = 0;
 	if (buff1end > 0x100000)
 	{
@@ -359,7 +366,7 @@ void V_Core::FinishDMAwrite()
 	DMAICounter = (DMAICounter - ReadSize) * CYCLES_PER_WORD;
 
 	// After a full transfer, don't leave a large stale counter that delays the IRQ.
-	if (g_ArcadeMode && ReadSize == 0 && DMAICounter > CYCLES_PER_WORD)
+	if (ArcadeOneShotDMA() && ReadSize == 0 && DMAICounter > CYCLES_PER_WORD)
 		DMAICounter = CYCLES_PER_WORD;
 
 	CounterUpdate(DMAICounter);
