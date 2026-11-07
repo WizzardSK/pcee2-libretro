@@ -842,7 +842,7 @@ static void UpdateTouchFromPointer()
 	if (!m_touchCursorPath.empty())
 		ImGuiManager::SetSoftwareCursorPosition(TouchPointerIndex(), wx, wy);
 
-	const bool pressed = m_touchPressBound ? m_touchPressed : InputManager::IsPointerButtonDown(0, 0);
+	const bool pressed = m_touchPressBound ? m_touchPressed : false /* no pointer button state in the libretro core: TouchPress is bound there */;
 	if (!pressed)
 	{
 		m_jvsScreenPosX[0] = 0xFFFF;

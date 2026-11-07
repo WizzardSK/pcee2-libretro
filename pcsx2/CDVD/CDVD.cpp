@@ -2599,6 +2599,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 				break;
 
 			case 0x12: // sceCdReadILinkId (0:9)
+			{
 				SetSCMDResultSize(9);
 				cdvdReadILinkID(&cdvd.SCMDResultBuff[1]);
 				extern std::string ArcadeiLinkID;
@@ -2624,6 +2625,7 @@ static void cdvdWrite16(u8 rt) // SCOMMAND
 					cdvd.SCMDResultBuff[8] = 0x86;
 				}
 				break;
+			}
 
 			case 0x13: // sceCdWriteILinkID (8:1)
 				SetSCMDResultSize(1);
