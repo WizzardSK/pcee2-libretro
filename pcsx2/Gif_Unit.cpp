@@ -193,7 +193,8 @@ void Gif_FinishIRQ()
 {
 	// The arcade games need the GS draw latency modelled before FINISH is
 	// signalled; retail games keep signalling it at once
-	if (!g_ArcadeMode)
+	static const bool no_delay = std::getenv("PCEE2_ARCADE_NO_FINISH_DELAY") != nullptr; // test
+	if (!g_ArcadeMode || no_delay)
 	{
 		Gif_FinishIRQEvent();
 		return;
