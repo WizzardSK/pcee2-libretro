@@ -3559,10 +3559,16 @@ void retro_run(void)
 	// while fast-forwarding, where a full buffer is the point.
 	const bool audio_ahead = FrontendAheadOfAudio();
 
+	// PCEE2_CADENCE_LOG=1: one character per emulated vsync, '1' when the GS drew a
+	// new frame and '0' when it dropped it as a duplicate (Skip Presenting Duplicate
+	// Frames on), 120 to a line, to tell a game's own frame rate from uneven pacing
+	static const bool s_cadence_log = std::getenv("PCEE2_CADENCE_LOG") != nullptr;
+	static std::string s_cadence;
 	std::unique_lock lock(s_frame_mutex);
 	bool got_frame = false;
 	for (u32 run = 0; !audio_ahead; run++)
 	{
+		const u64 dup_before = s_duplicate_frames.load(std::memory_order_acquire);
 		PaceFrameRun();
 		s_run_token = true;
 		s_frame_cv.notify_all();
@@ -3588,6 +3594,16 @@ void retro_run(void)
 				lock.unlock();
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 				lock.lock();
+			}
+		}
+
+		if (s_cadence_log && got_frame)
+		{
+			s_cadence += (s_duplicate_frames.load(std::memory_order_acquire) != dup_before) ? '0' : '1';
+			if (s_cadence.size() >= 120)
+			{
+				Console.WriteLnFmt("Cadence: {}", s_cadence);
+				s_cadence.clear();
 			}
 		}
 
