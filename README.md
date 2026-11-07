@@ -40,6 +40,7 @@ This project is not affiliated with or endorsed by the PCSX2 team.
 | Lightgun (GunCon 2 via USB) | ✅ core option, aimed by frontend lightgun/mouse; no crosshair with paraLLEl-GS |
 | USB mouse (HID mouse) | ✅ core option, moved by the frontend's mouse |
 | Other USB devices (wheels, mic, EyeToy) | ❌ not wired up |
+| Namco System 246 / 256 arcade games (`.acgame`) | ✅ from [PCSX2x6](https://github.com/PS2Homebrew-arcade/pcsx2x6): Bloody Roar 3 plays on Linux aarch64. The intro movies stutter (the media is read synchronously). See [Namco System 246 / 256](#namco-system-246--256) |
 | Start Core without content | ✅ opens the PS2 BIOS / System Menu and Memory Card Browser |
 | Content reload / Close Content | ✅ core survives RetroArch's deinit/init cycles |
 | Windows x64 build (MSVC, via CI) | ✅ community-tested (WRC 4, GTA SA, Killzone on Vulkan) |
@@ -81,6 +82,16 @@ the buildbot does not cover.
 
 Memory cards, savestates metadata, cache, etc. live under
 `<retroarch system dir>/pcsx2/`.
+
+### Namco System 246 / 256
+
+The arcade boards built on the PS2 run from an `.acgame` file, the way [PCSX2x6](https://github.com/PS2Homebrew-arcade/pcsx2x6) (whose board emulation this is) runs them: an INI naming the game ID, the media image (CD/DVD/HDD as `.chd`), the dongle as a `.ps2` memory card image, and the `proverb.elf` bootloader, usually in a folder named after the game ID beside the `.acgame`. The [PCSX2x6 Arcade Collection](https://archive.org/details/pcsx2x6-collection) is laid out that way.
+
+- The board's BIOS (`r27v1602f.7d` with its `.mec` and `.nvm`, zone COH-H) goes into `<retroarch system dir>/pcsx2/bios/` with the PS2 BIOS. An `.acgame` always runs on it, and a PS2 game never gets it picked.
+- The dongle next to the game is copied into the memory card folder at every start (the game writes to it), and memory card slots 1 and 2 go back to your own cards when the game ends.
+- Everything arcade is switched on only while an `.acgame` runs; a PS2 game runs as before.
+
+Controls (the JVS I/O board): each game's buttons sit where its PS2 port has them. Select inserts a coin, Start starts, L3 is the service switch and R3 toggles the test switch. Driving games steer with the left stick or the D-pad, R2 is the accelerator and L2 the brake. Taiko: Left / B on the drum's face, L / R on its rim. Light gun games take the frontend's light gun, with Reload as a shot beside the screen. The first player can also use the keyboard: arrows, J / K / L / I, Backspace for a coin, Return to start.
 
 ## Building (Linux)
 
