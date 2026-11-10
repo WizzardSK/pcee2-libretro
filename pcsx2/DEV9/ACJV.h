@@ -6,7 +6,9 @@
 #include "common/ARCADE.h"
 
 class SettingsInterface;
-struct InputBindingInfo;
+// defined, not declared: Apple's libc++ checks the range concepts of the
+// std::span<const InputBindingInfo> members below, which needs the type complete
+#include "Config.h"
 
 #define ACJV_BASE_ADDDR 0x12400000
 #define ACJV_RANGE      0x1240
