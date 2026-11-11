@@ -139,7 +139,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		NULL, "graphics",
 		{{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
 	{"pcsx2_texture_filtering", "Texture Filtering", NULL,
-		"Bilinear (PS2) replicates the console; forced modes smooth all textures.", NULL, "graphics",
+		"Bilinear (PS2) replicates the console; forced modes smooth all textures. Hardware and software renderers only: paraLLEl-GS always filters as the console does.", NULL, "graphics",
 		{{"nearest", "Nearest"}, {"bilinear_ps2", "Bilinear (PS2)"}, {"bilinear_forced", "Bilinear (Forced)"},
 			{"bilinear_forced_sprite", "Bilinear (Forced excluding sprites)"}, {NULL, NULL}},
 		"bilinear_ps2"},
