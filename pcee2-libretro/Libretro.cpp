@@ -144,11 +144,24 @@ namespace LibretroHost
 	static unsigned s_disc_initial_index = 0;
 	static std::string s_disc_initial_path;
 
-	// frame pacing: retro_run() posts a run token, CPU thread posts frame-done
+	// frame pacing: retro_run() posts a run token, CPU thread posts frame-done.
+	// Tokens are numbered, and retro_run() waits for the frame of the token it
+	// posted, not for any frame done. The CPU thread finishes its first frame
+	// after boot without a token, and a frame still running when a wait timed
+	// out finishes after it; a plain "frame done" flag took either for the
+	// next run's frame, and from then on every run handed over the frame of
+	// the run before it while its own ran after it returned - a frame more
+	// input lag than standalone (issue #62).
 	static std::mutex s_frame_mutex;
 	static std::condition_variable s_frame_cv;
 	static bool s_run_token = false;
-	static bool s_frame_ready = false;
+	// Frame Handover core option: hand over the frame finished before rather
+	// than wait for the one of this call's input (see retro_run)
+	static std::atomic_bool s_previous_frame{false};
+	static u64 s_run_seq = 0;   // tokens retro_run() has posted
+	static u64 s_taken_seq = 0; // the token the CPU thread is running a frame for
+	static u64 s_done_seq = 0;  // the token whose frame the CPU thread finished last
+	static bool s_session_ended = false; // the CPU thread left the session
 
 	// Frames the GS dropped as duplicates (see GSSetDuplicateFrameCallback),
 	// counted on the GS thread and spent in retro_run(): one dropped frame buys
@@ -1155,6 +1168,8 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		std::strcmp(get_option("pcsx2_skip_duplicate_frames", "enabled"), "enabled") == 0);
 	s_internal_limiter.store(std::strcmp(get_option("pcsx2_frame_limiter", "frontend"), "internal") == 0,
 		std::memory_order_release);
+	s_previous_frame.store(std::strcmp(get_option("pcsx2_frame_handover", "in_step"), "previous") == 0,
+		std::memory_order_release);
 
 	// How much audio the emulator keeps buffered before the frontend takes it.
 	// PCSX2's own default is 50ms, chosen for a native backend it hands samples
@@ -1457,7 +1472,7 @@ void LibretroHost::CPUThreadMain()
 		// wake up a potentially waiting retro_run()
 		{
 			std::unique_lock lock(s_frame_mutex);
-			s_frame_ready = true;
+			s_session_ended = true;
 		}
 		s_frame_cv.notify_all();
 
@@ -2579,7 +2594,10 @@ bool retro_load_game(const struct retro_game_info* game)
 	{
 		std::unique_lock lock(s_frame_mutex);
 		s_run_token = false;
-		s_frame_ready = false;
+		s_run_seq = 0;
+		s_taken_seq = 0;
+		s_done_seq = 0;
+		s_session_ended = false;
 		s_frame_width = 0;
 		s_frame_height = 0;
 		s_frame_serial = 0;
@@ -3561,14 +3579,45 @@ void retro_run(void)
 
 	std::unique_lock lock(s_frame_mutex);
 	bool got_frame = false;
+	// Vulkan (not paraLLEl-GS, which presents from here itself) parks the GS
+	// thread on each frame it publishes until a run takes it.
+#ifdef ENABLE_VULKAN
+	const bool vk_parked = s_hw_render == HWRender::Vulkan && !s_parallel_gs;
+#else
+	constexpr bool vk_parked = false;
+#endif
+	// Frame Handover: Previous Frame. Each run waits for the frame of the
+	// token before its own, finished while the frontend showed the last one,
+	// and the CPU thread emulates this run's frame after the call returns. The
+	// picture handed over is then ready at the same point of every call,
+	// however long its emulation took - even pacing, at a frame more input
+	// lag (Immersion95, #65). How the core worked before #62, now chosen.
+	const bool previous_frame = s_previous_frame.load(std::memory_order_acquire);
 	for (u32 run = 0; !audio_ahead; run++)
 	{
+#ifdef ENABLE_VULKAN
+		// A frame waiting before this run's token was drawn from earlier
+		// input: presenting it now would put every frame after it one behind
+		// as well (Immersion95, #64). Skipped instead; the run's own frame
+		// follows.
+		if (vk_parked && run == 0 && !previous_frame && VKLibretro::DropFrame())
+		{
+			// logged at 1, 2, 4, 8... so a steady stream of them shows
+			static u64 s_stale_frames = 0;
+			s_stale_frames++;
+			if ((s_stale_frames & (s_stale_frames - 1)) == 0)
+				Console.WriteLnFmt("Vulkan: a frame drawn before this run was skipped ({} so far)", s_stale_frames);
+		}
+#endif
+		const u64 drops_before = s_duplicate_frames.load(std::memory_order_acquire);
 		PaceFrameRun();
+		const u64 seq = ++s_run_seq;
 		s_run_token = true;
 		s_frame_cv.notify_all();
 
-		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200), []() { return s_frame_ready; });
-		s_frame_ready = false;
+		const u64 wanted = previous_frame ? seq - 1 : seq;
+		got_frame = s_frame_cv.wait_for(lock, std::chrono::milliseconds(200),
+			[wanted]() { return s_done_seq >= wanted || s_session_ended; });
 
 		// The CPU thread signals at its vsync, right after queueing that
 		// vsync for the GS thread, which then still has the frame to draw.
@@ -3579,10 +3628,39 @@ void retro_run(void)
 		// thread to have taken every queued vsync, or to have published a
 		// frame - a HW path parks it in PublishFrame until this run takes it.
 		// Bounded, so a stuck GS thread cannot stall the frontend for good.
-		if (got_frame && s_running.load(std::memory_order_acquire) && MTGS::IsOpen())
+		// A frame read back (Software, and the renderers copied to the
+		// frontend) is not parked: the GS thread reads it back inside the
+		// vsync it belongs to and goes on, so the previous vsync's frame can
+		// still be waiting when this run starts, and taking it for this
+		// vsync's handed over the frame before (Immersion95, #62). Those wait
+		// for every queued vsync, the read-back of the last included.
+		// Vulkan waits for the frame itself: the GS thread takes the vsync off
+		// its queue before it has drawn and published the frame, so an empty
+		// queue came before the frame, the run took nothing, and the frame was
+		// taken by the next run instead - a frame behind for good with Skip
+		// Presenting Duplicate Frames off, where every vsync publishes one
+		// (Immersion95, #64). A vsync with nothing to publish is one the GS
+		// reports as a dropped duplicate.
+		// Previous Frame takes whatever the GS has finished and does not wait:
+		// its frame was drawn while the frontend showed the one before.
+		const bool wait_for_gs = !previous_frame && got_frame && s_running.load(std::memory_order_acquire) &&
+			MTGS::IsOpen();
+		if (vk_parked && wait_for_gs)
 		{
 			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
-			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !PresentFramePending() &&
+			while (!PresentFramePending() && s_duplicate_frames.load(std::memory_order_acquire) == drops_before &&
+				   std::chrono::steady_clock::now() < deadline)
+			{
+				lock.unlock();
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				lock.lock();
+			}
+		}
+		else if (wait_for_gs)
+		{
+			const bool parked = s_hw_render != HWRender::None;
+			const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+			while (MTGS::GetCurrentVsyncQueueSize() > 0 && !(parked && PresentFramePending()) &&
 				   std::chrono::steady_clock::now() < deadline)
 			{
 				lock.unlock();
@@ -3610,6 +3688,19 @@ void retro_run(void)
 		OutputAudio(false);
 		lock.lock();
 	}
+
+	// This frame's audio goes to the frontend before its picture. A frontend
+	// syncing to audio blocks on the write until the audio before it has
+	// played, and it shows the picture as soon as it gets it when it does not
+	// wait for vsync (a VRR display). Handed over after the picture, as it
+	// was, the block came at the end of each call and the picture at the
+	// end of the frame's emulation after it, so every frame was shown as much
+	// later as it took longer to emulate - uneven on screen once retro_run()
+	// waits for the frame of its own run (Immersion95, #65). Before it, the
+	// picture follows the block, which goes by the audio playing. The CPU
+	// thread is parked again at this point (with Frame Handover: Previous Frame
+	// it runs the next frame meanwhile; the stream is read under its lock).
+	OutputAudio();
 
 #ifdef ENABLE_VULKAN
 	if (s_hw_render == HWRender::Vulkan)
@@ -3783,9 +3874,6 @@ void retro_run(void)
 				(s_frame_width ? s_frame_width : DEFAULT_WIDTH) * sizeof(u32));
 		}
 	}
-
-	// CPU thread is parked again at this point; safe to drain the audio buffer
-	OutputAudio();
 }
 
 // Fixed upper bound for uncompressed PS2 state data (EE 32MB + IOP 2MB + GS +
@@ -4245,7 +4333,7 @@ void Host::PumpMessagesOnCPUThread()
 	// pacing: signal frame done, then wait for the next run token, servicing
 	// queued CPU work (savestates, resets, ...) while parked
 	std::unique_lock lock(s_frame_mutex);
-	s_frame_ready = true;
+	s_done_seq = s_taken_seq;
 	s_frame_cv.notify_all();
 	for (;;)
 	{
@@ -4265,6 +4353,7 @@ void Host::PumpMessagesOnCPUThread()
 		break;
 	}
 	s_run_token = false;
+	s_taken_seq = s_run_seq;
 }
 
 s32 Host::Internal::GetTranslatedStringImpl(

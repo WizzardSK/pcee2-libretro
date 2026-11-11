@@ -72,6 +72,7 @@ namespace VKLibretro
 	void PublishFrame(const Frame& frame);
 	bool ConsumeFrame(Frame* out_frame); // true if a new frame arrived since the last consume
 	bool HasFrame();                     // same, without consuming it
+	bool DropFrame();                    // consume a waiting frame without presenting it
 
 	// Frame pacing: when enabled, PublishFrame blocks the GS thread until
 	// retro_run consumes the frame — the frontend's retro_run cadence becomes
