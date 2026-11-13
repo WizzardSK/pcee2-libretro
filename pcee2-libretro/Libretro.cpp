@@ -1196,6 +1196,12 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	s_settings_interface.SetStringValue("EmuCore/GS", "AspectRatio",
 		std::strcmp(aspect, "4:3") == 0 ? "4:3" : std::strcmp(aspect, "16:9") == 0 ? "16:9" : "Auto 4:3/3:2");
 
+	// On-Screen Notifications: PCSX2's message position None draws none
+	// (ImGuiManager drops posted messages); top left as in standalone
+	s_settings_interface.SetIntValue("EmuCore/GS", "OsdMessagesPos",
+		static_cast<int>(std::strcmp(get_option("pcsx2_osd_messages", "enabled"), "disabled") == 0 ?
+			OsdOverlayPos::None : OsdOverlayPos::TopLeft));
+
 	// performance
 	// PCEE2_OSD=1: performance overlay (fps/speed + EE/GS/VU thread loads +
 	// GPU usage) for diagnosing whether a heavy scene is CPU- or GPU-bound.
