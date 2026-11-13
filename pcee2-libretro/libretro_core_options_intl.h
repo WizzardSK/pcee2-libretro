@@ -153,6 +153,10 @@ extern "C" {
 #define PCSX2_FRAME_LIMITER_INFO_0_AR NULL
 #define OPTION_VAL_FRONTEND_AR NULL
 #define OPTION_VAL_INTERNAL_AR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_AR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_AR NULL
+#define OPTION_VAL_IN_STEP_AR NULL
+#define OPTION_VAL_PREVIOUS_AR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_AR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_AR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_AR NULL
@@ -367,6 +371,10 @@ struct retro_core_option_v2_definition option_defs_ar[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_AR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_AR}, {"internal", OPTION_VAL_INTERNAL_AR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_AR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_AR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_AR}, {"previous", OPTION_VAL_PREVIOUS_AR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_AR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_AR,
 		NULL, "graphics",
@@ -613,6 +621,10 @@ struct retro_core_options_v2 options_ar = {
 #define PCSX2_FRAME_LIMITER_INFO_0_AST NULL
 #define OPTION_VAL_FRONTEND_AST NULL
 #define OPTION_VAL_INTERNAL_AST NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_AST NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_AST NULL
+#define OPTION_VAL_IN_STEP_AST NULL
+#define OPTION_VAL_PREVIOUS_AST NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_AST NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_AST NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_AST NULL
@@ -827,6 +839,10 @@ struct retro_core_option_v2_definition option_defs_ast[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_AST,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_AST}, {"internal", OPTION_VAL_INTERNAL_AST}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_AST, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_AST,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_AST}, {"previous", OPTION_VAL_PREVIOUS_AST}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_AST, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_AST,
 		NULL, "graphics",
@@ -1073,6 +1089,10 @@ struct retro_core_options_v2 options_ast = {
 #define PCSX2_FRAME_LIMITER_INFO_0_BE NULL
 #define OPTION_VAL_FRONTEND_BE NULL
 #define OPTION_VAL_INTERNAL_BE NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_BE NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_BE NULL
+#define OPTION_VAL_IN_STEP_BE NULL
+#define OPTION_VAL_PREVIOUS_BE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_BE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_BE NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_BE NULL
@@ -1287,6 +1307,10 @@ struct retro_core_option_v2_definition option_defs_be[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_BE,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_BE}, {"internal", OPTION_VAL_INTERNAL_BE}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_BE, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_BE,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_BE}, {"previous", OPTION_VAL_PREVIOUS_BE}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_BE, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_BE,
 		NULL, "graphics",
@@ -1533,6 +1557,10 @@ struct retro_core_options_v2 options_be = {
 #define PCSX2_FRAME_LIMITER_INFO_0_BG NULL
 #define OPTION_VAL_FRONTEND_BG NULL
 #define OPTION_VAL_INTERNAL_BG NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_BG NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_BG NULL
+#define OPTION_VAL_IN_STEP_BG NULL
+#define OPTION_VAL_PREVIOUS_BG NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_BG NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_BG NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_BG NULL
@@ -1747,6 +1775,10 @@ struct retro_core_option_v2_definition option_defs_bg[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_BG,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_BG}, {"internal", OPTION_VAL_INTERNAL_BG}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_BG, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_BG,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_BG}, {"previous", OPTION_VAL_PREVIOUS_BG}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_BG, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_BG,
 		NULL, "graphics",
@@ -1949,7 +1981,7 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_ROV_LABEL_CA "Vistes en ordre de rastreig (Experimental)"
 #define PCSX2_ROV_INFO_0_CA "Permet que els efectes de mescla i de profunditat llegeixin el destí de renderització directament al *shader*, en lloc de fer-ho mitjançant una barrera de textures. A les GPU d'Apple (MoltenVK), cada barrera de textures divideix el pas de renderització, la qual cosa és costosa; aquesta opció evita les barreres sempre que la GPU ho permeti. Pot provocar anomalies gràfiques. Desactivat per defecte, tal com passa al PCSX2 independent."
 #define PCSX2_TEXTURE_FILTERING_LABEL_CA "Filtratge de textures"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_CA "El mode bilineal (PS2) reprodueix l'aspecte de la consola; els modes forçats suavitzen totes les textures."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_CA NULL
 #define OPTION_VAL_NEAREST_CA "Més proper"
 #define OPTION_VAL_BILINEAR_PS2_CA "Bilineal (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_CA "Bilineal (Forçat)"
@@ -1993,6 +2025,10 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CA "Què és el que manté l'emulador a velocitat màxima? El *frontend* deixa la gestió del ritme a càrrec de RetroArch, que regula la velocitat fent que el nucli (*core*) esperi l'àudio que li transfereix. En canvi, el sistema intern utilitza el limitador propi de PCSX2; això, en un dispositiu on aquesta espera no es produeix mai —ja que el controlador d'àudio pateix una manca de dades (*underrun*) en lloc de bloquejar-se—, fa que les variacions de velocitat de l'emulador es tradueixin en una cadència de fotogrames irregular a la pantalla."
 #define OPTION_VAL_FRONTEND_CA "Front-End (RetroArch)"
 #define OPTION_VAL_INTERNAL_CA "Intern (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_CA NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_CA NULL
+#define OPTION_VAL_IN_STEP_CA NULL
+#define OPTION_VAL_PREVIOUS_CA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CA "Ometre fotogrames duplicats"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CA "No passis al *frontend* un fotograma que el GS no hagi tornat a dibuixar; així, un joc a 30 fps lliura 30 fotogrames únics en lloc de 60 amb un de cada dos repetit. Desactiva aquesta opció si un filtre de generació de fotogrames o d'interpolació requereix que cada fotograma es lliuri de manera individual."
 #define PCSX2_CAS_SHARPNESS_LABEL_CA "Nitidesa CAS"
@@ -2207,6 +2243,10 @@ struct retro_core_option_v2_definition option_defs_ca[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_CA,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_CA}, {"internal", OPTION_VAL_INTERNAL_CA}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_CA, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_CA,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_CA}, {"previous", OPTION_VAL_PREVIOUS_CA}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CA, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CA,
 		NULL, "graphics",
@@ -2409,7 +2449,7 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_ROV_LABEL_CHS "光栅化器顺序视图 (ROV) (实验性)"
 #define PCSX2_ROV_INFO_0_CHS "允许混合与深度特效在着色器中直接读取渲染目标，而无需通过纹理屏障。在 Apple GPU (MoltenVK) 上，每个纹理屏障都会拆分渲染通道，开销极高；在 GPU 支持的情况下，此选项可避免这种情况。可能会导致图形渲染故障。默认关闭，与独立版 PCSX2 一致。"
 #define PCSX2_TEXTURE_FILTERING_LABEL_CHS "纹理过滤"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_CHS "“双线性 (PS2)”模式还原实机效果；“强制”模式则对所有纹理进行平滑处理。"
+#define PCSX2_TEXTURE_FILTERING_INFO_0_CHS NULL
 #define OPTION_VAL_NEAREST_CHS "最邻"
 #define OPTION_VAL_BILINEAR_PS2_CHS "双线性 (PS2 原生)"
 #define OPTION_VAL_BILINEAR_FORCED_CHS "双线性（强制）"
@@ -2453,6 +2493,10 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CHS "限制模拟器按正常全速运行的机制。“前端 (Frontend)”将运行节奏交由 RetroArch 处理，通过让核心等待所传递的音频来实现限速；“内部 (Internal)”则使用 PCSX2 自带的限制器（适用于音频驱动不会阻塞而是直接欠载、导致等待机制失效的设备，此时模拟器自身速度波动会导致画面帧节奏不均匀）。"
 #define OPTION_VAL_FRONTEND_CHS "前端 (RetroArch)"
 #define OPTION_VAL_INTERNAL_CHS "内部 (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_CHS NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_CHS NULL
+#define OPTION_VAL_IN_STEP_CHS NULL
+#define OPTION_VAL_PREVIOUS_CHS NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CHS "跳过呈现重复帧"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHS "不向前端交付图形合成器 (GS) 未重新绘制的帧——例如 30fps 的游戏将直接交付 30 个独立帧，而非每隔一帧重复一次交付 60 帧。若使用了需要逐帧交付的插帧或补帧滤镜，请关闭此选项。"
 #define PCSX2_CAS_SHARPNESS_LABEL_CHS "CAS 锐化强度"
@@ -2667,6 +2711,10 @@ struct retro_core_option_v2_definition option_defs_chs[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_CHS,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_CHS}, {"internal", OPTION_VAL_INTERNAL_CHS}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_CHS, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_CHS,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_CHS}, {"previous", OPTION_VAL_PREVIOUS_CHS}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CHS, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHS,
 		NULL, "graphics",
@@ -2913,6 +2961,10 @@ struct retro_core_options_v2 options_chs = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CHT NULL
 #define OPTION_VAL_FRONTEND_CHT NULL
 #define OPTION_VAL_INTERNAL_CHT NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_CHT NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_CHT NULL
+#define OPTION_VAL_IN_STEP_CHT NULL
+#define OPTION_VAL_PREVIOUS_CHT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CHT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHT NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_CHT NULL
@@ -3127,6 +3179,10 @@ struct retro_core_option_v2_definition option_defs_cht[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_CHT,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_CHT}, {"internal", OPTION_VAL_INTERNAL_CHT}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_CHT, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_CHT,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_CHT}, {"previous", OPTION_VAL_PREVIOUS_CHT}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CHT, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHT,
 		NULL, "graphics",
@@ -3373,6 +3429,10 @@ struct retro_core_options_v2 options_cht = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CS NULL
 #define OPTION_VAL_FRONTEND_CS NULL
 #define OPTION_VAL_INTERNAL_CS NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_CS NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_CS NULL
+#define OPTION_VAL_IN_STEP_CS NULL
+#define OPTION_VAL_PREVIOUS_CS NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CS NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CS NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_CS NULL
@@ -3587,6 +3647,10 @@ struct retro_core_option_v2_definition option_defs_cs[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_CS,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_CS}, {"internal", OPTION_VAL_INTERNAL_CS}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_CS, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_CS,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_CS}, {"previous", OPTION_VAL_PREVIOUS_CS}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CS, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CS,
 		NULL, "graphics",
@@ -3833,6 +3897,10 @@ struct retro_core_options_v2 options_cs = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CY NULL
 #define OPTION_VAL_FRONTEND_CY NULL
 #define OPTION_VAL_INTERNAL_CY NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_CY NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_CY NULL
+#define OPTION_VAL_IN_STEP_CY NULL
+#define OPTION_VAL_PREVIOUS_CY NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CY NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CY NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_CY NULL
@@ -4047,6 +4115,10 @@ struct retro_core_option_v2_definition option_defs_cy[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_CY,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_CY}, {"internal", OPTION_VAL_INTERNAL_CY}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_CY, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_CY,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_CY}, {"previous", OPTION_VAL_PREVIOUS_CY}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CY, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CY,
 		NULL, "graphics",
@@ -4293,6 +4365,10 @@ struct retro_core_options_v2 options_cy = {
 #define PCSX2_FRAME_LIMITER_INFO_0_DA NULL
 #define OPTION_VAL_FRONTEND_DA NULL
 #define OPTION_VAL_INTERNAL_DA NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_DA NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_DA NULL
+#define OPTION_VAL_IN_STEP_DA NULL
+#define OPTION_VAL_PREVIOUS_DA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DA NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_DA NULL
@@ -4507,6 +4583,10 @@ struct retro_core_option_v2_definition option_defs_da[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_DA,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_DA}, {"internal", OPTION_VAL_INTERNAL_DA}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_DA, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_DA,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_DA}, {"previous", OPTION_VAL_PREVIOUS_DA}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DA, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DA,
 		NULL, "graphics",
@@ -4709,7 +4789,7 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_ROV_LABEL_DE "Raster Order Views (Experimentell)"
 #define PCSX2_ROV_INFO_0_DE "Ermöglicht Blend- und Tiefeneffekten, das Renderziel im Shader statt über eine Texturbarriere auszulesen. Auf Apple-GPUs (MoltenVK) unterbricht jede Texturbarriere den Renderdurchlauf, was Leistung kostet. Diese Option vermeidet solche Barrieren, sofern die GPU dies unterstützt. Kann Grafikfehler verursachen. Standardmäßig deaktiviert, wie in PCSX2 als eigenständiger Anwendung."
 #define PCSX2_TEXTURE_FILTERING_LABEL_DE "Texturfilterung"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_DE "Bilinear (PS2) bildet das Verhalten der Konsole nach; erzwungene Modi glätten alle Texturen."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_DE NULL
 #define OPTION_VAL_NEAREST_DE "Nächster"
 #define OPTION_VAL_BILINEAR_PS2_DE NULL
 #define OPTION_VAL_BILINEAR_FORCED_DE "Bilinear (Erzwungen)"
@@ -4753,6 +4833,10 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_FRAME_LIMITER_INFO_0_DE "Was den Emulator auf voller Geschwindigkeit hält. Das Frontend überlässt die Taktung RetroArch, das drosselt, indem es den Core auf die von ihm übergebenen Audiodaten warten lässt. „Intern“ verwendet stattdessen den eigenen Begrenzer von PCSX2 – für Geräte, bei denen dieses Warten nie stattfindet, weil der Audiotreiber einen Audio-Unterlauf erzeugt, anstatt zu blockieren. Die Geschwindigkeitsschwankungen des Emulators werden dann als ungleichmäßiges Frame Pacing auf dem Bildschirm sichtbar."
 #define OPTION_VAL_FRONTEND_DE NULL
 #define OPTION_VAL_INTERNAL_DE "Intern (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_DE NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_DE NULL
+#define OPTION_VAL_IN_STEP_DE NULL
+#define OPTION_VAL_PREVIOUS_DE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE "Doppelte Frames bei der Bildausgabe überspringen"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE "Frames, die der GS nicht neu gerendert hat, nicht an das Frontend weitergeben. Ein Spiel mit 30 fps liefert dann 30 einzigartige Frames statt 60, bei denen jeder zweite wiederholt wird. Diese Option deaktivieren, wenn ein Frame-Generierungs- oder Interpolationsfilter auf die Übergabe jedes einzelnen Frames angewiesen ist."
 #define PCSX2_CAS_SHARPNESS_LABEL_DE "CAS-Schärfe"
@@ -4967,6 +5051,10 @@ struct retro_core_option_v2_definition option_defs_de[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_DE,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_DE}, {"internal", OPTION_VAL_INTERNAL_DE}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_DE, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_DE,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_DE}, {"previous", OPTION_VAL_PREVIOUS_DE}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE,
 		NULL, "graphics",
@@ -5213,6 +5301,10 @@ struct retro_core_options_v2 options_de = {
 #define PCSX2_FRAME_LIMITER_INFO_0_EL NULL
 #define OPTION_VAL_FRONTEND_EL NULL
 #define OPTION_VAL_INTERNAL_EL NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_EL NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_EL NULL
+#define OPTION_VAL_IN_STEP_EL NULL
+#define OPTION_VAL_PREVIOUS_EL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EL NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_EL NULL
@@ -5427,6 +5519,10 @@ struct retro_core_option_v2_definition option_defs_el[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_EL,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_EL}, {"internal", OPTION_VAL_INTERNAL_EL}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_EL, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_EL,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_EL}, {"previous", OPTION_VAL_PREVIOUS_EL}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EL, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EL,
 		NULL, "graphics",
@@ -5673,6 +5769,10 @@ struct retro_core_options_v2 options_el = {
 #define PCSX2_FRAME_LIMITER_INFO_0_EN NULL
 #define OPTION_VAL_FRONTEND_EN NULL
 #define OPTION_VAL_INTERNAL_EN NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_EN NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_EN NULL
+#define OPTION_VAL_IN_STEP_EN NULL
+#define OPTION_VAL_PREVIOUS_EN NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EN NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EN NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_EN NULL
@@ -5887,6 +5987,10 @@ struct retro_core_option_v2_definition option_defs_en[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_EN,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_EN}, {"internal", OPTION_VAL_INTERNAL_EN}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_EN, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_EN,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_EN}, {"previous", OPTION_VAL_PREVIOUS_EN}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EN, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EN,
 		NULL, "graphics",
@@ -6133,6 +6237,10 @@ struct retro_core_options_v2 options_en = {
 #define PCSX2_FRAME_LIMITER_INFO_0_EO NULL
 #define OPTION_VAL_FRONTEND_EO NULL
 #define OPTION_VAL_INTERNAL_EO NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_EO NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_EO NULL
+#define OPTION_VAL_IN_STEP_EO NULL
+#define OPTION_VAL_PREVIOUS_EO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EO NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_EO NULL
@@ -6347,6 +6455,10 @@ struct retro_core_option_v2_definition option_defs_eo[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_EO,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_EO}, {"internal", OPTION_VAL_INTERNAL_EO}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_EO, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_EO,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_EO}, {"previous", OPTION_VAL_PREVIOUS_EO}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_EO, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_EO,
 		NULL, "graphics",
@@ -6549,7 +6661,7 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_ROV_LABEL_ES "Vista ordenada del rasterizador (experimental)"
 #define PCSX2_ROV_INFO_0_ES "Permite que los efectos de mezcla y profundidad puedan leer el objetivo de renderizado del shader en vez de tener que pasar por una barrera de texturas. En el caso de las GPU de Apple (MoltenVK), toda barrera de texturas fragmentará la pasada de renderizado, lo que consume más recursos; esto evita esa fragmentación si la GPU lo admite. Podría provocar fallos gráficos. Esta opción está desactivada por defecto, al igual que en la aplicación independiente."
 #define PCSX2_TEXTURE_FILTERING_LABEL_ES "Filtrado de texturas"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_ES "Bilineal (estilo PS2) replica el filtro de la consola, los modos forzados suavizarán todas las texturas."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_ES NULL
 #define OPTION_VAL_NEAREST_ES "Vecino más próximo"
 #define OPTION_VAL_BILINEAR_PS2_ES "Bilineal (estilo PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_ES "Bilineal (forzado)"
@@ -6593,6 +6705,10 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_FRAME_LIMITER_INFO_0_ES "Establece qué será lo que dicte que la velocidad del emulador sea del 100 %. Front-end hace que sea RetroArch quien dicte el ritmo, que lo limitará haciendo que el núcleo espere a que se envíe el audio. Interno utiliza el limitador de PCSX2 en su lugar: en caso de un dispositivo que no espere porque el controlador de audio se quede corto en vez de parar, la variación de velocidad del emulador se mostrará en pantalla como un ritmo de fotogramas desigual."
 #define OPTION_VAL_FRONTEND_ES "Front-end (RetroArch)"
 #define OPTION_VAL_INTERNAL_ES "Interno (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_ES NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_ES NULL
+#define OPTION_VAL_IN_STEP_ES NULL
+#define OPTION_VAL_PREVIOUS_ES NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ES "Omitir fotogramas duplicados"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES "No presentar al front-end un fotograma que el GS no haya vuelto a dibujar: de esta forma, un juego que se ejecute a 30 FPS mostrará 30 fotogramas únicos en vez de 60 repitiendo uno de cada dos. Desactiva esta opción si un filtro de generación de fotogramas o de interpolación necesita que cada fotograma sea el original."
 #define PCSX2_CAS_SHARPNESS_LABEL_ES "Realzado del CAS"
@@ -6807,6 +6923,10 @@ struct retro_core_option_v2_definition option_defs_es[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_ES,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_ES}, {"internal", OPTION_VAL_INTERNAL_ES}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_ES, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_ES,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_ES}, {"previous", OPTION_VAL_PREVIOUS_ES}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ES, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES,
 		NULL, "graphics",
@@ -7053,6 +7173,10 @@ struct retro_core_options_v2 options_es = {
 #define PCSX2_FRAME_LIMITER_INFO_0_FA NULL
 #define OPTION_VAL_FRONTEND_FA NULL
 #define OPTION_VAL_INTERNAL_FA NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_FA NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_FA NULL
+#define OPTION_VAL_IN_STEP_FA NULL
+#define OPTION_VAL_PREVIOUS_FA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FA NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_FA NULL
@@ -7267,6 +7391,10 @@ struct retro_core_option_v2_definition option_defs_fa[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_FA,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_FA}, {"internal", OPTION_VAL_INTERNAL_FA}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_FA, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_FA,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_FA}, {"previous", OPTION_VAL_PREVIOUS_FA}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FA, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FA,
 		NULL, "graphics",
@@ -7513,6 +7641,10 @@ struct retro_core_options_v2 options_fa = {
 #define PCSX2_FRAME_LIMITER_INFO_0_FI NULL
 #define OPTION_VAL_FRONTEND_FI NULL
 #define OPTION_VAL_INTERNAL_FI NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_FI NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_FI NULL
+#define OPTION_VAL_IN_STEP_FI NULL
+#define OPTION_VAL_PREVIOUS_FI NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FI NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FI NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_FI NULL
@@ -7727,6 +7859,10 @@ struct retro_core_option_v2_definition option_defs_fi[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_FI,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_FI}, {"internal", OPTION_VAL_INTERNAL_FI}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_FI, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_FI,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_FI}, {"previous", OPTION_VAL_PREVIOUS_FI}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FI, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FI,
 		NULL, "graphics",
@@ -7929,7 +8065,7 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_ROV_LABEL_FR NULL
 #define PCSX2_ROV_INFO_0_FR NULL
 #define PCSX2_TEXTURE_FILTERING_LABEL_FR "Filtrage des textures"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_FR "Bilinéaire (PS2) reproduit le rendu de la console ; les modes forcés lissent toutes les textures."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_FR NULL
 #define OPTION_VAL_NEAREST_FR "Au plus proche"
 #define OPTION_VAL_BILINEAR_PS2_FR "Bilinéaire (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_FR "Bilinéaire (forcé)"
@@ -7973,6 +8109,10 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_FRAME_LIMITER_INFO_0_FR "Ce qui maintient l'émulateur à sa vitesse nominale. L'interface graphique confie la régulation du rythme à RetroArch, qui limite la vitesse en faisant attendre le cœur jusqu'à ce que le flux audio transmis soit traité. Le mode interne utilise quant à lui le limiteur propre à PCSX2 — or, sur ce type de dispositif, cette attente ne se produit jamais, car le pilote audio subit une sous-alimentation (underrun) au lieu de bloquer l'exécution, ce qui se traduit à l'écran par une irrégularité dans le rythme d'affichage des images (frame pacing)."
 #define OPTION_VAL_FRONTEND_FR "Interface graphique (RetroArch)"
 #define OPTION_VAL_INTERNAL_FR "Interne (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_FR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_FR NULL
+#define OPTION_VAL_IN_STEP_FR NULL
+#define OPTION_VAL_PREVIOUS_FR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FR "Ignorer la présentation des images en double"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FR "Ne pas transmettre au moteur d'affichage une image que le GS (Graphics Synthesizer) n'a pas redessinée ; un jeu tournant à 30 images/s fournirait alors 30 images uniques au lieu de 60, avec une image sur deux répétée. Désactivez cette option si un filtre de génération d'images ou d'interpolation nécessite que chaque image soit transmise individuellement."
 #define PCSX2_CAS_SHARPNESS_LABEL_FR "Netteté adaptative au contraste"
@@ -8187,6 +8327,10 @@ struct retro_core_option_v2_definition option_defs_fr[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_FR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_FR}, {"internal", OPTION_VAL_INTERNAL_FR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_FR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_FR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_FR}, {"previous", OPTION_VAL_PREVIOUS_FR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FR,
 		NULL, "graphics",
@@ -8389,7 +8533,7 @@ struct retro_core_options_v2 options_fr = {
 #define PCSX2_ROV_LABEL_GA "Radhairc in Ord Raster (Turgnamhach)"
 #define PCSX2_ROV_INFO_0_GA "Ligeann sé seo d’éifeachtaí cumaisc agus doimhneachta an sprioc rindreála a léamh sa scáthaitheoir, seachas trí bhac uigeachta. Ar GPUanna Apple (MoltenVK), scoilteann gach bac uigeachta an pas rindreála, rud a chosnaíonn go leor acmhainní; seachnaíonn an modh seo iad i gcásanna ina dtacaíonn an GPU leis sin. D’fhéadfadh lochtanna grafacha tarlú dá bharr. Tá sé díchumasaithe de réir réamhshocraithe, díreach mar atá i PCSX2 neamhspleách."
 #define PCSX2_TEXTURE_FILTERING_LABEL_GA "Scagadh Uigeachta"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_GA "Déanann an modh délíneach (PS2) aithris ar an gconsól; déanann modhanna éigeantacha na huigeachtaí go léir a rianú."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_GA "Déanann an modh délíneach (PS2) aithris ar an gconsól; déanann na modhanna éigeantacha uigeachtaí uile a rianú go réidh. Baineann sé seo le rindreálaithe crua-earraí agus bogearraí amháin: déanann paraLLEl-GS scagadh i gcónaí ar an gcaoi chéanna leis an gconsól."
 #define OPTION_VAL_NEAREST_GA "Is cóngaraí"
 #define OPTION_VAL_BILINEAR_PS2_GA "Bilineach (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_GA "Bilineach (Éigeantach)"
@@ -8433,6 +8577,10 @@ struct retro_core_options_v2 options_fr = {
 #define PCSX2_FRAME_LIMITER_INFO_0_GA "Cad a choinníonn an t-aithriseoir ag an luas uasta? Fágann an comhéadan tosaigh cúrsaí luas-rialaithe faoi RetroArch, a dhéanann an luas a shrianadh trí chur ar an gcroílár fanacht leis an bhfuaim a sheachadtar chuige. Ina áit sin, baineann an córas inmheánach úsáid as an teorantóir atá ag PCSX2 féin – rud atá fadhbach i gcás gléis nach dtarlaíonn an fanacht sin ann riamh, ós rud é go dtarlaíonn ganntanas sonraí (underrun) ag an tiománaí fuaime seachas go gcuirtear bac ar an bpróiseas; dá bharr sin, léirítear luaineachtaí luais an aithriseora féin ar an scáileán mar luas neamhrialta na bhfrámaí."
 #define OPTION_VAL_FRONTEND_GA "Tosaigh (RetroArch)"
 #define OPTION_VAL_INTERNAL_GA "Inmheánach (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_GA "Lámhachadh an Fhráma"
+#define PCSX2_FRAME_HANDOVER_INFO_0_GA "Cuireann gach glao fráma ar aghaidh chuig RetroArch. Sa mhodh 'Step', fanann an córas go dtí go mbeidh an fráma a fhreagraíonn don ionchur ar fáil; bíonn an mhoill ionchuir chéanna i gceist leis seo is atá i gcás PCSX2 ina aonar. an t-am a thógann sé ar gach fráma aithris a dhéanamh agus ansin an scáileán a shroicheann sé, rud a léiríonn taispeántas VRR gan vsync mar luas míchothrom. Sa mhodh 'Previous Frame', cuirtear an fráma a críochnaíodh roimhe seo ar aghaidh, agus déantar an chéad fhráma eile a insamhailt fad is atá an ceann roimhe sin á thaispeáint ag RetroArch: bíonn luas rialta ann, ach bíonn moill ionchuir bhreise de fhráma amháin i gceist."
+#define OPTION_VAL_IN_STEP_GA "I gcéim (latisí níos ísle)"
+#define OPTION_VAL_PREVIOUS_GA "Fráma Roimhe Seo (luas comhsheasmhach)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GA "Scipeáil ag taispeáint frámaí dúblacha"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA "Ná seol chuig an droichead tosaigh (frontend) fráma nár ath-tharraing an GS riamh – sa chás sin, sheachadfaí 30 fráma uathúil in ionad 60 (le gach dara fráma á ath ullmhú) i spreag a ritheann ag 30fps. Múch an ghné seo má bhíonn gá ag scagaire giniúna frámaí nó idirshuímh le gach fráma a bheith ina fhráma ar leith."
 #define PCSX2_CAS_SHARPNESS_LABEL_GA "Géire CAS"
@@ -8647,6 +8795,10 @@ struct retro_core_option_v2_definition option_defs_ga[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_GA,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_GA}, {"internal", OPTION_VAL_INTERNAL_GA}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_GA, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_GA,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_GA}, {"previous", OPTION_VAL_PREVIOUS_GA}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GA, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA,
 		NULL, "graphics",
@@ -8893,6 +9045,10 @@ struct retro_core_options_v2 options_ga = {
 #define PCSX2_FRAME_LIMITER_INFO_0_GL NULL
 #define OPTION_VAL_FRONTEND_GL NULL
 #define OPTION_VAL_INTERNAL_GL NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_GL NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_GL NULL
+#define OPTION_VAL_IN_STEP_GL NULL
+#define OPTION_VAL_PREVIOUS_GL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GL NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_GL NULL
@@ -9107,6 +9263,10 @@ struct retro_core_option_v2_definition option_defs_gl[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_GL,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_GL}, {"internal", OPTION_VAL_INTERNAL_GL}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_GL, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_GL,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_GL}, {"previous", OPTION_VAL_PREVIOUS_GL}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GL, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GL,
 		NULL, "graphics",
@@ -9353,6 +9513,10 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_FRAME_LIMITER_INFO_0_HE NULL
 #define OPTION_VAL_FRONTEND_HE NULL
 #define OPTION_VAL_INTERNAL_HE NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_HE NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_HE NULL
+#define OPTION_VAL_IN_STEP_HE NULL
+#define OPTION_VAL_PREVIOUS_HE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HE NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_HE NULL
@@ -9567,6 +9731,10 @@ struct retro_core_option_v2_definition option_defs_he[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_HE,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_HE}, {"internal", OPTION_VAL_INTERNAL_HE}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_HE, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_HE,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_HE}, {"previous", OPTION_VAL_PREVIOUS_HE}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HE, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HE,
 		NULL, "graphics",
@@ -9813,6 +9981,10 @@ struct retro_core_options_v2 options_he = {
 #define PCSX2_FRAME_LIMITER_INFO_0_HR NULL
 #define OPTION_VAL_FRONTEND_HR NULL
 #define OPTION_VAL_INTERNAL_HR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_HR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_HR NULL
+#define OPTION_VAL_IN_STEP_HR NULL
+#define OPTION_VAL_PREVIOUS_HR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_HR NULL
@@ -10027,6 +10199,10 @@ struct retro_core_option_v2_definition option_defs_hr[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_HR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_HR}, {"internal", OPTION_VAL_INTERNAL_HR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_HR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_HR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_HR}, {"previous", OPTION_VAL_PREVIOUS_HR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HR,
 		NULL, "graphics",
@@ -10273,6 +10449,10 @@ struct retro_core_options_v2 options_hr = {
 #define PCSX2_FRAME_LIMITER_INFO_0_HU NULL
 #define OPTION_VAL_FRONTEND_HU NULL
 #define OPTION_VAL_INTERNAL_HU NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_HU NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_HU NULL
+#define OPTION_VAL_IN_STEP_HU NULL
+#define OPTION_VAL_PREVIOUS_HU NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HU NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HU NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_HU NULL
@@ -10487,6 +10667,10 @@ struct retro_core_option_v2_definition option_defs_hu[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_HU,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_HU}, {"internal", OPTION_VAL_INTERNAL_HU}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_HU, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_HU,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_HU}, {"previous", OPTION_VAL_PREVIOUS_HU}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_HU, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_HU,
 		NULL, "graphics",
@@ -10733,6 +10917,10 @@ struct retro_core_options_v2 options_hu = {
 #define PCSX2_FRAME_LIMITER_INFO_0_ID NULL
 #define OPTION_VAL_FRONTEND_ID NULL
 #define OPTION_VAL_INTERNAL_ID NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_ID NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_ID NULL
+#define OPTION_VAL_IN_STEP_ID NULL
+#define OPTION_VAL_PREVIOUS_ID NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ID NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ID NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_ID NULL
@@ -10947,6 +11135,10 @@ struct retro_core_option_v2_definition option_defs_id[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_ID,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_ID}, {"internal", OPTION_VAL_INTERNAL_ID}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_ID, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_ID,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_ID}, {"previous", OPTION_VAL_PREVIOUS_ID}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ID, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ID,
 		NULL, "graphics",
@@ -11193,6 +11385,10 @@ struct retro_core_options_v2 options_id = {
 #define PCSX2_FRAME_LIMITER_INFO_0_IT NULL
 #define OPTION_VAL_FRONTEND_IT NULL
 #define OPTION_VAL_INTERNAL_IT NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_IT NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_IT NULL
+#define OPTION_VAL_IN_STEP_IT NULL
+#define OPTION_VAL_PREVIOUS_IT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_IT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_IT NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_IT NULL
@@ -11407,6 +11603,10 @@ struct retro_core_option_v2_definition option_defs_it[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_IT,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_IT}, {"internal", OPTION_VAL_INTERNAL_IT}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_IT, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_IT,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_IT}, {"previous", OPTION_VAL_PREVIOUS_IT}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_IT, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_IT,
 		NULL, "graphics",
@@ -11653,6 +11853,10 @@ struct retro_core_options_v2 options_it = {
 #define PCSX2_FRAME_LIMITER_INFO_0_JA NULL
 #define OPTION_VAL_FRONTEND_JA NULL
 #define OPTION_VAL_INTERNAL_JA NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_JA NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_JA NULL
+#define OPTION_VAL_IN_STEP_JA NULL
+#define OPTION_VAL_PREVIOUS_JA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_JA NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_JA NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_JA NULL
@@ -11867,6 +12071,10 @@ struct retro_core_option_v2_definition option_defs_ja[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_JA,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_JA}, {"internal", OPTION_VAL_INTERNAL_JA}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_JA, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_JA,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_JA}, {"previous", OPTION_VAL_PREVIOUS_JA}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_JA, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_JA,
 		NULL, "graphics",
@@ -12113,6 +12321,10 @@ struct retro_core_options_v2 options_ja = {
 #define PCSX2_FRAME_LIMITER_INFO_0_KO NULL
 #define OPTION_VAL_FRONTEND_KO NULL
 #define OPTION_VAL_INTERNAL_KO NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_KO NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_KO NULL
+#define OPTION_VAL_IN_STEP_KO NULL
+#define OPTION_VAL_PREVIOUS_KO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_KO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_KO NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_KO NULL
@@ -12327,6 +12539,10 @@ struct retro_core_option_v2_definition option_defs_ko[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_KO,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_KO}, {"internal", OPTION_VAL_INTERNAL_KO}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_KO, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_KO,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_KO}, {"previous", OPTION_VAL_PREVIOUS_KO}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_KO, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_KO,
 		NULL, "graphics",
@@ -12573,6 +12789,10 @@ struct retro_core_options_v2 options_ko = {
 #define PCSX2_FRAME_LIMITER_INFO_0_NL NULL
 #define OPTION_VAL_FRONTEND_NL NULL
 #define OPTION_VAL_INTERNAL_NL NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_NL NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_NL NULL
+#define OPTION_VAL_IN_STEP_NL NULL
+#define OPTION_VAL_PREVIOUS_NL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_NL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_NL NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_NL NULL
@@ -12787,6 +13007,10 @@ struct retro_core_option_v2_definition option_defs_nl[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_NL,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_NL}, {"internal", OPTION_VAL_INTERNAL_NL}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_NL, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_NL,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_NL}, {"previous", OPTION_VAL_PREVIOUS_NL}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_NL, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_NL,
 		NULL, "graphics",
@@ -13033,6 +13257,10 @@ struct retro_core_options_v2 options_nl = {
 #define PCSX2_FRAME_LIMITER_INFO_0_NO NULL
 #define OPTION_VAL_FRONTEND_NO NULL
 #define OPTION_VAL_INTERNAL_NO NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_NO NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_NO NULL
+#define OPTION_VAL_IN_STEP_NO NULL
+#define OPTION_VAL_PREVIOUS_NO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_NO NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_NO NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_NO NULL
@@ -13247,6 +13475,10 @@ struct retro_core_option_v2_definition option_defs_no[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_NO,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_NO}, {"internal", OPTION_VAL_INTERNAL_NO}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_NO, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_NO,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_NO}, {"previous", OPTION_VAL_PREVIOUS_NO}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_NO, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_NO,
 		NULL, "graphics",
@@ -13493,6 +13725,10 @@ struct retro_core_options_v2 options_no = {
 #define PCSX2_FRAME_LIMITER_INFO_0_OR NULL
 #define OPTION_VAL_FRONTEND_OR NULL
 #define OPTION_VAL_INTERNAL_OR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_OR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_OR NULL
+#define OPTION_VAL_IN_STEP_OR NULL
+#define OPTION_VAL_PREVIOUS_OR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_OR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_OR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_OR NULL
@@ -13707,6 +13943,10 @@ struct retro_core_option_v2_definition option_defs_or[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_OR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_OR}, {"internal", OPTION_VAL_INTERNAL_OR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_OR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_OR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_OR}, {"previous", OPTION_VAL_PREVIOUS_OR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_OR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_OR,
 		NULL, "graphics",
@@ -13953,6 +14193,10 @@ struct retro_core_options_v2 options_or = {
 #define PCSX2_FRAME_LIMITER_INFO_0_PL NULL
 #define OPTION_VAL_FRONTEND_PL NULL
 #define OPTION_VAL_INTERNAL_PL NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_PL NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_PL NULL
+#define OPTION_VAL_IN_STEP_PL NULL
+#define OPTION_VAL_PREVIOUS_PL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PL NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_PL NULL
@@ -14167,6 +14411,10 @@ struct retro_core_option_v2_definition option_defs_pl[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_PL,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_PL}, {"internal", OPTION_VAL_INTERNAL_PL}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_PL, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_PL,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_PL}, {"previous", OPTION_VAL_PREVIOUS_PL}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PL, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PL,
 		NULL, "graphics",
@@ -14413,6 +14661,10 @@ struct retro_core_options_v2 options_pl = {
 #define PCSX2_FRAME_LIMITER_INFO_0_PT_BR NULL
 #define OPTION_VAL_FRONTEND_PT_BR NULL
 #define OPTION_VAL_INTERNAL_PT_BR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_PT_BR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_PT_BR NULL
+#define OPTION_VAL_IN_STEP_PT_BR NULL
+#define OPTION_VAL_PREVIOUS_PT_BR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PT_BR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PT_BR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_PT_BR NULL
@@ -14627,6 +14879,10 @@ struct retro_core_option_v2_definition option_defs_pt_br[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_PT_BR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_PT_BR}, {"internal", OPTION_VAL_INTERNAL_PT_BR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_PT_BR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_PT_BR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_PT_BR}, {"previous", OPTION_VAL_PREVIOUS_PT_BR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PT_BR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PT_BR,
 		NULL, "graphics",
@@ -14873,6 +15129,10 @@ struct retro_core_options_v2 options_pt_br = {
 #define PCSX2_FRAME_LIMITER_INFO_0_PT_PT NULL
 #define OPTION_VAL_FRONTEND_PT_PT NULL
 #define OPTION_VAL_INTERNAL_PT_PT NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_PT_PT NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_PT_PT NULL
+#define OPTION_VAL_IN_STEP_PT_PT NULL
+#define OPTION_VAL_PREVIOUS_PT_PT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PT_PT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PT_PT NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_PT_PT NULL
@@ -15087,6 +15347,10 @@ struct retro_core_option_v2_definition option_defs_pt_pt[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_PT_PT,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_PT_PT}, {"internal", OPTION_VAL_INTERNAL_PT_PT}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_PT_PT, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_PT_PT,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_PT_PT}, {"previous", OPTION_VAL_PREVIOUS_PT_PT}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_PT_PT, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_PT_PT,
 		NULL, "graphics",
@@ -15333,6 +15597,10 @@ struct retro_core_options_v2 options_pt_pt = {
 #define PCSX2_FRAME_LIMITER_INFO_0_RU NULL
 #define OPTION_VAL_FRONTEND_RU NULL
 #define OPTION_VAL_INTERNAL_RU NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_RU NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_RU NULL
+#define OPTION_VAL_IN_STEP_RU NULL
+#define OPTION_VAL_PREVIOUS_RU NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_RU NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_RU NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_RU NULL
@@ -15547,6 +15815,10 @@ struct retro_core_option_v2_definition option_defs_ru[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_RU,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_RU}, {"internal", OPTION_VAL_INTERNAL_RU}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_RU, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_RU,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_RU}, {"previous", OPTION_VAL_PREVIOUS_RU}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_RU, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_RU,
 		NULL, "graphics",
@@ -15749,7 +16021,7 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_ROV_LABEL_SK "Raster Order Views (experimentálne)"
 #define PCSX2_ROV_INFO_0_SK "Umožní efektom miešania a hĺbky čítať vykresľovací cieľ priamo v shaderi namiesto cez bariéru textúr. Na GPU Apple (MoltenVK) každá bariéra textúr rozdelí vykresľovací priechod, čo je náročné; toto im zabráni tam, kde to GPU podporuje. Môže spôsobiť grafické chyby. Predvolene vypnuté, ako v samostatnom PCSX2."
 #define PCSX2_TEXTURE_FILTERING_LABEL_SK "Filtrovanie textúr"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_SK "Bilineárne (PS2) napodobňuje konzolu; vynútené režimy vyhladia všetky textúry."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_SK "Bilineárne filtrovanie (PS2) napodobňuje konzolu. Vynútené režimy vyhladzujú všetky textúry. Nastavenie platí iba pre hardvérové a softvérové vykresľovanie. paraLLEl-GS vždy filtruje rovnako ako konzola."
 #define OPTION_VAL_NEAREST_SK "Najbližšie"
 #define OPTION_VAL_BILINEAR_PS2_SK "Bilineárne (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_SK "Bilineárne (vynútené)"
@@ -15793,6 +16065,10 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_FRAME_LIMITER_INFO_0_SK "Čo drží emulátor na plnej rýchlosti. Frontend nechá časovanie na RetroArch, ktorý ho brzdí tak, že jadro čaká na zvuk, ktorý odovzdá. Interný namiesto toho použije vlastný obmedzovač PCSX2 – pre zariadenia, kde k tomu čakaniu nedôjde, lebo zvukový ovládač namiesto blokovania podtečie, a kolísanie rýchlosti emulátora sa potom na obrazovke prejaví ako nerovnomerné časovanie snímok."
 #define OPTION_VAL_FRONTEND_SK NULL
 #define OPTION_VAL_INTERNAL_SK "Interný (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_SK "Odovzdávanie snímok"
+#define PCSX2_FRAME_HANDOVER_INFO_0_SK "Určuje, ktorú snímku dostane RetroArch pri každom volaní. Režim Synchronizované čaká na snímku zodpovedajúcu vstupu v aktuálnom volaní. Má rovnaké oneskorenie vstupu ako samostatný PCSX2, ale rozdiely v čase emulácie jednotlivých snímok sa na displeji VRR bez zvislej synchronizácie prejavia nerovnomerným zobrazovaním. Režim Predchádzajúca snímka odovzdá už dokončenú snímku a počas jej zobrazenia v RetroArchu emuluje ďalšiu. Snímky sa zobrazujú rovnomerne za cenu oneskorenia vstupu o jednu snímku."
+#define OPTION_VAL_IN_STEP_SK "Synchronizované (nižšia latencia)"
+#define OPTION_VAL_PREVIOUS_SK "Predchádzajúca snímka (rovnomerné zobrazovanie)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SK "Preskakovať duplicitné snímky"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK "Neodovzdá frontendu snímku, ktorú GS znova nevykreslil – hra s 30 fps potom dodá 30 jedinečných snímok namiesto 60, z ktorých je každá druhá zopakovaná. Vypnite, ak filter generovania alebo interpolácie snímok potrebuje dostať každú snímku samostatne."
 #define PCSX2_CAS_SHARPNESS_LABEL_SK "Ostrosť CAS"
@@ -16007,6 +16283,10 @@ struct retro_core_option_v2_definition option_defs_sk[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_SK,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_SK}, {"internal", OPTION_VAL_INTERNAL_SK}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_SK, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_SK,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_SK}, {"previous", OPTION_VAL_PREVIOUS_SK}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SK, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK,
 		NULL, "graphics",
@@ -16253,6 +16533,10 @@ struct retro_core_options_v2 options_sk = {
 #define PCSX2_FRAME_LIMITER_INFO_0_SR NULL
 #define OPTION_VAL_FRONTEND_SR NULL
 #define OPTION_VAL_INTERNAL_SR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_SR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_SR NULL
+#define OPTION_VAL_IN_STEP_SR NULL
+#define OPTION_VAL_PREVIOUS_SR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_SR NULL
@@ -16467,6 +16751,10 @@ struct retro_core_option_v2_definition option_defs_sr[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_SR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_SR}, {"internal", OPTION_VAL_INTERNAL_SR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_SR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_SR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_SR}, {"previous", OPTION_VAL_PREVIOUS_SR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SR,
 		NULL, "graphics",
@@ -16669,7 +16957,7 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_ROV_LABEL_SV "Rasterordningsvyer (experimentellt)"
 #define PCSX2_ROV_INFO_0_SV "Låter blandnings- och djupeffekter läsa renderingsmålet i shadern i stället för via en texturbarriär. På GPU:er från Apple (MoltenVK) delar varje texturbarriär upp renderingspasset, vilket är kostsamt. Detta undviker dem där GPU:n har stöd för det. Kan orsaka grafikfel. Av som standard, precis som i fristående PCSX2."
 #define PCSX2_TEXTURE_FILTERING_LABEL_SV "Texturfiltrering"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_SV "Bilinjär (PS2) efterliknar konsolen; tvingade lägen mjukar ut alla texturer."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_SV "Bilinjär (PS2) efterliknar konsolen. Tvingade lägen jämnar ut alla texturer. Gäller endast maskin- och programvarurenderare: paraLLEl-GS filtrerar alltid som konsolen gör."
 #define OPTION_VAL_NEAREST_SV "Närmsta"
 #define OPTION_VAL_BILINEAR_PS2_SV "Bilinjär (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_SV "Bilinjär (tvingad)"
@@ -16713,6 +17001,10 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_FRAME_LIMITER_INFO_0_SV "Vad som håller emuleraren i full hastighet. Gränssnitt låter RetroArch styra takten, som bromsar genom att låta kärnan vänta på ljudet den lämnar över. Intern använder i stället PCSX2:s egen begränsare - för en enhet där väntan aldrig sker eftersom ljuddrivrutinen får buffertunderskridning i stället för att blockera. Emulerarens egen hastighetsvariation når då skärmen som ojämna bildrutetider."
 #define OPTION_VAL_FRONTEND_SV "Gränssnitt (RetroArch)"
 #define OPTION_VAL_INTERNAL_SV "Intern (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_SV "Bildruteöverlämning"
+#define PCSX2_FRAME_HANDOVER_INFO_0_SV "Vilken bildruta som lämnas över till RetroArch vid varje anrop. I läget Samma steg väntar RetroArch på bildrutan från det här anropets inmatning, med samma inmatningsfördröjning som fristående PCSX2. Hur lång tid emuleringen av varje bildruta tar når därefter skärmen, vilket ger ojämn bildrutetakt på en VRR-skärm utan vertikal synkronisering. I läget Föregående bildruta lämnas den senast färdigställda bildrutan över och nästa emuleras medan RetroArch visar den: jämn bildrutetakt, men en bildruta mer inmatningsfördröjning."
+#define OPTION_VAL_IN_STEP_SV "Samma steg (lägre latens)"
+#define OPTION_VAL_PREVIOUS_SV "Föregående bildruta (jämn bildrutetakt)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SV "Hoppa över visning av dubblettbilder"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV "Lämna inte över en bildruta som GS aldrig ritade om - ett spel i 30 fps levererar då 30 unika bildrutor i stället för 60 där varannan upprepas. Stäng av detta om ett filter för bildrutegenerering eller interpolering behöver få varje bildruta som en egen."
 #define PCSX2_CAS_SHARPNESS_LABEL_SV "CAS-skärpa"
@@ -16927,6 +17219,10 @@ struct retro_core_option_v2_definition option_defs_sv[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_SV,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_SV}, {"internal", OPTION_VAL_INTERNAL_SV}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_SV, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_SV,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_SV}, {"previous", OPTION_VAL_PREVIOUS_SV}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SV, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV,
 		NULL, "graphics",
@@ -17173,6 +17469,10 @@ struct retro_core_options_v2 options_sv = {
 #define PCSX2_FRAME_LIMITER_INFO_0_TH NULL
 #define OPTION_VAL_FRONTEND_TH NULL
 #define OPTION_VAL_INTERNAL_TH NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_TH NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_TH NULL
+#define OPTION_VAL_IN_STEP_TH NULL
+#define OPTION_VAL_PREVIOUS_TH NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TH NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TH NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_TH NULL
@@ -17387,6 +17687,10 @@ struct retro_core_option_v2_definition option_defs_th[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_TH,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_TH}, {"internal", OPTION_VAL_INTERNAL_TH}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_TH, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_TH,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_TH}, {"previous", OPTION_VAL_PREVIOUS_TH}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TH, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TH,
 		NULL, "graphics",
@@ -17633,6 +17937,10 @@ struct retro_core_options_v2 options_th = {
 #define PCSX2_FRAME_LIMITER_INFO_0_TR NULL
 #define OPTION_VAL_FRONTEND_TR NULL
 #define OPTION_VAL_INTERNAL_TR NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_TR NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_TR NULL
+#define OPTION_VAL_IN_STEP_TR NULL
+#define OPTION_VAL_PREVIOUS_TR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_TR NULL
@@ -17847,6 +18155,10 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_TR,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_TR}, {"internal", OPTION_VAL_INTERNAL_TR}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_TR, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_TR,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_TR}, {"previous", OPTION_VAL_PREVIOUS_TR}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TR, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TR,
 		NULL, "graphics",
@@ -18093,6 +18405,10 @@ struct retro_core_options_v2 options_tr = {
 #define PCSX2_FRAME_LIMITER_INFO_0_TT NULL
 #define OPTION_VAL_FRONTEND_TT NULL
 #define OPTION_VAL_INTERNAL_TT NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_TT NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_TT NULL
+#define OPTION_VAL_IN_STEP_TT NULL
+#define OPTION_VAL_PREVIOUS_TT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TT NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TT NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_TT NULL
@@ -18307,6 +18623,10 @@ struct retro_core_option_v2_definition option_defs_tt[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_TT,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_TT}, {"internal", OPTION_VAL_INTERNAL_TT}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_TT, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_TT,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_TT}, {"previous", OPTION_VAL_PREVIOUS_TT}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_TT, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_TT,
 		NULL, "graphics",
@@ -18440,12 +18760,12 @@ struct retro_core_options_v2 options_tt = {
 /* RETRO_LANGUAGE_UK */
 
 #define CATEGORY_SYSTEM_LABEL_UK "Система"
-#define CATEGORY_SYSTEM_INFO_0_UK NULL
-#define CATEGORY_MEMORY_CARDS_LABEL_UK NULL
-#define CATEGORY_MEMORY_CARDS_INFO_0_UK NULL
-#define CATEGORY_GRAPHICS_LABEL_UK NULL
-#define CATEGORY_GRAPHICS_INFO_0_UK NULL
-#define CATEGORY_PATCHES_LABEL_UK NULL
+#define CATEGORY_SYSTEM_INFO_0_UK "Дія BIOS і завантаження."
+#define CATEGORY_MEMORY_CARDS_LABEL_UK "Карти пам'яті"
+#define CATEGORY_MEMORY_CARDS_INFO_0_UK "Налаштування карти пам'яті PS2."
+#define CATEGORY_GRAPHICS_LABEL_UK "Графіка"
+#define CATEGORY_GRAPHICS_INFO_0_UK "Візуалізатор, роздільна здатність та якість зображення."
+#define CATEGORY_PATCHES_LABEL_UK "Патчі"
 #define CATEGORY_PATCHES_INFO_0_UK NULL
 #define CATEGORY_PERFORMANCE_LABEL_UK "Продуктивність"
 #define CATEGORY_PERFORMANCE_INFO_0_UK NULL
@@ -18458,7 +18778,7 @@ struct retro_core_options_v2 options_tt = {
 #define PCSX2_FAST_BOOT_LABEL_UK NULL
 #define PCSX2_FAST_BOOT_INFO_0_UK NULL
 #define PCSX2_RENDERER_LABEL_UK "Рендерер"
-#define PCSX2_RENDERER_INFO_0_UK NULL
+#define PCSX2_RENDERER_INFO_0_UK "Апаратний рендер API, або програмний рендерер. Перемикання на або з програми застосовується у польоті; перемикання між апаратним API набуває чинності при перезапуску вмісту. paraLLEl-GS потребує відео-драйвера RetroArchs, який набуває чинності, коли зміст перезапущено, і не буде працювати з легкою зброєю."
 #define OPTION_VAL_VULKAN_UK NULL
 #define OPTION_VAL_PARALLEL_GS_UK NULL
 #define OPTION_VAL_OPENGL_UK NULL
@@ -18553,6 +18873,10 @@ struct retro_core_options_v2 options_tt = {
 #define PCSX2_FRAME_LIMITER_INFO_0_UK NULL
 #define OPTION_VAL_FRONTEND_UK NULL
 #define OPTION_VAL_INTERNAL_UK NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_UK NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_UK NULL
+#define OPTION_VAL_IN_STEP_UK NULL
+#define OPTION_VAL_PREVIOUS_UK NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_UK NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_UK NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_UK NULL
@@ -18767,6 +19091,10 @@ struct retro_core_option_v2_definition option_defs_uk[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_UK,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_UK}, {"internal", OPTION_VAL_INTERNAL_UK}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_UK, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_UK,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_UK}, {"previous", OPTION_VAL_PREVIOUS_UK}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_UK, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_UK,
 		NULL, "graphics",
@@ -19013,6 +19341,10 @@ struct retro_core_options_v2 options_uk = {
 #define PCSX2_FRAME_LIMITER_INFO_0_VAL NULL
 #define OPTION_VAL_FRONTEND_VAL NULL
 #define OPTION_VAL_INTERNAL_VAL NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_VAL NULL
+#define PCSX2_FRAME_HANDOVER_INFO_0_VAL NULL
+#define OPTION_VAL_IN_STEP_VAL NULL
+#define OPTION_VAL_PREVIOUS_VAL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VAL NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VAL NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_VAL NULL
@@ -19227,6 +19559,10 @@ struct retro_core_option_v2_definition option_defs_val[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_VAL,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_VAL}, {"internal", OPTION_VAL_INTERNAL_VAL}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_VAL, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_VAL,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_VAL}, {"previous", OPTION_VAL_PREVIOUS_VAL}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VAL, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VAL,
 		NULL, "graphics",
@@ -19429,7 +19765,7 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_ROV_LABEL_VN "Chế độ xem thứ tự điểm ảnh (thử nghiệm)"
 #define PCSX2_ROV_INFO_0_VN "Cho phép các hiệu ứng hòa trộn và độ sâu đọc mục tiêu Dựng hình trực tiếp trong bộ đổ bóng thay vì thông qua hàng rào kết cấu. Trên bộ xử lý đồ họa của Apple (MoltenVK), mỗi hàng rào kết cấu đều chia lượt Dựng hình thành nhiều phần, gây tốn kém tài nguyên; thiết lập này giúp tránh các hàng rào đó khi bộ xử lý đồ họa hỗ trợ. Có thể gây ra lỗi hiển thị đồ họa. Mặc định tắt, giống như bản PCSX2 độc lập."
 #define PCSX2_TEXTURE_FILTERING_LABEL_VN "Lọc kết cấu"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_VN "Bilinear (PS2) mô phỏng cách xử lý của máy chơi game; các chế độ bắt buộc sẽ làm mượt tất cả kết cấu."
+#define PCSX2_TEXTURE_FILTERING_INFO_0_VN "Lọc song tuyến tính (PS2) mô phỏng đúng cách lọc của máy chơi game; các chế độ cưỡng chế sẽ làm mượt tất cả kết cấu. Chỉ áp dụng cho bộ kết xuất phần cứng và phần mềm: paraLLEl-GS luôn lọc theo đúng cách của máy chơi game."
 #define OPTION_VAL_NEAREST_VN "Gần nhất"
 #define OPTION_VAL_BILINEAR_PS2_VN NULL
 #define OPTION_VAL_BILINEAR_FORCED_VN "Bilinear (Bắt buộc)"
@@ -19473,6 +19809,10 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_FRAME_LIMITER_INFO_0_VN "Điều gì giữ trình giả lập chạy ở tốc độ tối đa. Giao diện chính để RetroArch tự điều chỉnh tốc độ, bằng cách buộc lõi chờ âm thanh mà nó chuyển giao. Nội bộ sử dụng bộ giới hạn tốc độ riêng của PCSX2 - dành cho thiết bị mà việc chờ này không bao giờ xảy ra vì trình điều khiển âm thanh làm thiếu dữ liệu thay vì chặn, khiến sự dao động tốc độ của trình giả lập được đưa lên màn hình dưới dạng nhịp khung hình không đều."
 #define OPTION_VAL_FRONTEND_VN "Giao diện chính (RetroArch)"
 #define OPTION_VAL_INTERNAL_VN "Nội bộ (PCSX2)"
+#define PCSX2_FRAME_HANDOVER_LABEL_VN "Chuyển giao khung hình"
+#define PCSX2_FRAME_HANDOVER_INFO_0_VN "Xác định khung hình được chuyển giao cho RetroArch trong mỗi lần gọi. Ở chế độ Từng bước, hệ thống chờ khung hình tương ứng với dữ liệu đầu vào của lần gọi hiện tại, có độ trễ đầu vào tương đương khi chạy PCSX2 độc lập; thời gian mô phỏng mỗi khung hình sau đó sẽ quyết định thời điểm khung hình xuất hiện trên màn hình, khiến tốc độ hiển thị không đồng đều trên màn hình VRR khi không bật đồng bộ dọc. Ở chế độ Khung hình trước đó, hệ thống chuyển giao khung hình đã hoàn thành trước đó và mô phỏng khung hình tiếp theo trong khi RetroArch hiển thị khung hình vừa nhận: tốc độ hiển thị đồng đều hơn, nhưng độ trễ đầu vào tăng thêm một khung hình."
+#define OPTION_VAL_IN_STEP_VN "Từng bước (độ trễ thấp hơn)"
+#define OPTION_VAL_PREVIOUS_VN "Khung hình trước đó (tốc độ hiển thị đồng đều)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN "Bỏ qua việc xuất các khung hình trùng lặp"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Không chuyển cho giao diện chính một khung hình mà GS không Dựng hình lại - trò chơi 30 fps khi đó sẽ hiển thị 30 khung hình riêng biệt thay vì 60 khung hình với mỗi khung thứ hai bị lặp lại. Tắt tùy chọn này nếu bộ lọc tạo khung hình hoặc nội suy cần nhận từng khung hình dưới dạng một khung hình riêng."
 #define PCSX2_CAS_SHARPNESS_LABEL_VN "Độ sắc nét CAS"
@@ -19687,6 +20027,10 @@ struct retro_core_option_v2_definition option_defs_vn[] = {
 		PCSX2_FRAME_LIMITER_INFO_0_VN,
 		NULL, "system",
 		{{"frontend", OPTION_VAL_FRONTEND_VN}, {"internal", OPTION_VAL_INTERNAL_VN}, {NULL, NULL}}, "frontend"},
+	{"pcsx2_frame_handover", PCSX2_FRAME_HANDOVER_LABEL_VN, NULL,
+		PCSX2_FRAME_HANDOVER_INFO_0_VN,
+		NULL, "system",
+		{{"in_step", OPTION_VAL_IN_STEP_VN}, {"previous", OPTION_VAL_PREVIOUS_VN}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN, NULL,
 		PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN,
 		NULL, "graphics",
