@@ -583,6 +583,58 @@ void GSRendererPGS::VSync(u32 field, bool registers_written)
 	iface.flush();
 	iface.get_priv_register_state() = *priv;
 
+	const FlushStats flush_stats = iface.consume_flush_stats();
+	const bool fb_drawn = flush_stats.num_render_passes > 0 || flush_stats.num_copies > 0;
+
+	pgs_recycle_released_images();
+
+	// Explicit duplicate frame skipping for paraLLEl-GS; needs proper testing with field-rendered titles
+	bool skip_frame = false;
+	if (GSConfig.SkipDuplicateFrames && last_base_width > 0 && last_base_height > 0)
+	{
+		switch (PerformanceMetrics::GetInternalFPSMethod())
+		{
+			case PerformanceMetrics::InternalFPSMethod::GSPrivilegedRegister:
+				skip_frame = !registers_written && !fb_drawn;
+				break;
+			case PerformanceMetrics::InternalFPSMethod::DISPFBBlit:
+				skip_frame = !fb_drawn;
+				break;
+			case PerformanceMetrics::InternalFPSMethod::None:
+			default:
+				break;
+		}
+
+		if (skip_frame)
+		{
+			if (m_skipped_duplicate_frames >= MAX_SKIPPED_DUPLICATE_FRAMES)
+			{
+				skip_frame = false;
+				m_skipped_duplicate_frames = 0;
+			}
+			else
+			{
+				m_skipped_duplicate_frames++;
+			}
+		}
+		else
+		{
+			m_skipped_duplicate_frames = 0;
+		}
+	}
+	else
+	{
+		m_skipped_duplicate_frames = 0;
+	}
+
+	PerformanceMetrics::Update(registers_written, fb_drawn, skip_frame);
+	if (skip_frame)
+	{
+		dev.flush_frame();
+		GSNotifyDuplicateFrame();
+		return;
+	}
+
 	VSyncInfo info = {};
 
 	info.phase = field;
@@ -601,7 +653,6 @@ void GSRendererPGS::VSync(u32 field, bool registers_written)
 	// The scaling blur is technically a blur ...
 	info.adapt_to_internal_horizontal_resolution = GSConfig.PCRTCAntiBlur;
 	info.raw_circuit_scanout                     = true;
-	pgs_recycle_released_images();
 	info.recycle                                 = &spare_vsync_images;
 	// Config values: 0 = off, 1 = 2x, 2 = 4x point-sampled,
 	// 3 = 4x with the tent reconstruction filter, 4 = 4x with a
@@ -748,6 +799,12 @@ void ParallelGSRenderer::ReleaseContext()
 void ParallelGSRenderer::SetHWRenderInterface(retro_hw_render_interface_vulkan* iface)
 {
 	pgs_set_hwrender_interface(iface);
+}
+
+bool ParallelGSRenderer::HasFrame()
+{
+	std::lock_guard<std::mutex> lock(present_mutex);
+	return published.serial != 0 && published.serial != consumed_serial;
 }
 
 bool ParallelGSRenderer::PresentFrame(retro_hw_render_interface_vulkan* vulkan, unsigned* width, unsigned* height)

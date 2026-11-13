@@ -37,6 +37,8 @@ namespace ParallelGSRenderer
 	// At retro_deinit: the Granite context let go (it never owned the device
 	// or the instance, which stay the frontend's to destroy)
 	void ReleaseContext();
+	// True when the GS has scanned out a frame that PresentFrame has not yet consumed.
+	bool HasFrame();
 	// From retro_run: hands the newest frame the GS scanned out to the frontend (set_image)
 	// and says its size. False when there is no new one since the last call.
 	bool PresentFrame(retro_hw_render_interface_vulkan* vulkan, unsigned* width, unsigned* height);
