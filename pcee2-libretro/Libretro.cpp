@@ -3551,8 +3551,7 @@ void retro_run(void)
 	// Explicit libretro frame duplication: each retro_run() steps at most one
 	// emulated frame. When the GS skips a duplicate frame there is no new image
 	// to consume, so retro_run() passes nullptr to s_video_cb() to signal a
-	// duplicate frame to the frontend (enabling RetroArch's Skip Duplicate Frames
-	// feature cleanly; needs proper testing).
+	// duplicate frame to the frontend (for RetroArch's Skip Duplicate Frames).
 	//
 	// What holds the speed to 100% is the frontend blocking on the audio it is
 	// handed, the same as it already is for this core - nothing here limits by

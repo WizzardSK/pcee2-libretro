@@ -588,7 +588,7 @@ void GSRendererPGS::VSync(u32 field, bool registers_written)
 
 	pgs_recycle_released_images();
 
-	// Explicit duplicate frame skipping for paraLLEl-GS; needs proper testing with field-rendered titles
+	// Explicit duplicate frame skipping for paraLLEl-GS
 	bool skip_frame = false;
 	if (GSConfig.SkipDuplicateFrames && last_base_width > 0 && last_base_height > 0)
 	{

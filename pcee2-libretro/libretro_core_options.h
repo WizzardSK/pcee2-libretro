@@ -179,7 +179,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		"Which frame each call hands to RetroArch. In Step waits for the frame of this call's input, the same input lag as standalone PCSX2; how long each frame takes to emulate then reaches the screen, which a VRR display without vsync shows as uneven pacing. Previous Frame hands over the frame finished before and emulates the next one while RetroArch shows it: even pacing, one frame more input lag.",
 		NULL, "system",
 		{{"in_step", "In Step (lower latency)"}, {"previous", "Previous Frame (even pacing)"}, {NULL, NULL}}, "in_step"},
-	{"pcsx2_skip_duplicate_frames", "Frame Duplication", NULL,
+	{"pcsx2_skip_duplicate_frames", "Skip Presenting Duplicate Frames", NULL,
 		"Detects when a game runs below full framerate (e.g. 30fps in a 60Hz mode) and signals duplicate frames to the frontend instead of re-presenting them. Required for RetroArch's 'Skip Duplicate Frames' setting.",
 		NULL, "graphics",
 		{{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
