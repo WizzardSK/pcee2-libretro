@@ -183,7 +183,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		NULL, "system",
 		{{"in_step", "In Step (lower latency)"}, {"previous", "Previous Frame (even pacing)"}, {NULL, NULL}}, "in_step"},
 	{"pcsx2_skip_duplicate_frames", "Skip Presenting Duplicate Frames", NULL,
-		"Don't hand the frontend a frame the GS never redrew - a 30fps game then delivers 30 unique frames instead of 60 with every second one repeated. Turn this off if a frame generation or interpolation filter needs every frame delivered as its own.",
+		"Detects when a game runs below full framerate (e.g. 30fps in a 60Hz mode) and signals duplicate frames to the frontend instead of re-presenting them. Required for RetroArch's 'Skip Duplicate Frames' setting.",
 		NULL, "graphics",
 		{{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_cas_sharpness", "CAS Sharpness", NULL, NULL, NULL, "graphics",

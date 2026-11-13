@@ -48,6 +48,9 @@ private:
 	uint32_t last_base_width  = 0;
 	uint32_t last_base_height = 0;
 
+	u32 m_skipped_duplicate_frames = 0;
+	static constexpr u32 MAX_SKIPPED_DUPLICATE_FRAMES = 3;
+
 	static int GetSaveStateSize();
 };
 

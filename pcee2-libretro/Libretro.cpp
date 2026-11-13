@@ -164,12 +164,9 @@ namespace LibretroHost
 	static bool s_session_ended = false; // the CPU thread left the session
 
 	// Frames the GS dropped as duplicates (see GSSetDuplicateFrameCallback),
-	// counted on the GS thread and spent in retro_run(): one dropped frame buys
-	// one extra run token, so a frame the frontend would only have been told to
-	// repeat becomes emulation time instead. Free-running counter and the
-	// number of them retro_run() has spent - never reset independently.
+	// counted on the GS thread so retro_run()'s wait_for_gs loop can stop
+	// waiting immediately when the GS has no frame to publish.
 	static std::atomic<u64> s_duplicate_frames{0};
-	static u64 s_duplicate_frames_spent = 0;
 
 	// Whether the VM paces itself (see the frame limiter core option).
 	static std::atomic<bool> s_internal_limiter{false};
@@ -2614,8 +2611,11 @@ bool retro_load_game(const struct retro_game_info* game)
 	// Wired for every present path - the readback one included, which also has
 	// nothing to hand over for a dropped frame.
 	s_duplicate_frames.store(0, std::memory_order_release);
-	s_duplicate_frames_spent = 0;
 	GSSetDuplicateFrameCallback(&DuplicateFrameCallback);
+
+	bool can_dupe = false;
+	if (s_environ_cb && s_environ_cb(RETRO_ENVIRONMENT_GET_CAN_DUPE, &can_dupe) && !can_dupe)
+		Console.Warning("PCSX2: Frontend reports RETRO_ENVIRONMENT_GET_CAN_DUPE = false; explicit frame duplication may not work.");
 
 	s_running.store(true, std::memory_order_release);
 	{
@@ -3334,7 +3334,13 @@ static bool PresentFramePending()
 {
 #ifdef ENABLE_VULKAN
 	if (s_hw_render == HWRender::Vulkan)
+	{
+#ifdef HAVE_PARALLEL_GS
+		if (s_parallel_gs)
+			return ParallelGSRenderer::HasFrame();
+#endif
 		return VKLibretro::HasFrame();
+	}
 #endif
 #ifdef ENABLE_OPENGL
 	if (s_hw_render == HWRender::OpenGL)
@@ -3548,24 +3554,10 @@ void retro_run(void)
 
 	// Hand the CPU thread a frame of execution and wait for the result.
 	//
-	// When the GS drops a frame as a duplicate there is no image to hand over
-	// and the frontend is told to repeat the last one, so its frame rate stays
-	// at the VM's vertical frequency while the game's is a fraction of it -
-	// which is what frame generation and interpolation filters trip over.
-	// Spend the drop on another frame of emulation instead: retro_run() then
-	// returns once per frame that carries a new image, and the cadence the
-	// frontend sees becomes the game's internal one. Announcing the lower rate
-	// through av_info would be the other way to do it, but that reset tears the
-	// video driver down mid-run.
-	//
-	// Only drops the GS has actually reported are spent, at most as many in a
-	// row as the GS itself will drop. When it is merely a frame behind, no
-	// credit is waiting and the frontend gets the dupe it would have got
-	// before - guessing from "nothing arrived" instead would run the VM ahead
-	// every time the GPU is the slow end. A frame already waiting is presented
-	// as it is: the HW paths park the GS thread in PublishFrame until
-	// retro_run consumes, so running on past an unconsumed frame would stall
-	// this loop against its own pacing.
+	// Explicit libretro frame duplication: each retro_run() steps at most one
+	// emulated frame. When the GS skips a duplicate frame there is no new image
+	// to consume, so retro_run() passes nullptr to s_video_cb() to signal a
+	// duplicate frame to the frontend (for RetroArch's Skip Duplicate Frames).
 	//
 	// What holds the speed to 100% is the frontend blocking on the audio it is
 	// handed, the same as it already is for this core - nothing here limits by
@@ -3599,14 +3591,14 @@ void retro_run(void)
 	// however long its emulation took - even pacing, at a frame more input
 	// lag (Immersion95, #65). How the core worked before #62, now chosen.
 	const bool previous_frame = s_previous_frame.load(std::memory_order_acquire);
-	for (u32 run = 0; !audio_ahead; run++)
+	if (!audio_ahead)
 	{
 #ifdef ENABLE_VULKAN
 		// A frame waiting before this run's token was drawn from earlier
 		// input: presenting it now would put every frame after it one behind
 		// as well (Immersion95, #64). Skipped instead; the run's own frame
 		// follows.
-		if (vk_parked && run == 0 && !previous_frame && VKLibretro::DropFrame())
+		if (vk_parked && !previous_frame && VKLibretro::DropFrame())
 		{
 			// logged at 1, 2, 4, 8... so a steady stream of them shows
 			static u64 s_stale_frames = 0;
@@ -3674,25 +3666,6 @@ void retro_run(void)
 				lock.lock();
 			}
 		}
-
-		if (!got_frame || run >= MAX_SKIPPED_DUPLICATE_FRAMES || PresentFramePending())
-			break;
-
-		const u64 dropped = s_duplicate_frames.load(std::memory_order_acquire);
-		if (dropped <= s_duplicate_frames_spent)
-			break;
-
-		s_duplicate_frames_spent++;
-
-		// Hand this frame's audio over before running the next one: the stream
-		// keeps ~50ms of ring and four frames of a 50Hz game are 80ms, so
-		// draining once at the end would overrun it. It is also what keeps the
-		// extra frames from running the VM fast - the frontend's write blocks
-		// for as long as the audio it just took needs to play. The CPU thread
-		// stays parked meanwhile; it has no run token until the next pass.
-		lock.unlock();
-		OutputAudio(false);
-		lock.lock();
 	}
 
 	// This frame's audio goes to the frontend before its picture. A frontend
@@ -3866,7 +3839,7 @@ void retro_run(void)
 	// above, which compile out one by one as the renderers are switched off.
 	if (!HWRenderActive())
 	{
-		if (got_frame && s_frame_width > 0 && s_frame_height > 0 && s_video_cb)
+		if (got_frame && s_frame_serial != s_frame_serial_seen && s_frame_width > 0 && s_frame_height > 0 && s_video_cb)
 		{
 			s_frame_serial_seen = s_frame_serial;
 			SyncReadbackGeometry(s_frame_width, s_frame_height);
@@ -3874,7 +3847,7 @@ void retro_run(void)
 		}
 		else if (s_video_cb)
 		{
-			// no frame produced yet (still booting); duplicate previous frame
+			// no new frame produced (still booting or duplicate frame); pass nullptr for explicit frame duplication
 			s_video_cb(nullptr, s_frame_width ? s_frame_width : DEFAULT_WIDTH,
 				s_frame_height ? s_frame_height : DEFAULT_HEIGHT,
 				(s_frame_width ? s_frame_width : DEFAULT_WIDTH) * sizeof(u32));

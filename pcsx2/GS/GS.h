@@ -131,6 +131,7 @@ void GSReleaseFramebufferReadbackResources();
 /// disable.
 using GSDuplicateFrameCallback = void (*)();
 void GSSetDuplicateFrameCallback(GSDuplicateFrameCallback callback);
+void GSNotifyDuplicateFrame();
 
 namespace Host
 {

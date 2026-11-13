@@ -485,6 +485,12 @@ void GSSetDuplicateFrameCallback(GSDuplicateFrameCallback callback)
 	s_duplicate_frame_cb = callback;
 }
 
+void GSNotifyDuplicateFrame()
+{
+	if (s_duplicate_frame_cb)
+		s_duplicate_frame_cb();
+}
+
 void GSReleaseFramebufferReadbackResources()
 {
 	s_fb_readback_dl.reset();
@@ -726,8 +732,7 @@ void GSRenderer::VSync(u32 field, bool registers_written, bool idle_frame)
 		{
 			m_skipped_duplicate_frames++;
 			skip_frame = true;
-			if (s_duplicate_frame_cb)
-				s_duplicate_frame_cb();
+			GSNotifyDuplicateFrame();
 		}
 		else
 		{
