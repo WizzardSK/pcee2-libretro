@@ -70,8 +70,8 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 	{"pcsx2_fast_boot", "Fast Boot", NULL, "Skip the BIOS boot animation. Requires restart.", NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_osd_messages", "On-Screen Notifications", NULL,
-		"The emulator's notifications over the picture (savestates, memory cards, warnings). Off, none are shown; they still go to the log.", NULL,
-		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+		"The emulator's notifications (savestates, memory cards, warnings). PCSX2: drawn over the picture by the emulator, scaled with the internal resolution. RetroArch: shown as RetroArch's own notifications, at RetroArch's size. Off: none are shown; they still go to the log.", NULL,
+		"system", {{"enabled", "PCSX2"}, {"frontend", "RetroArch"}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
 	// with nothing to construct (Android turns OpenGL off entirely), so the

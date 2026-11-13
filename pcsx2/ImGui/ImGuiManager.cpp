@@ -818,6 +818,12 @@ static std::deque<OSDMessage> s_osd_active_messages;
 static std::deque<OSDMessage> s_osd_posted_messages;
 static std::mutex s_osd_messages_lock;
 
+#ifdef PCSX2_LIBRETRO
+// The libretro core's own taker of OSD messages (On-Screen Notifications on
+// RetroArch hands them to the frontend); called on whichever thread posts.
+void (*g_libretro_osd_hook)(const std::string& text, float duration) = nullptr;
+#endif
+
 void Host::AddOSDMessage(std::string message, float duration /*= 2.0f*/)
 {
 	AddKeyedOSDMessage(std::string(), std::move(message), duration);
@@ -829,6 +835,11 @@ void Host::AddKeyedOSDMessage(std::string key, std::string message, float durati
 		Console.WriteLn(Color_StrongGreen, fmt::format("OSD [{}]: {}", key, message));
 	else
 		Console.WriteLn(Color_StrongGreen, fmt::format("OSD: {}", message));
+
+#ifdef PCSX2_LIBRETRO
+	if (g_libretro_osd_hook && !message.empty())
+		g_libretro_osd_hook(message, duration);
+#endif
 
 	const Common::Timer::Value current_time = Common::Timer::GetCurrentValue();
 
@@ -853,6 +864,11 @@ void Host::AddIconOSDMessage(std::string key, const char* icon, const std::strin
 		Console.WriteLn(Color_StrongGreen, fmt::format("OSD: {}", message));
 
 	const Common::Timer::Value current_time = Common::Timer::GetCurrentValue();
+
+#ifdef PCSX2_LIBRETRO
+	if (g_libretro_osd_hook && !message.empty())
+		g_libretro_osd_hook(std::string(message), duration);
+#endif
 
 	OSDMessage msg = {};
 	msg.key = std::move(key);

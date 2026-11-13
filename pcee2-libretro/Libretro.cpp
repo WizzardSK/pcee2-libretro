@@ -98,6 +98,22 @@
 
 #include "fmt/format.h"
 
+// On-Screen Notifications on RetroArch: PCSX2's OSD messages, posted on any
+// thread, wait here for retro_run() to hand them to the frontend
+extern void (*g_libretro_osd_hook)(const std::string& text, float duration);
+static std::atomic<bool> s_osd_frontend{false};
+static std::mutex s_osd_queue_mutex;
+static std::vector<std::pair<std::string, float>> s_osd_queue;
+
+static void LibretroOSDHook(const std::string& text, float duration)
+{
+	if (!s_osd_frontend.load(std::memory_order_relaxed))
+		return;
+	std::lock_guard<std::mutex> lock(s_osd_queue_mutex);
+	if (s_osd_queue.size() < 16)
+		s_osd_queue.emplace_back(text, duration);
+}
+
 namespace LibretroHost
 {
 	// libretro callbacks
@@ -1197,10 +1213,16 @@ void LibretroHost::ReadCoreOptions(bool startup)
 		std::strcmp(aspect, "4:3") == 0 ? "4:3" : std::strcmp(aspect, "16:9") == 0 ? "16:9" : "Auto 4:3/3:2");
 
 	// On-Screen Notifications: PCSX2's message position None draws none
-	// (ImGuiManager drops posted messages); top left as in standalone
-	s_settings_interface.SetIntValue("EmuCore/GS", "OsdMessagesPos",
-		static_cast<int>(std::strcmp(get_option("pcsx2_osd_messages", "enabled"), "disabled") == 0 ?
-			OsdOverlayPos::None : OsdOverlayPos::TopLeft));
+	// (ImGuiManager drops posted messages); top left as in standalone. On
+	// RetroArch, PCSX2 draws none and the hook hands them to the frontend.
+	{
+		const char* osd = get_option("pcsx2_osd_messages", "enabled");
+		const bool frontend = std::strcmp(osd, "frontend") == 0;
+		s_osd_frontend.store(frontend, std::memory_order_relaxed);
+		s_settings_interface.SetIntValue("EmuCore/GS", "OsdMessagesPos",
+			static_cast<int>((frontend || std::strcmp(osd, "disabled") == 0) ?
+				OsdOverlayPos::None : OsdOverlayPos::TopLeft));
+	}
 
 	// performance
 	// PCEE2_OSD=1: performance overlay (fps/speed + EE/GS/VU thread loads +
@@ -2339,6 +2361,7 @@ static void RETRO_CALLCONV AudioBufferStatus(bool active, unsigned occupancy, bo
 
 bool retro_load_game(const struct retro_game_info* game)
 {
+	g_libretro_osd_hook = &LibretroOSDHook;
 	// Each game pads with silence until its own first sound (see OutputAudio).
 	s_audio_frames_output.store(0, std::memory_order_relaxed);
 	s_audio_owed = 0.0;
@@ -3415,8 +3438,29 @@ static void SyncReadbackGeometry(u32 width, u32 height)
 	s_environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
 }
 
+static void FlushOSDMessages()
+{
+	std::vector<std::pair<std::string, float>> queue;
+	{
+		std::lock_guard<std::mutex> lock(s_osd_queue_mutex);
+		queue.swap(s_osd_queue);
+	}
+	for (const auto& [text, duration] : queue)
+	{
+		const unsigned ms = static_cast<unsigned>(std::max(duration, 1.0f) * 1000.0f);
+		struct retro_message_ext ext = {text.c_str(), ms, 1, RETRO_LOG_INFO,
+			RETRO_MESSAGE_TARGET_ALL, RETRO_MESSAGE_TYPE_NOTIFICATION, -1};
+		if (!s_environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE_EXT, &ext))
+		{
+			struct retro_message msg = {text.c_str(), ms * 60 / 1000};
+			s_environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE, &msg);
+		}
+	}
+}
+
 void retro_run(void)
 {
+	FlushOSDMessages();
 	// apply core option changes on the fly
 	bool options_updated = false;
 	if (s_environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &options_updated) && options_updated &&
