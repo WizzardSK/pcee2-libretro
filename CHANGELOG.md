@@ -2,7 +2,7 @@
 
 What changed in the libretro core of this fork, newest first. Changes that come with a merge of upstream PCSX2 are in upstream's own history; a merge is noted here with the upstream version it brought in.
 
-## Unreleased
+## November 2026
 
 - Namco System 246/256 light gun games (Time Crisis 3 and 4, Cobra The Arcade): the service switch (L3, or the light gun's Aux C) reaches the game, so its service menu and the gun calibration can be entered. It was set only for the other games (gig71, #69).
 - Graphics > Skip Presenting Duplicate Frames: duplicate vsyncs are handed to RetroArch as frame dupes (`NULL`) instead of running an extra emulated frame inside `retro_run()`, with paraLLEl-GS and the Software/readback path included. Enable Settings > Video > Synchronization > Skip Duplicate Frames in RetroArch (nightly / 1.22.3+) to skip presenting them; on RetroArch 1.22.2 and older without that setting, a 30fps game goes back to 60 presents with every second one repeated.
@@ -10,6 +10,9 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 - One frame less input lag with Skip Presenting Duplicate Frames off and with paraLLEl-GS, as with it on and in standalone PCSX2; with the Vulkan renderer too, which waits for the frame of the vsync it ran (the GS thread takes the vsync off its queue before it has drawn the frame, so the run ended without it and the next run took it), and skips a frame drawn before the run if one is still waiting; with the Software renderer too (and the renderers copied to the frontend), whose frame read back for the vsync before could stand in for this vsync's: from the start of the game, each frame handed to RetroArch was the one run before the input, and the frame for that input was emulated only after RetroArch had it. A frame the emulator finished without being asked for one (the first after boot) counted as the next one asked for. (Immersion95, #62).
 - New option System > Frame Handover: In Step (the default, as above) or Previous Frame, which hands over the frame finished before and emulates the next while RetroArch shows it - even frame pacing on a VRR display without vsync, at a frame more input lag; the VRR Frame Pacing option of the test builds is gone, it made pacing less even on every renderer (Immersion95, #65).
 - Each frame's audio is handed to RetroArch before its picture, so on a VRR display without vsync a frame is shown when the audio before it has played, not as much later as it took longer to emulate (Immersion95, #65).
+
+## October 2026
+
 - A savestate loaded right at the start (RetroArch's Auto Load State) no longer comes up black with repeated TLB misses: when the state's memory mapping overlapped the BIOS's one it replaced, part of the restored mapping was removed again (村林千春).
 - Linux arm64 and webOS: the core is built for ARMv8.0, so it starts on CPUs without the ARMv8.1 atomics (Cortex-A53, Cortex-A73, as in LG webOS TVs); it was built for ARMv8.1 and crashed right after the video driver started, with nothing in the log. Where the CPU has the atomics, they are still used, picked at run time (alex).
 - Graphics > Dithering has Force 32-bit, as in standalone PCSX2: the hardware renderers keep 16-bit colors at full 32-bit precision, without dithering; it breaks rendering in some games (Immersion95, #63).
@@ -32,9 +35,6 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 - Frame Limiter on Frontend: the core hands RetroArch one frame's worth of sound per frame, and holds it back only when RetroArch's buffer is completely full. It handed over whatever was queued, in bursts, and held it back already at 90%, where RetroArch's macOS CoreAudio driver normally sits; its buffer swung between empty and full and the picture stuttered (spencersmitty, #46).
 - Sound no longer stutters where a frame's samples fall on the next frame: the core padded a frame of silence into the running stream each time, meant only for the boot (in Ace Combat 04 some 23 times a second, about 37% silence on top of the game's sound), and the surplus kept RetroArch's buffer full so frames were held too. Now it pads only until the game's first sound (nobz226, #46).
 - New option Patches > Cheats, off by default: the `.pnach` cheat files in `system/pcsx2/cheats/`, named after the game's serial and CRC as in standalone PCSX2, are applied. PCSX2 loaded them only with `EnableCheats` set by hand in `PCSX2.ini` (raidenii, issue #49).
-
-## October 2026
-
 - Frame Limiter on Frontend (RetroArch): a frame is held back only when the frontend's audio buffer is nearly full and the game is also ahead of the clock. The full buffer alone held frames on setups where it is small, which made games run slow with broken sound. The log has a line on the pacing for each 600 frames in which it had something to do. With low audio latencies the sound can still break up, from the frontend's buffer running empty: a higher Audio Latency in RetroArch and Audio Buffer in the core settle it (cubatilles, #48).
 - New option System > Lightgun Crosshair: a crosshair drawn where the GunCon 2 is aiming, in a colour of your choice, with the software renderer too. Off by default (cubatilles, #47).
 - GunCon 2: the calibration shot, which the calibration screen of the Time Crisis games waits for, is on Gun Trigger and Gun Reload held together, and on R3 of the gun's port. It was not on any input, so those screens could not be passed (cubatilles, #47).
