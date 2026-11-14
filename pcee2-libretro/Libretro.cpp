@@ -2857,14 +2857,21 @@ static void UpdateArcadeInput()
 			else if (mode != JVS_MODE::DRIVE && mode != JVS_MODE::DRUM)
 				add(p == 0 ? ACJV::GetButtonBindings() : ACJV::GetP2ButtonBindings(), false); // the generic buttons 1-6
 		}
-		// the service switch: L3
+		// the service switch: L3, or on a lightgun its third auxiliary button
 		all |= JVS_BTN_SERVICE;
-		if (pad(p, RETRO_DEVICE_ID_JOYPAD_L3))
+		if (pad(p, RETRO_DEVICE_ID_JOYPAD_L3) ||
+			(lightgun && s_input_state_cb(p, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_AUX_C)))
 			pressed |= JVS_BTN_SERVICE;
 		if (!lightgun)
 		{
 			ACJV::SetButtonState(p, all & ~pressed, false);
 			ACJV::SetButtonState(p, pressed, true);
+		}
+		else
+		{
+			// the gun games' buttons are set below; the service switch here, which the
+			// gun calibration in the service menu needs (Time Crisis 3/4, Cobra: gig71, #69)
+			ACJV::SetButtonState(p, JVS_BTN_SERVICE, (pressed & JVS_BTN_SERVICE) != 0);
 		}
 
 		// a coin per press of Select

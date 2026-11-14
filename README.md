@@ -91,7 +91,7 @@ The arcade boards built on the PS2 run from an `.acgame` file, the way [PCSX2x6]
 - The dongle next to the game is copied into the memory card folder at every start (the game writes to it), and memory card slots 1 and 2 go back to your own cards when the game ends.
 - Everything arcade is switched on only while an `.acgame` runs; a PS2 game runs as before.
 
-Controls (the JVS I/O board): each game's buttons sit where its PS2 port has them. Select inserts a coin, Start starts, L3 is the service switch and R3 toggles the test switch. Driving games steer with the left stick or the D-pad, R2 is the accelerator and L2 the brake. Taiko: Left / B on the drum's face, L / R on its rim. Light gun games take the frontend's light gun, with Reload as a shot beside the screen. The first player can also use the keyboard: arrows, J / K / L / I, Backspace for a coin, Return to start.
+Controls (the JVS I/O board): each game's buttons sit where its PS2 port has them. Select inserts a coin, Start starts, L3 is the service switch and R3 toggles the test switch. Driving games steer with the left stick or the D-pad, R2 is the accelerator and L2 the brake. Taiko: Left / B on the drum's face, L / R on its rim. Light gun games take the frontend's light gun, with Reload as a shot beside the screen; the service switch is there also the gun's third auxiliary button (Aux C). The first player can also use the keyboard: arrows, J / K / L / I, Backspace for a coin, Return to start.
 
 ## Building (Linux)
 

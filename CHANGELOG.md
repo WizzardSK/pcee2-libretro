@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## Unreleased
 
+- Namco System 246/256 light gun games (Time Crisis 3 and 4, Cobra The Arcade): the service switch (L3, or the light gun's Aux C) reaches the game, so its service menu and the gun calibration can be entered. It was set only for the other games (gig71, #69).
 - A savestate loaded right at the start (RetroArch's Auto Load State) no longer comes up black with repeated TLB misses: when the state's memory mapping overlapped the BIOS's one it replaced, part of the restored mapping was removed again (村林千春).
 - Linux arm64 and webOS: the core is built for ARMv8.0, so it starts on CPUs without the ARMv8.1 atomics (Cortex-A53, Cortex-A73, as in LG webOS TVs); it was built for ARMv8.1 and crashed right after the video driver started, with nothing in the log. Where the CPU has the atomics, they are still used, picked at run time (alex).
 - Graphics > Dithering has Force 32-bit, as in standalone PCSX2: the hardware renderers keep 16-bit colors at full 32-bit precision, without dithering; it breaks rendering in some games (Immersion95, #63).
