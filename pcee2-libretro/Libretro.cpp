@@ -274,6 +274,11 @@ namespace LibretroHost
 	static std::vector<std::string> s_bios_names; // backing storage for option values
 	static std::vector<std::string> s_memcard_names; // backing storage for option values
 	static u32 s_opt_upscale = 1;
+	// Lightgun Crosshair: "disabled" or the colour PCSX2's cursor takes; and
+	// whether the arcade light gun games' crosshairs are set up for this
+	// content (-1 not yet, 0 off, 1 on)
+	static std::string s_opt_lightgun_crosshair = "disabled";
+	static int s_arcade_crosshair = -1;
 
 	// libretro port -> PCSX2 pad index (see sioConvertPadToPortAndSlot: 0=1A,
 	// 1=2A, 2..4=1B..1D, 5..7=2B..2D), built from the multitap option
@@ -992,6 +997,7 @@ void LibretroHost::ReadCoreOptions(bool startup)
 	};
 
 	s_gsdump_trigger = std::strcmp(get_option("pcsx2_gsdump_trigger", "disabled"), "enabled") == 0;
+	s_opt_lightgun_crosshair = get_option("pcsx2_lightgun_crosshair", "disabled");
 
 	// The default has to name a renderer this build actually has: a core without
 	// Vulkan still reads a stale pcsx2_renderer = "vulkan" out of the frontend's
@@ -2647,6 +2653,7 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* i
 
 void retro_unload_game(void)
 {
+	s_arcade_crosshair = -1;
 	if (!s_cpu_thread.joinable())
 		return;
 
@@ -2950,6 +2957,26 @@ static void UpdateArcadeInput()
 			ACJV::SetGunAimSource(p, true);
 			ACJV::SetGunRelativeAim(p, offscreen ? -1.0f : x, offscreen ? -1.0f : y);
 
+			// the crosshair: the Lightgun Crosshair option, drawn as the GunCon 2's is
+			// (PCSX2's software cursor of a relative-aim pointer), since the arcade games
+			// have none of their own and a mouse can't be calibrated without one (gig71, #69)
+			if (s_arcade_crosshair < 0)
+			{
+				const char* colour = s_opt_lightgun_crosshair.c_str();
+				const std::string image = LibretroCrosshairImage();
+				s_arcade_crosshair = (std::strcmp(colour, "disabled") != 0 && !image.empty()) ? 1 : 0;
+				for (u32 i = 0; i < 2 && s_arcade_crosshair; i++)
+					ImGuiManager::SetSoftwareCursor(InputManager::MAX_POINTER_DEVICES + i, image,
+						static_cast<float>(s_opt_upscale), static_cast<u32>(std::strtoul(colour, nullptr, 16)));
+			}
+			if (s_arcade_crosshair > 0)
+			{
+				const float w = ImGuiManager::GetWindowWidth(), h = ImGuiManager::GetWindowHeight();
+				const float cx = offscreen ? -1.0f : x, cy = offscreen ? -1.0f : y;
+				ImGuiManager::SetSoftwareCursorPosition(InputManager::MAX_POINTER_DEVICES + p,
+					w > 0.0f ? cx * w : cx, h > 0.0f ? cy * h : cy);
+			}
+
 			// one trigger bit per gun; a 1-player cabinet's second gun shares the first's bits on player 2
 			const u32 target = (p == 1 && !trig[1]) ? 1 : 0;
 			const u16 t = (p == 0 || !trig[1]) ? trig[0] : trig[1];
@@ -2958,6 +2985,15 @@ static void UpdateArcadeInput()
 			const bool st = gun(RETRO_DEVICE_ID_LIGHTGUN_START) || pad(p, RETRO_DEVICE_ID_JOYPAD_START);
 			const bool pedal = gun(RETRO_DEVICE_ID_LIGHTGUN_AUX_A) || pad(p, RETRO_DEVICE_ID_JOYPAD_B);
 			ACJV::SetButtonState(target, t, fire);
+			// the D-pad (a pad's or the light gun's) as the I/O board's Up/Down/Left/Right,
+			// which the service menu is moved through (gig71, #69)
+			static constexpr struct { unsigned pad_id, gun_id; u16 bit; } dirs[] = {
+				{RETRO_DEVICE_ID_JOYPAD_UP, RETRO_DEVICE_ID_LIGHTGUN_DPAD_UP, JVS_BTN_UP},
+				{RETRO_DEVICE_ID_JOYPAD_DOWN, RETRO_DEVICE_ID_LIGHTGUN_DPAD_DOWN, JVS_BTN_DOWN},
+				{RETRO_DEVICE_ID_JOYPAD_LEFT, RETRO_DEVICE_ID_LIGHTGUN_DPAD_LEFT, JVS_BTN_LEFT},
+				{RETRO_DEVICE_ID_JOYPAD_RIGHT, RETRO_DEVICE_ID_LIGHTGUN_DPAD_RIGHT, JVS_BTN_RIGHT}};
+			for (const auto& d : dirs)
+				ACJV::SetButtonState(p, d.bit, pad(p, d.pad_id) || gun(d.gun_id));
 			ACJV::SetButtonState(target, s, st);
 			if (gm.board == GunBoardModel::CameraVN)
 				ACJV::SetGunForceOffscreen(pedal);

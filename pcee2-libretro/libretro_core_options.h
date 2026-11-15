@@ -207,7 +207,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 			{NULL, NULL}},
 		"disabled"},
 	{"pcsx2_lightgun_crosshair", "Lightgun Crosshair", NULL,
-		"Draw a crosshair where the GunCon 2 is aiming, in the chosen colour. Off by default, as on the console. Requires restart.",
+		"Draw a crosshair where the GunCon 2 is aiming, in the chosen colour; in the Namco System 246/256 light gun games too. Off by default, as on the console. Requires restart.",
 		NULL, "system",
 		/* The values are what PCSX2's cursor colour setting takes, which it
 		 * hands to the overlay as it is: blue, green, red */
