@@ -4,6 +4,7 @@ What changed in the libretro core of this fork, newest first. Changes that come 
 
 ## November 2026
 
+- Time Crisis 4 and Cobra The Arcade: the gun's trigger works again. Those games read it as the I/O board's Left and the gun sensor as Right, and the D-pad for the service menu (above) overwrote both every frame; the D-pad now leaves alone the bits a game's gun uses (gig71, #69).
 - Namco System 246/256 light gun games: the Lightgun Crosshair option draws a crosshair where each gun aims, as for the GunCon 2 (the games have none, and with a mouse the gun could not be calibrated without one); the D-pad, a pad's or the light gun's, is the I/O board's Up/Down/Left/Right, which the service menu is moved through (gig71, #69).
 - Namco System 246/256 light gun games (Time Crisis 3 and 4, Cobra The Arcade): the service switch (L3, or the light gun's Aux C) reaches the game, so its service menu and the gun calibration can be entered. It was set only for the other games (gig71, #69).
 - Graphics > Skip Presenting Duplicate Frames: duplicate vsyncs are handed to RetroArch as frame dupes (`NULL`) instead of running an extra emulated frame inside `retro_run()`, with paraLLEl-GS and the Software/readback path included. Enable Settings > Video > Synchronization > Skip Duplicate Frames in RetroArch (nightly / 1.22.3+) to skip presenting them; on RetroArch 1.22.2 and older without that setting, a 30fps game goes back to 60 presents with every second one repeated.

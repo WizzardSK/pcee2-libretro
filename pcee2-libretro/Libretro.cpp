@@ -2992,8 +2992,13 @@ static void UpdateArcadeInput()
 				{RETRO_DEVICE_ID_JOYPAD_DOWN, RETRO_DEVICE_ID_LIGHTGUN_DPAD_DOWN, JVS_BTN_DOWN},
 				{RETRO_DEVICE_ID_JOYPAD_LEFT, RETRO_DEVICE_ID_LIGHTGUN_DPAD_LEFT, JVS_BTN_LEFT},
 				{RETRO_DEVICE_ID_JOYPAD_RIGHT, RETRO_DEVICE_ID_LIGHTGUN_DPAD_RIGHT, JVS_BTN_RIGHT}};
+			// but not over a bit the game's gun uses: Time Crisis 4 and Cobra read the
+			// trigger as Left and the gun sensor as Right, which the D-pad overwrote
+			// every frame, so the trigger did nothing (gig71, #69)
+			const u16 gun_bits = trig[0] | trig[1] | start[0] | start[1] | gm.pedal | gm.sensor | gm.link_2p;
 			for (const auto& d : dirs)
-				ACJV::SetButtonState(p, d.bit, pad(p, d.pad_id) || gun(d.gun_id));
+				if (!(d.bit & gun_bits))
+					ACJV::SetButtonState(p, d.bit, pad(p, d.pad_id) || gun(d.gun_id));
 			ACJV::SetButtonState(target, s, st);
 			if (gm.board == GunBoardModel::CameraVN)
 				ACJV::SetGunForceOffscreen(pedal);
