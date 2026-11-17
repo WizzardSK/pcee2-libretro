@@ -3000,6 +3000,11 @@ static void UpdateArcadeInput()
 				if (!(d.bit & gun_bits))
 					ACJV::SetButtonState(p, d.bit, pad(p, d.pad_id) || gun(d.gun_id));
 			ACJV::SetButtonState(target, s, st);
+			// the I/O board's Push 1, the service menu's Enter (into Coin, Game Options...),
+			// unless the game's gun uses that bit: A on a pad, Aux B on a light gun
+			// (gig71, #69)
+			if (!(JVS_BTN_1 & gun_bits))
+				ACJV::SetButtonState(p, JVS_BTN_1, pad(p, RETRO_DEVICE_ID_JOYPAD_A) || gun(RETRO_DEVICE_ID_LIGHTGUN_AUX_B));
 			if (gm.board == GunBoardModel::CameraVN)
 				ACJV::SetGunForceOffscreen(pedal);
 			else if (gm.pedal)
