@@ -57,6 +57,8 @@ extern "C" {
 #define PCSX2_BIOS_INFO_0_AR NULL
 #define PCSX2_FAST_BOOT_LABEL_AR NULL
 #define PCSX2_FAST_BOOT_INFO_0_AR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_AR "إشعارات على الشاشة"
+#define PCSX2_OSD_MESSAGES_INFO_0_AR NULL
 #define PCSX2_RENDERER_LABEL_AR NULL
 #define PCSX2_RENDERER_INFO_0_AR NULL
 #define OPTION_VAL_VULKAN_AR NULL
@@ -264,6 +266,9 @@ struct retro_core_option_v2_definition option_defs_ar[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_AR, NULL, PCSX2_BIOS_INFO_0_AR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_AR, NULL, PCSX2_FAST_BOOT_INFO_0_AR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_AR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_AR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -525,6 +530,8 @@ struct retro_core_options_v2 options_ar = {
 #define PCSX2_BIOS_INFO_0_AST NULL
 #define PCSX2_FAST_BOOT_LABEL_AST NULL
 #define PCSX2_FAST_BOOT_INFO_0_AST NULL
+#define PCSX2_OSD_MESSAGES_LABEL_AST "Avisos flotantes"
+#define PCSX2_OSD_MESSAGES_INFO_0_AST NULL
 #define PCSX2_RENDERER_LABEL_AST NULL
 #define PCSX2_RENDERER_INFO_0_AST NULL
 #define OPTION_VAL_VULKAN_AST NULL
@@ -628,7 +635,7 @@ struct retro_core_options_v2 options_ar = {
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_AST NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_AST NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_AST NULL
-#define PCSX2_ASPECT_RATIO_LABEL_AST "Proporción del aspeutu"
+#define PCSX2_ASPECT_RATIO_LABEL_AST "Proporción d'aspeutu"
 #define PCSX2_ASPECT_RATIO_INFO_0_AST NULL
 #define OPTION_VAL_AUTO_PCSX2_ASPECT_RATIO_AST NULL
 #define OPTION_VAL_4_3_AST NULL
@@ -647,7 +654,7 @@ struct retro_core_options_v2 options_ar = {
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_AST NULL
 #define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_AST NULL
 #define OPTION_VAL_FFFFFF_AST "Blancu"
-#define OPTION_VAL_2020FF_AST "Coloráu"
+#define OPTION_VAL_2020FF_AST "Bermeyu"
 #define OPTION_VAL_20FF20_AST "Verde"
 #define OPTION_VAL_FFC020_AST "Azul"
 #define OPTION_VAL_20E0FF_AST "Mariellu"
@@ -732,6 +739,9 @@ struct retro_core_option_v2_definition option_defs_ast[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_AST, NULL, PCSX2_BIOS_INFO_0_AST, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_AST, NULL, PCSX2_FAST_BOOT_INFO_0_AST, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_AST, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_AST, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -993,6 +1003,8 @@ struct retro_core_options_v2 options_ast = {
 #define PCSX2_BIOS_INFO_0_BE NULL
 #define PCSX2_FAST_BOOT_LABEL_BE NULL
 #define PCSX2_FAST_BOOT_INFO_0_BE NULL
+#define PCSX2_OSD_MESSAGES_LABEL_BE "Экранныя апавяшчэнні"
+#define PCSX2_OSD_MESSAGES_INFO_0_BE NULL
 #define PCSX2_RENDERER_LABEL_BE NULL
 #define PCSX2_RENDERER_INFO_0_BE NULL
 #define OPTION_VAL_VULKAN_BE NULL
@@ -1200,6 +1212,9 @@ struct retro_core_option_v2_definition option_defs_be[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_BE, NULL, PCSX2_BIOS_INFO_0_BE, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_BE, NULL, PCSX2_FAST_BOOT_INFO_0_BE, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_BE, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_BE, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -1461,6 +1476,8 @@ struct retro_core_options_v2 options_be = {
 #define PCSX2_BIOS_INFO_0_BG NULL
 #define PCSX2_FAST_BOOT_LABEL_BG NULL
 #define PCSX2_FAST_BOOT_INFO_0_BG NULL
+#define PCSX2_OSD_MESSAGES_LABEL_BG NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_BG NULL
 #define PCSX2_RENDERER_LABEL_BG NULL
 #define PCSX2_RENDERER_INFO_0_BG NULL
 #define OPTION_VAL_VULKAN_BG NULL
@@ -1668,6 +1685,9 @@ struct retro_core_option_v2_definition option_defs_bg[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_BG, NULL, PCSX2_BIOS_INFO_0_BG, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_BG, NULL, PCSX2_FAST_BOOT_INFO_0_BG, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_BG, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_BG, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -1929,6 +1949,8 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_BIOS_INFO_0_CA "Imatge BIOS que es farà servir, que es troba a <system>/pcsx2/bios. Cal reiniciar."
 #define PCSX2_FAST_BOOT_LABEL_CA "Arrencada ràpida"
 #define PCSX2_FAST_BOOT_INFO_0_CA "Omet l'animació inicial de la BIOS. Cal reiniciar."
+#define PCSX2_OSD_MESSAGES_LABEL_CA "Notificacions en pantall"
+#define PCSX2_OSD_MESSAGES_INFO_0_CA "Notificacions de l'emulador sobre la imatge (estats desats, targetes de memòria, avisos). Desactivat: no se'n mostra cap; tot i així, es registren al registre."
 #define PCSX2_RENDERER_LABEL_CA "Renderitzador"
 #define PCSX2_RENDERER_INFO_0_CA "API de renderització per maquinari o renderització per programari. El canvi a o des del mode per programari s'aplica a l'instant; el canvi entre API de maquinari té efecte en reiniciar el contingut. paraLLEl-GS requereix el controlador de vídeo Vulkan de RetroArch, s'aplica en reiniciar el contingut i no dibuixa el punt de mira de la pistola òptica."
 #define OPTION_VAL_VULKAN_CA "Vulkan (Maquinari)"
@@ -1981,7 +2003,7 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_ROV_LABEL_CA "Vistes en ordre de rastreig (Experimental)"
 #define PCSX2_ROV_INFO_0_CA "Permet que els efectes de mescla i de profunditat llegeixin el destí de renderització directament al *shader*, en lloc de fer-ho mitjançant una barrera de textures. A les GPU d'Apple (MoltenVK), cada barrera de textures divideix el pas de renderització, la qual cosa és costosa; aquesta opció evita les barreres sempre que la GPU ho permeti. Pot provocar anomalies gràfiques. Desactivat per defecte, tal com passa al PCSX2 independent."
 #define PCSX2_TEXTURE_FILTERING_LABEL_CA "Filtratge de textures"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_CA NULL
+#define PCSX2_TEXTURE_FILTERING_INFO_0_CA "El mode bilineal (PS2) replica la consola; els modes forçats suavitzen totes les textures. Només per als renderitzadors per maquinari i programari: paraLLEl-GS aplica sempre el filtratge tal com ho fa la consola."
 #define OPTION_VAL_NEAREST_CA "Més proper"
 #define OPTION_VAL_BILINEAR_PS2_CA "Bilineal (PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_CA "Bilineal (Forçat)"
@@ -2025,12 +2047,12 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_FRAME_LIMITER_INFO_0_CA "Què és el que manté l'emulador a velocitat màxima? El *frontend* deixa la gestió del ritme a càrrec de RetroArch, que regula la velocitat fent que el nucli (*core*) esperi l'àudio que li transfereix. En canvi, el sistema intern utilitza el limitador propi de PCSX2; això, en un dispositiu on aquesta espera no es produeix mai —ja que el controlador d'àudio pateix una manca de dades (*underrun*) en lloc de bloquejar-se—, fa que les variacions de velocitat de l'emulador es tradueixin en una cadència de fotogrames irregular a la pantalla."
 #define OPTION_VAL_FRONTEND_CA "Front-End (RetroArch)"
 #define OPTION_VAL_INTERNAL_CA "Intern (PCSX2)"
-#define PCSX2_FRAME_HANDOVER_LABEL_CA NULL
-#define PCSX2_FRAME_HANDOVER_INFO_0_CA NULL
-#define OPTION_VAL_IN_STEP_CA NULL
-#define OPTION_VAL_PREVIOUS_CA NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_CA "Lliurament de fotogrames"
+#define PCSX2_FRAME_HANDOVER_INFO_0_CA "Aquest és el fotograma que cada crida lliura a RetroArch. L'opció «Step» espera el fotograma corresponent a l'entrada d'aquesta crida —la qual cosa comporta la mateixa latència d'entrada que el PCSX2 autònom—; el temps que triga a emular-se cada fotograma fins que arriba a la pantalla es tradueix, en una pantalla amb VRR i sense sincronització vertical (vsync), en un ritme irregular. L'opció «Previous Frame» lliura el fotograma que s'ha acabat de processar anteriorment i emula el següent mentre RetroArch mostra l'anterior: això resulta en un ritme constant, però amb un fotograma addicional de latència d'entrada."
+#define OPTION_VAL_IN_STEP_CA "En sincronia (latència més baixa)"
+#define OPTION_VAL_PREVIOUS_CA "Fotograma anterior (ritme constant)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CA "Ometre fotogrames duplicats"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CA "No passis al *frontend* un fotograma que el GS no hagi tornat a dibuixar; així, un joc a 30 fps lliura 30 fotogrames únics en lloc de 60 amb un de cada dos repetit. Desactiva aquesta opció si un filtre de generació de fotogrames o d'interpolació requereix que cada fotograma es lliuri de manera individual."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CA "Detecta quan un joc funciona per sota de la freqüència de fotogrames completa (p. ex., 30 fps en un mode de 60 Hz) i indica a la interfície l'existència de fotogrames duplicats, en lloc de tornar a presentar-los. És necessari per a l'opció «Omet fotogrames duplicats» de RetroArch."
 #define PCSX2_CAS_SHARPNESS_LABEL_CA "Nitidesa CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_CA "Relació d'aspecte"
 #define PCSX2_ASPECT_RATIO_INFO_0_CA "Informa automàticament de la relació d'aspecte 16:9 quan els pedaços de pantalla panoràmica estan activats, i de 4:3 en cas contrari."
@@ -2049,7 +2071,7 @@ struct retro_core_options_v2 options_bg = {
 #define OPTION_VAL_USB2_CA "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CA "Ambdòs ports"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CA "Mira de les pistoles de llum"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CA "Dibuixa una mira on la GunCon 2 està movent-se, amb el color seleccionat. Desactivat per defecte, com passa a la consola. Cal reiniciar."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CA "Dibuixa un punt de mira allà on apunta la GunCon 2, en el color triat; també en els jocs de pistola òptica per al sistema Namco 246/256. Desactivat per defecte, tal com passa a la consola. Requereix reiniciar."
 #define OPTION_VAL_FFFFFF_CA "Blanc"
 #define OPTION_VAL_2020FF_CA "Vermell"
 #define OPTION_VAL_20FF20_CA "Verd"
@@ -2136,6 +2158,9 @@ struct retro_core_option_v2_definition option_defs_ca[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_CA, NULL, PCSX2_BIOS_INFO_0_CA, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_CA, NULL, PCSX2_FAST_BOOT_INFO_0_CA, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_CA, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_CA, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -2397,6 +2422,8 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_BIOS_INFO_0_CHS "使用的 BIOS 镜像文件，读取自 <system>/pcsx2/bios。需要重启核心生效。"
 #define PCSX2_FAST_BOOT_LABEL_CHS "快速启动"
 #define PCSX2_FAST_BOOT_INFO_0_CHS "跳过 BIOS 开机动画。需要重启核心生效。"
+#define PCSX2_OSD_MESSAGES_LABEL_CHS "通知"
+#define PCSX2_OSD_MESSAGES_INFO_0_CHS NULL
 #define PCSX2_RENDERER_LABEL_CHS "渲染器"
 #define PCSX2_RENDERER_INFO_0_CHS "硬件渲染器 API 或软件渲染器。切换至软件渲染器或从其切出可即时生效；在不同硬件 API 之间切换则需重新启动游戏内容方可生效。paraLLEl-GS 需要 RetroArch 的 Vulkan 视频驱动，在重新启动内容后生效，且不会绘制光枪准星。"
 #define OPTION_VAL_VULKAN_CHS "Vulkan (硬件加速)"
@@ -2498,7 +2525,7 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_IN_STEP_CHS NULL
 #define OPTION_VAL_PREVIOUS_CHS NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_CHS "跳过呈现重复帧"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHS "不向前端交付图形合成器 (GS) 未重新绘制的帧——例如 30fps 的游戏将直接交付 30 个独立帧，而非每隔一帧重复一次交付 60 帧。若使用了需要逐帧交付的插帧或补帧滤镜，请关闭此选项。"
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_CHS NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_CHS "CAS 锐化强度"
 #define PCSX2_ASPECT_RATIO_LABEL_CHS "宽高比"
 #define PCSX2_ASPECT_RATIO_INFO_0_CHS "开启宽屏补丁时“自动”模式将汇报为 16:9，否则汇报为 4:3。"
@@ -2517,7 +2544,7 @@ struct retro_core_options_v2 options_ca = {
 #define OPTION_VAL_USB2_CHS "USB 接口 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_CHS "双接口"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_CHS "光枪准星"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHS "在 GunCon 2 瞄准的位置绘制指定颜色的准星。默认关闭，与实机保持一致。需要重启生效。"
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_CHS NULL
 #define OPTION_VAL_FFFFFF_CHS "白色"
 #define OPTION_VAL_2020FF_CHS "红色"
 #define OPTION_VAL_20FF20_CHS "绿色"
@@ -2604,6 +2631,9 @@ struct retro_core_option_v2_definition option_defs_chs[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_CHS, NULL, PCSX2_BIOS_INFO_0_CHS, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_CHS, NULL, PCSX2_FAST_BOOT_INFO_0_CHS, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_CHS, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_CHS, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -2865,6 +2895,8 @@ struct retro_core_options_v2 options_chs = {
 #define PCSX2_BIOS_INFO_0_CHT NULL
 #define PCSX2_FAST_BOOT_LABEL_CHT NULL
 #define PCSX2_FAST_BOOT_INFO_0_CHT NULL
+#define PCSX2_OSD_MESSAGES_LABEL_CHT "螢幕通知"
+#define PCSX2_OSD_MESSAGES_INFO_0_CHT NULL
 #define PCSX2_RENDERER_LABEL_CHT NULL
 #define PCSX2_RENDERER_INFO_0_CHT NULL
 #define OPTION_VAL_VULKAN_CHT NULL
@@ -3072,6 +3104,9 @@ struct retro_core_option_v2_definition option_defs_cht[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_CHT, NULL, PCSX2_BIOS_INFO_0_CHT, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_CHT, NULL, PCSX2_FAST_BOOT_INFO_0_CHT, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_CHT, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_CHT, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -3333,6 +3368,8 @@ struct retro_core_options_v2 options_cht = {
 #define PCSX2_BIOS_INFO_0_CS NULL
 #define PCSX2_FAST_BOOT_LABEL_CS NULL
 #define PCSX2_FAST_BOOT_INFO_0_CS NULL
+#define PCSX2_OSD_MESSAGES_LABEL_CS "Oznámení na obrazovce"
+#define PCSX2_OSD_MESSAGES_INFO_0_CS NULL
 #define PCSX2_RENDERER_LABEL_CS NULL
 #define PCSX2_RENDERER_INFO_0_CS NULL
 #define OPTION_VAL_VULKAN_CS NULL
@@ -3540,6 +3577,9 @@ struct retro_core_option_v2_definition option_defs_cs[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_CS, NULL, PCSX2_BIOS_INFO_0_CS, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_CS, NULL, PCSX2_FAST_BOOT_INFO_0_CS, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_CS, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_CS, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -3801,6 +3841,8 @@ struct retro_core_options_v2 options_cs = {
 #define PCSX2_BIOS_INFO_0_CY NULL
 #define PCSX2_FAST_BOOT_LABEL_CY NULL
 #define PCSX2_FAST_BOOT_INFO_0_CY NULL
+#define PCSX2_OSD_MESSAGES_LABEL_CY NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_CY NULL
 #define PCSX2_RENDERER_LABEL_CY NULL
 #define PCSX2_RENDERER_INFO_0_CY NULL
 #define OPTION_VAL_VULKAN_CY NULL
@@ -4008,6 +4050,9 @@ struct retro_core_option_v2_definition option_defs_cy[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_CY, NULL, PCSX2_BIOS_INFO_0_CY, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_CY, NULL, PCSX2_FAST_BOOT_INFO_0_CY, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_CY, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_CY, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -4269,6 +4314,8 @@ struct retro_core_options_v2 options_cy = {
 #define PCSX2_BIOS_INFO_0_DA NULL
 #define PCSX2_FAST_BOOT_LABEL_DA NULL
 #define PCSX2_FAST_BOOT_INFO_0_DA NULL
+#define PCSX2_OSD_MESSAGES_LABEL_DA NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_DA NULL
 #define PCSX2_RENDERER_LABEL_DA NULL
 #define PCSX2_RENDERER_INFO_0_DA NULL
 #define OPTION_VAL_VULKAN_DA NULL
@@ -4476,6 +4523,9 @@ struct retro_core_option_v2_definition option_defs_da[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_DA, NULL, PCSX2_BIOS_INFO_0_DA, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_DA, NULL, PCSX2_FAST_BOOT_INFO_0_DA, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_DA, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_DA, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -4737,6 +4787,8 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_BIOS_INFO_0_DE "Zu verwendendes BIOS-Image aus <system>/pcsx2/bios. Neustart erforderlich."
 #define PCSX2_FAST_BOOT_LABEL_DE NULL
 #define PCSX2_FAST_BOOT_INFO_0_DE "BIOS-Startanimation überspringen. Neustart erforderlich."
+#define PCSX2_OSD_MESSAGES_LABEL_DE "Bildschirm-Benachrichtigungen"
+#define PCSX2_OSD_MESSAGES_INFO_0_DE NULL
 #define PCSX2_RENDERER_LABEL_DE NULL
 #define PCSX2_RENDERER_INFO_0_DE "Hardware-Renderer-API oder Software-Renderer. Der Wechsel zum oder vom Software-Renderer wird sofort angewendet; ein Wechsel zwischen Hardware-APIs wird beim Neustart des Inhalts wirksam. paraLLEl-GS benötigt den Vulkan-Videotreiber von RetroArch, wird beim Neustart des Inhalts wirksam und zeigt kein Lightgun-Fadenkreuz an."
 #define OPTION_VAL_VULKAN_DE NULL
@@ -4838,7 +4890,7 @@ struct retro_core_options_v2 options_da = {
 #define OPTION_VAL_IN_STEP_DE NULL
 #define OPTION_VAL_PREVIOUS_DE NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE "Doppelte Frames bei der Bildausgabe überspringen"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE "Frames, die der GS nicht neu gerendert hat, nicht an das Frontend weitergeben. Ein Spiel mit 30 fps liefert dann 30 einzigartige Frames statt 60, bei denen jeder zweite wiederholt wird. Diese Option deaktivieren, wenn ein Frame-Generierungs- oder Interpolationsfilter auf die Übergabe jedes einzelnen Frames angewiesen ist."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_DE "CAS-Schärfe"
 #define PCSX2_ASPECT_RATIO_LABEL_DE "Bildseitenverhältnis"
 #define PCSX2_ASPECT_RATIO_INFO_0_DE "Automatisch: Bei aktivierten Breitbild-Patches wird 16:9 gemeldet, andernfalls 4:3."
@@ -4857,7 +4909,7 @@ struct retro_core_options_v2 options_da = {
 #define OPTION_VAL_USB2_DE "USB-Port 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DE "Beide Ports"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DE "Lightgun-Fadenkreuz"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE "Ein Fadenkreuz in der ausgewählten Farbe an der Zielposition der GunCon 2 anzeigen. Standardmäßig deaktiviert, wie auf der Konsole. Neustart erforderlich."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE NULL
 #define OPTION_VAL_FFFFFF_DE "Weiß"
 #define OPTION_VAL_2020FF_DE "Rot"
 #define OPTION_VAL_20FF20_DE "Grün"
@@ -4944,6 +4996,9 @@ struct retro_core_option_v2_definition option_defs_de[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_DE, NULL, PCSX2_BIOS_INFO_0_DE, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_DE, NULL, PCSX2_FAST_BOOT_INFO_0_DE, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_DE, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_DE, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -5205,6 +5260,8 @@ struct retro_core_options_v2 options_de = {
 #define PCSX2_BIOS_INFO_0_EL NULL
 #define PCSX2_FAST_BOOT_LABEL_EL NULL
 #define PCSX2_FAST_BOOT_INFO_0_EL NULL
+#define PCSX2_OSD_MESSAGES_LABEL_EL "Ειδοποιήσεις Οθόνης Απεικόνισης"
+#define PCSX2_OSD_MESSAGES_INFO_0_EL NULL
 #define PCSX2_RENDERER_LABEL_EL NULL
 #define PCSX2_RENDERER_INFO_0_EL NULL
 #define OPTION_VAL_VULKAN_EL NULL
@@ -5412,6 +5469,9 @@ struct retro_core_option_v2_definition option_defs_el[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_EL, NULL, PCSX2_BIOS_INFO_0_EL, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_EL, NULL, PCSX2_FAST_BOOT_INFO_0_EL, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_EL, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_EL, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -5673,6 +5733,8 @@ struct retro_core_options_v2 options_el = {
 #define PCSX2_BIOS_INFO_0_EN NULL
 #define PCSX2_FAST_BOOT_LABEL_EN NULL
 #define PCSX2_FAST_BOOT_INFO_0_EN NULL
+#define PCSX2_OSD_MESSAGES_LABEL_EN NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_EN NULL
 #define PCSX2_RENDERER_LABEL_EN NULL
 #define PCSX2_RENDERER_INFO_0_EN NULL
 #define OPTION_VAL_VULKAN_EN NULL
@@ -5880,6 +5942,9 @@ struct retro_core_option_v2_definition option_defs_en[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_EN, NULL, PCSX2_BIOS_INFO_0_EN, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_EN, NULL, PCSX2_FAST_BOOT_INFO_0_EN, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_EN, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_EN, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -6141,6 +6206,8 @@ struct retro_core_options_v2 options_en = {
 #define PCSX2_BIOS_INFO_0_EO NULL
 #define PCSX2_FAST_BOOT_LABEL_EO NULL
 #define PCSX2_FAST_BOOT_INFO_0_EO NULL
+#define PCSX2_OSD_MESSAGES_LABEL_EO "Surekranaj sciigoj"
+#define PCSX2_OSD_MESSAGES_INFO_0_EO NULL
 #define PCSX2_RENDERER_LABEL_EO "Bildigilo"
 #define PCSX2_RENDERER_INFO_0_EO NULL
 #define OPTION_VAL_VULKAN_EO NULL
@@ -6348,6 +6415,9 @@ struct retro_core_option_v2_definition option_defs_eo[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_EO, NULL, PCSX2_BIOS_INFO_0_EO, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_EO, NULL, PCSX2_FAST_BOOT_INFO_0_EO, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_EO, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_EO, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -6609,6 +6679,8 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_BIOS_INFO_0_ES "Selecciona la imagen a usar de la BIOS ubicada en <system>/pcsx2/bios. Es necesario reiniciar."
 #define PCSX2_FAST_BOOT_LABEL_ES "Arranque rápido"
 #define PCSX2_FAST_BOOT_INFO_0_ES "Omite la animación de arranque de la BIOS. Es necesario reiniciar."
+#define PCSX2_OSD_MESSAGES_LABEL_ES "Notificaciones"
+#define PCSX2_OSD_MESSAGES_INFO_0_ES "Muestra las notificaciones del emulador (guardados rápidos, Memory Cards, advertencias...) sobre la imagen. Desactiva esta opción para que no se muestren, pero seguirán escribiéndose en el registro."
 #define PCSX2_RENDERER_LABEL_ES "Renderizador"
 #define PCSX2_RENDERER_INFO_0_ES "Selecciona una API de renderizado por hardware o el renderizador por software. Los cambios entre el renderizador por software y otros se aplicarán al momento, los cambios entre API por hardware surtirán efecto al reiniciar el contenido. paraLLEl-GS necesita el controlador de vídeo por Vulkan de RetroArch, se aplicará al reiniciar un contenido y no mostrará puntos de mira de lightguns."
 #define OPTION_VAL_VULKAN_ES NULL
@@ -6661,7 +6733,7 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_ROV_LABEL_ES "Vista ordenada del rasterizador (experimental)"
 #define PCSX2_ROV_INFO_0_ES "Permite que los efectos de mezcla y profundidad puedan leer el objetivo de renderizado del shader en vez de tener que pasar por una barrera de texturas. En el caso de las GPU de Apple (MoltenVK), toda barrera de texturas fragmentará la pasada de renderizado, lo que consume más recursos; esto evita esa fragmentación si la GPU lo admite. Podría provocar fallos gráficos. Esta opción está desactivada por defecto, al igual que en la aplicación independiente."
 #define PCSX2_TEXTURE_FILTERING_LABEL_ES "Filtrado de texturas"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_ES NULL
+#define PCSX2_TEXTURE_FILTERING_INFO_0_ES "Bilineal (PS2) replica el filtro de la consola, los modos forzados suavizarán todas las texturas. Solo para renderizadores por hardware y software: paraLLEI-GS siempre aplicará el mismo filtro que aplicaría la consola real."
 #define OPTION_VAL_NEAREST_ES "Vecino más próximo"
 #define OPTION_VAL_BILINEAR_PS2_ES "Bilineal (estilo PS2)"
 #define OPTION_VAL_BILINEAR_FORCED_ES "Bilineal (forzado)"
@@ -6705,12 +6777,12 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_FRAME_LIMITER_INFO_0_ES "Establece qué será lo que dicte que la velocidad del emulador sea del 100 %. Front-end hace que sea RetroArch quien dicte el ritmo, que lo limitará haciendo que el núcleo espere a que se envíe el audio. Interno utiliza el limitador de PCSX2 en su lugar: en caso de un dispositivo que no espere porque el controlador de audio se quede corto en vez de parar, la variación de velocidad del emulador se mostrará en pantalla como un ritmo de fotogramas desigual."
 #define OPTION_VAL_FRONTEND_ES "Front-end (RetroArch)"
 #define OPTION_VAL_INTERNAL_ES "Interno (PCSX2)"
-#define PCSX2_FRAME_HANDOVER_LABEL_ES NULL
-#define PCSX2_FRAME_HANDOVER_INFO_0_ES NULL
-#define OPTION_VAL_IN_STEP_ES NULL
-#define OPTION_VAL_PREVIOUS_ES NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_ES "Traspaso de fotogramas"
+#define PCSX2_FRAME_HANDOVER_INFO_0_ES "Indica qué fotograma transmitirá cada llamada a RetroArch. Acompasado espera a las señales de entrada del fotograma de esta llamada y tiene el mismo retraso de entrada que la versión independiente de PCSX2; el fotograma tarda un tiempo en llegar a la pantalla y la imagen se mostrará como con un ritmo irregular en una pantalla con frecuencia de actualización variable (VRR) sin sincronía vertical. Fotograma anterior traspasa el fotograma acabado antes y emula el siguiente mientras RetroArch lo muestra: el ritmo es regular y añade un fotograma de retraso de entrada."
+#define OPTION_VAL_IN_STEP_ES "Acompasado (menos latencia)"
+#define OPTION_VAL_PREVIOUS_ES "Fotograma anterior (ritmo uniforme)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_ES "Omitir fotogramas duplicados"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES "No presentar al front-end un fotograma que el GS no haya vuelto a dibujar: de esta forma, un juego que se ejecute a 30 FPS mostrará 30 fotogramas únicos en vez de 60 repitiendo uno de cada dos. Desactiva esta opción si un filtro de generación de fotogramas o de interpolación necesita que cada fotograma sea el original."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_ES "Detecta si un juego se está ejecutando por debajo de la velocidad de fotogramas completa (por ejemplo, a 30 FPS en un modo a 60 Hz) y transmite fotogramas duplicados al front-end en vez de volver a presentarlos. Esta opción es necesaria para la opción Omitir fotogramas duplicados de RetroArch."
 #define PCSX2_CAS_SHARPNESS_LABEL_ES "Realzado del CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_ES "Relación de aspecto"
 #define PCSX2_ASPECT_RATIO_INFO_0_ES "El valor automático utilizará 16:9 cuando se activen los parches de imagen panorámica, en caso contrario será 4:3."
@@ -6729,7 +6801,7 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_USB2_ES "Puerto USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ES "Ambos puertos"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ES "Punto de mira de lightgun"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES "Muestra un punto de mira con el color seleccionado donde esté apuntando la GunCon 2. Esta opción está desactivada por defecto, tal y como ocurriría en la consola. Es necesario reiniciar."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES NULL
 #define OPTION_VAL_FFFFFF_ES "Blanco"
 #define OPTION_VAL_2020FF_ES "Rojo"
 #define OPTION_VAL_20FF20_ES "Verde"
@@ -6816,6 +6888,9 @@ struct retro_core_option_v2_definition option_defs_es[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_ES, NULL, PCSX2_BIOS_INFO_0_ES, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_ES, NULL, PCSX2_FAST_BOOT_INFO_0_ES, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_ES, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_ES, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -7077,6 +7152,8 @@ struct retro_core_options_v2 options_es = {
 #define PCSX2_BIOS_INFO_0_FA NULL
 #define PCSX2_FAST_BOOT_LABEL_FA NULL
 #define PCSX2_FAST_BOOT_INFO_0_FA NULL
+#define PCSX2_OSD_MESSAGES_LABEL_FA NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_FA NULL
 #define PCSX2_RENDERER_LABEL_FA NULL
 #define PCSX2_RENDERER_INFO_0_FA NULL
 #define OPTION_VAL_VULKAN_FA NULL
@@ -7284,6 +7361,9 @@ struct retro_core_option_v2_definition option_defs_fa[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_FA, NULL, PCSX2_BIOS_INFO_0_FA, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_FA, NULL, PCSX2_FAST_BOOT_INFO_0_FA, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_FA, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_FA, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -7545,6 +7625,8 @@ struct retro_core_options_v2 options_fa = {
 #define PCSX2_BIOS_INFO_0_FI NULL
 #define PCSX2_FAST_BOOT_LABEL_FI NULL
 #define PCSX2_FAST_BOOT_INFO_0_FI NULL
+#define PCSX2_OSD_MESSAGES_LABEL_FI "Näyttöilmoitukset"
+#define PCSX2_OSD_MESSAGES_INFO_0_FI NULL
 #define PCSX2_RENDERER_LABEL_FI "Renderoija"
 #define PCSX2_RENDERER_INFO_0_FI NULL
 #define OPTION_VAL_VULKAN_FI NULL
@@ -7752,6 +7834,9 @@ struct retro_core_option_v2_definition option_defs_fi[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_FI, NULL, PCSX2_BIOS_INFO_0_FI, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_FI, NULL, PCSX2_FAST_BOOT_INFO_0_FI, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_FI, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_FI, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -8013,6 +8098,8 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_BIOS_INFO_0_FR "Image du BIOS à utiliser, depuis <system>/pcsx2/bios. Nécessite un redémarrage."
 #define PCSX2_FAST_BOOT_LABEL_FR "Démarrage rapide"
 #define PCSX2_FAST_BOOT_INFO_0_FR "Ignorer l'animation de démarrage du BIOS. Nécessite un redémarrage."
+#define PCSX2_OSD_MESSAGES_LABEL_FR "Notifications à l'écran"
+#define PCSX2_OSD_MESSAGES_INFO_0_FR NULL
 #define PCSX2_RENDERER_LABEL_FR "Moteur de rendu"
 #define PCSX2_RENDERER_INFO_0_FR NULL
 #define OPTION_VAL_VULKAN_FR "Vulkan (matériel)"
@@ -8114,7 +8201,7 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_IN_STEP_FR NULL
 #define OPTION_VAL_PREVIOUS_FR NULL
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_FR "Ignorer la présentation des images en double"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FR "Ne pas transmettre au moteur d'affichage une image que le GS (Graphics Synthesizer) n'a pas redessinée ; un jeu tournant à 30 images/s fournirait alors 30 images uniques au lieu de 60, avec une image sur deux répétée. Désactivez cette option si un filtre de génération d'images ou d'interpolation nécessite que chaque image soit transmise individuellement."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_FR NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_FR "Netteté adaptative au contraste"
 #define PCSX2_ASPECT_RATIO_LABEL_FR "Rapport d'aspect"
 #define PCSX2_ASPECT_RATIO_INFO_0_FR "Signale automatiquement le format 16:9 lorsque les correctifs pour écran large sont activés, et 4:3 dans le cas contraire."
@@ -8133,7 +8220,7 @@ struct retro_core_options_v2 options_fi = {
 #define OPTION_VAL_USB2_FR "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_FR "Les deux ports"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_FR "Réticule du pistolet"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FR "Affiche un réticule à l'endroit visé par le GunCon 2, dans la couleur choisie. Désactivé par défaut, comme sur la console. Nécessite un redémarrage."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_FR NULL
 #define OPTION_VAL_FFFFFF_FR "Blanche"
 #define OPTION_VAL_2020FF_FR "Rouge"
 #define OPTION_VAL_20FF20_FR "Vert"
@@ -8220,6 +8307,9 @@ struct retro_core_option_v2_definition option_defs_fr[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_FR, NULL, PCSX2_BIOS_INFO_0_FR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_FR, NULL, PCSX2_FAST_BOOT_INFO_0_FR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_FR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_FR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -8481,6 +8571,8 @@ struct retro_core_options_v2 options_fr = {
 #define PCSX2_BIOS_INFO_0_GA "Íomhá BIOS le húsáid, ó <system>/pcsx2/bios. Teastaíonn atosú."
 #define PCSX2_FAST_BOOT_LABEL_GA "Tosú Tapa"
 #define PCSX2_FAST_BOOT_INFO_0_GA "Scipeáil an beochan tosaithe BIOS. Teastaíonn atosú."
+#define PCSX2_OSD_MESSAGES_LABEL_GA "Fógraí ar an Scáileán"
+#define PCSX2_OSD_MESSAGES_INFO_0_GA "Fógraí an aithriseora os cionn an phictiúir (stáit shábháilte, cártaí cuimhne, rabhaidh). Má tá sé múchta, ní thaispeántar aon cheann acu; téann siad chuig an loga mar sin féin."
 #define PCSX2_RENDERER_LABEL_GA "Rindreálaí"
 #define PCSX2_RENDERER_INFO_0_GA "API rindreála crua-earraí, nó an rindreálaí bogearraí. Tagann athrú go dtí nó ó mhodh na mbogearraí i bhfeidhm láithreach; tagann athrú idir APIanna crua-earraí i bhfeidhm nuair a atosaítear an t-ábhar. Teastaíonn tiománaí físe Vulkan ó RetroArch le haghaidh paraLLEl-GS; tagann sé i bhfeidhm nuair a atosaítear an t-ábhar, agus ní thaispeánann sé trasghréas (crosshair) le haghaidh gunna solais."
 #define OPTION_VAL_VULKAN_GA "Vulkan (Crua-earraí)"
@@ -8582,7 +8674,7 @@ struct retro_core_options_v2 options_fr = {
 #define OPTION_VAL_IN_STEP_GA "I gcéim (latisí níos ísle)"
 #define OPTION_VAL_PREVIOUS_GA "Fráma Roimhe Seo (luas comhsheasmhach)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_GA "Scipeáil ag taispeáint frámaí dúblacha"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA "Ná seol chuig an droichead tosaigh (frontend) fráma nár ath-tharraing an GS riamh – sa chás sin, sheachadfaí 30 fráma uathúil in ionad 60 (le gach dara fráma á ath ullmhú) i spreag a ritheann ag 30fps. Múch an ghné seo má bhíonn gá ag scagaire giniúna frámaí nó idirshuímh le gach fráma a bheith ina fhráma ar leith."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_GA "Braitear nuair a ritheann cluiche faoi bhun an ráta frámaí iomláin (m.sh. 30fps i mód 60Hz), agus cuirtear in iúl don chomhéadan go bhfuil frámaí dúblacha i gceist, in áit iad a chur i láthair arís. Tá sé seo riachtanach don socrú Scipeáil Frámaí Dúblacha i RetroArch."
 #define PCSX2_CAS_SHARPNESS_LABEL_GA "Géire CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_GA "Cóimheas Gnéithe"
 #define PCSX2_ASPECT_RATIO_INFO_0_GA "Tuairiscítear 16:9 go huathoibríoch nuair a bhíonn paistí scáileáin leathain cumasaithe, agus 4:3 murach sin."
@@ -8601,7 +8693,7 @@ struct retro_core_options_v2 options_fr = {
 #define OPTION_VAL_USB2_GA "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_GA "An Dá Poirt"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_GA "Spriocchros an Ghunna Solais"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GA "Tarraing spriocmharc san dath roghnaithe ag an bpointe a bhfuil an GunCon 2 dírithe air. Bíonn sé múchta de réir réamhshocraithe, díreach mar a bhíonn ar an gconsól. Teastaíonn atosú."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_GA "Tarraing spriocchros san áit a bhfuil an GunCon 2 dírithe, sa dath roghnaithe; baineann sé seo le cluichí gunna solais ar an Namco System 246/256 freisin. Tá sé múchta de réir réamhshocraithe, díreach mar atá ar an gconsól. Teastaíonn atosú."
 #define OPTION_VAL_FFFFFF_GA "Bán"
 #define OPTION_VAL_2020FF_GA "Dearg"
 #define OPTION_VAL_20FF20_GA "Glas"
@@ -8688,6 +8780,9 @@ struct retro_core_option_v2_definition option_defs_ga[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_GA, NULL, PCSX2_BIOS_INFO_0_GA, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_GA, NULL, PCSX2_FAST_BOOT_INFO_0_GA, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_GA, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_GA, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -8949,6 +9044,8 @@ struct retro_core_options_v2 options_ga = {
 #define PCSX2_BIOS_INFO_0_GL NULL
 #define PCSX2_FAST_BOOT_LABEL_GL NULL
 #define PCSX2_FAST_BOOT_INFO_0_GL NULL
+#define PCSX2_OSD_MESSAGES_LABEL_GL "Notificacións en pantalla"
+#define PCSX2_OSD_MESSAGES_INFO_0_GL NULL
 #define PCSX2_RENDERER_LABEL_GL "Motor de renderizado"
 #define PCSX2_RENDERER_INFO_0_GL NULL
 #define OPTION_VAL_VULKAN_GL NULL
@@ -9156,6 +9253,9 @@ struct retro_core_option_v2_definition option_defs_gl[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_GL, NULL, PCSX2_BIOS_INFO_0_GL, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_GL, NULL, PCSX2_FAST_BOOT_INFO_0_GL, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_GL, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_GL, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -9417,6 +9517,8 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_BIOS_INFO_0_HE NULL
 #define PCSX2_FAST_BOOT_LABEL_HE NULL
 #define PCSX2_FAST_BOOT_INFO_0_HE NULL
+#define PCSX2_OSD_MESSAGES_LABEL_HE NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_HE NULL
 #define PCSX2_RENDERER_LABEL_HE NULL
 #define PCSX2_RENDERER_INFO_0_HE NULL
 #define OPTION_VAL_VULKAN_HE NULL
@@ -9624,6 +9726,9 @@ struct retro_core_option_v2_definition option_defs_he[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_HE, NULL, PCSX2_BIOS_INFO_0_HE, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_HE, NULL, PCSX2_FAST_BOOT_INFO_0_HE, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_HE, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_HE, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -9885,6 +9990,8 @@ struct retro_core_options_v2 options_he = {
 #define PCSX2_BIOS_INFO_0_HR NULL
 #define PCSX2_FAST_BOOT_LABEL_HR NULL
 #define PCSX2_FAST_BOOT_INFO_0_HR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_HR NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_HR NULL
 #define PCSX2_RENDERER_LABEL_HR NULL
 #define PCSX2_RENDERER_INFO_0_HR NULL
 #define OPTION_VAL_VULKAN_HR NULL
@@ -10092,6 +10199,9 @@ struct retro_core_option_v2_definition option_defs_hr[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_HR, NULL, PCSX2_BIOS_INFO_0_HR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_HR, NULL, PCSX2_FAST_BOOT_INFO_0_HR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_HR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_HR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -10353,6 +10463,8 @@ struct retro_core_options_v2 options_hr = {
 #define PCSX2_BIOS_INFO_0_HU NULL
 #define PCSX2_FAST_BOOT_LABEL_HU NULL
 #define PCSX2_FAST_BOOT_INFO_0_HU NULL
+#define PCSX2_OSD_MESSAGES_LABEL_HU "Képernyőn megjelenő értesítések"
+#define PCSX2_OSD_MESSAGES_INFO_0_HU NULL
 #define PCSX2_RENDERER_LABEL_HU NULL
 #define PCSX2_RENDERER_INFO_0_HU NULL
 #define OPTION_VAL_VULKAN_HU NULL
@@ -10560,6 +10672,9 @@ struct retro_core_option_v2_definition option_defs_hu[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_HU, NULL, PCSX2_BIOS_INFO_0_HU, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_HU, NULL, PCSX2_FAST_BOOT_INFO_0_HU, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_HU, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_HU, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -10821,6 +10936,8 @@ struct retro_core_options_v2 options_hu = {
 #define PCSX2_BIOS_INFO_0_ID NULL
 #define PCSX2_FAST_BOOT_LABEL_ID NULL
 #define PCSX2_FAST_BOOT_INFO_0_ID NULL
+#define PCSX2_OSD_MESSAGES_LABEL_ID NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_ID NULL
 #define PCSX2_RENDERER_LABEL_ID NULL
 #define PCSX2_RENDERER_INFO_0_ID NULL
 #define OPTION_VAL_VULKAN_ID NULL
@@ -11028,6 +11145,9 @@ struct retro_core_option_v2_definition option_defs_id[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_ID, NULL, PCSX2_BIOS_INFO_0_ID, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_ID, NULL, PCSX2_FAST_BOOT_INFO_0_ID, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_ID, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_ID, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -11289,6 +11409,8 @@ struct retro_core_options_v2 options_id = {
 #define PCSX2_BIOS_INFO_0_IT NULL
 #define PCSX2_FAST_BOOT_LABEL_IT NULL
 #define PCSX2_FAST_BOOT_INFO_0_IT NULL
+#define PCSX2_OSD_MESSAGES_LABEL_IT "Notifiche sullo schermo"
+#define PCSX2_OSD_MESSAGES_INFO_0_IT NULL
 #define PCSX2_RENDERER_LABEL_IT NULL
 #define PCSX2_RENDERER_INFO_0_IT NULL
 #define OPTION_VAL_VULKAN_IT NULL
@@ -11496,6 +11618,9 @@ struct retro_core_option_v2_definition option_defs_it[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_IT, NULL, PCSX2_BIOS_INFO_0_IT, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_IT, NULL, PCSX2_FAST_BOOT_INFO_0_IT, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_IT, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_IT, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -11757,6 +11882,8 @@ struct retro_core_options_v2 options_it = {
 #define PCSX2_BIOS_INFO_0_JA NULL
 #define PCSX2_FAST_BOOT_LABEL_JA NULL
 #define PCSX2_FAST_BOOT_INFO_0_JA NULL
+#define PCSX2_OSD_MESSAGES_LABEL_JA "OSD 通知"
+#define PCSX2_OSD_MESSAGES_INFO_0_JA NULL
 #define PCSX2_RENDERER_LABEL_JA NULL
 #define PCSX2_RENDERER_INFO_0_JA NULL
 #define OPTION_VAL_VULKAN_JA NULL
@@ -11964,6 +12091,9 @@ struct retro_core_option_v2_definition option_defs_ja[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_JA, NULL, PCSX2_BIOS_INFO_0_JA, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_JA, NULL, PCSX2_FAST_BOOT_INFO_0_JA, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_JA, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_JA, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -12225,6 +12355,8 @@ struct retro_core_options_v2 options_ja = {
 #define PCSX2_BIOS_INFO_0_KO NULL
 #define PCSX2_FAST_BOOT_LABEL_KO NULL
 #define PCSX2_FAST_BOOT_INFO_0_KO NULL
+#define PCSX2_OSD_MESSAGES_LABEL_KO "온스크린 알림"
+#define PCSX2_OSD_MESSAGES_INFO_0_KO NULL
 #define PCSX2_RENDERER_LABEL_KO "렌더러"
 #define PCSX2_RENDERER_INFO_0_KO NULL
 #define OPTION_VAL_VULKAN_KO NULL
@@ -12432,6 +12564,9 @@ struct retro_core_option_v2_definition option_defs_ko[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_KO, NULL, PCSX2_BIOS_INFO_0_KO, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_KO, NULL, PCSX2_FAST_BOOT_INFO_0_KO, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_KO, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_KO, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -12693,6 +12828,8 @@ struct retro_core_options_v2 options_ko = {
 #define PCSX2_BIOS_INFO_0_NL NULL
 #define PCSX2_FAST_BOOT_LABEL_NL NULL
 #define PCSX2_FAST_BOOT_INFO_0_NL NULL
+#define PCSX2_OSD_MESSAGES_LABEL_NL "Onscreen meldingen"
+#define PCSX2_OSD_MESSAGES_INFO_0_NL NULL
 #define PCSX2_RENDERER_LABEL_NL NULL
 #define PCSX2_RENDERER_INFO_0_NL NULL
 #define OPTION_VAL_VULKAN_NL NULL
@@ -12900,6 +13037,9 @@ struct retro_core_option_v2_definition option_defs_nl[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_NL, NULL, PCSX2_BIOS_INFO_0_NL, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_NL, NULL, PCSX2_FAST_BOOT_INFO_0_NL, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_NL, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_NL, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -13161,6 +13301,8 @@ struct retro_core_options_v2 options_nl = {
 #define PCSX2_BIOS_INFO_0_NO NULL
 #define PCSX2_FAST_BOOT_LABEL_NO NULL
 #define PCSX2_FAST_BOOT_INFO_0_NO NULL
+#define PCSX2_OSD_MESSAGES_LABEL_NO NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_NO NULL
 #define PCSX2_RENDERER_LABEL_NO NULL
 #define PCSX2_RENDERER_INFO_0_NO NULL
 #define OPTION_VAL_VULKAN_NO NULL
@@ -13368,6 +13510,9 @@ struct retro_core_option_v2_definition option_defs_no[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_NO, NULL, PCSX2_BIOS_INFO_0_NO, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_NO, NULL, PCSX2_FAST_BOOT_INFO_0_NO, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_NO, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_NO, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -13629,6 +13774,8 @@ struct retro_core_options_v2 options_no = {
 #define PCSX2_BIOS_INFO_0_OR NULL
 #define PCSX2_FAST_BOOT_LABEL_OR NULL
 #define PCSX2_FAST_BOOT_INFO_0_OR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_OR NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_OR NULL
 #define PCSX2_RENDERER_LABEL_OR NULL
 #define PCSX2_RENDERER_INFO_0_OR NULL
 #define OPTION_VAL_VULKAN_OR NULL
@@ -13836,6 +13983,9 @@ struct retro_core_option_v2_definition option_defs_or[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_OR, NULL, PCSX2_BIOS_INFO_0_OR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_OR, NULL, PCSX2_FAST_BOOT_INFO_0_OR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_OR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_OR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -14097,6 +14247,8 @@ struct retro_core_options_v2 options_or = {
 #define PCSX2_BIOS_INFO_0_PL NULL
 #define PCSX2_FAST_BOOT_LABEL_PL NULL
 #define PCSX2_FAST_BOOT_INFO_0_PL NULL
+#define PCSX2_OSD_MESSAGES_LABEL_PL "Powiadomienia ekranowe"
+#define PCSX2_OSD_MESSAGES_INFO_0_PL NULL
 #define PCSX2_RENDERER_LABEL_PL NULL
 #define PCSX2_RENDERER_INFO_0_PL NULL
 #define OPTION_VAL_VULKAN_PL NULL
@@ -14304,6 +14456,9 @@ struct retro_core_option_v2_definition option_defs_pl[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_PL, NULL, PCSX2_BIOS_INFO_0_PL, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_PL, NULL, PCSX2_FAST_BOOT_INFO_0_PL, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_PL, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_PL, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -14565,6 +14720,8 @@ struct retro_core_options_v2 options_pl = {
 #define PCSX2_BIOS_INFO_0_PT_BR NULL
 #define PCSX2_FAST_BOOT_LABEL_PT_BR NULL
 #define PCSX2_FAST_BOOT_INFO_0_PT_BR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_PT_BR "Notificações"
+#define PCSX2_OSD_MESSAGES_INFO_0_PT_BR NULL
 #define PCSX2_RENDERER_LABEL_PT_BR "Renderizador"
 #define PCSX2_RENDERER_INFO_0_PT_BR NULL
 #define OPTION_VAL_VULKAN_PT_BR NULL
@@ -14772,6 +14929,9 @@ struct retro_core_option_v2_definition option_defs_pt_br[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_PT_BR, NULL, PCSX2_BIOS_INFO_0_PT_BR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_PT_BR, NULL, PCSX2_FAST_BOOT_INFO_0_PT_BR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_PT_BR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_PT_BR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -15033,6 +15193,8 @@ struct retro_core_options_v2 options_pt_br = {
 #define PCSX2_BIOS_INFO_0_PT_PT NULL
 #define PCSX2_FAST_BOOT_LABEL_PT_PT NULL
 #define PCSX2_FAST_BOOT_INFO_0_PT_PT NULL
+#define PCSX2_OSD_MESSAGES_LABEL_PT_PT "Notificações no ecrã"
+#define PCSX2_OSD_MESSAGES_INFO_0_PT_PT NULL
 #define PCSX2_RENDERER_LABEL_PT_PT NULL
 #define PCSX2_RENDERER_INFO_0_PT_PT NULL
 #define OPTION_VAL_VULKAN_PT_PT NULL
@@ -15240,6 +15402,9 @@ struct retro_core_option_v2_definition option_defs_pt_pt[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_PT_PT, NULL, PCSX2_BIOS_INFO_0_PT_PT, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_PT_PT, NULL, PCSX2_FAST_BOOT_INFO_0_PT_PT, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_PT_PT, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_PT_PT, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -15501,6 +15666,8 @@ struct retro_core_options_v2 options_pt_pt = {
 #define PCSX2_BIOS_INFO_0_RU NULL
 #define PCSX2_FAST_BOOT_LABEL_RU NULL
 #define PCSX2_FAST_BOOT_INFO_0_RU NULL
+#define PCSX2_OSD_MESSAGES_LABEL_RU "Индикация на экране"
+#define PCSX2_OSD_MESSAGES_INFO_0_RU NULL
 #define PCSX2_RENDERER_LABEL_RU "Графический движок"
 #define PCSX2_RENDERER_INFO_0_RU NULL
 #define OPTION_VAL_VULKAN_RU NULL
@@ -15708,6 +15875,9 @@ struct retro_core_option_v2_definition option_defs_ru[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_RU, NULL, PCSX2_BIOS_INFO_0_RU, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_RU, NULL, PCSX2_FAST_BOOT_INFO_0_RU, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_RU, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_RU, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -15969,6 +16139,8 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_BIOS_INFO_0_SK "Obraz BIOS, ktorý sa použije, z <system>/pcsx2/bios. Vyžaduje reštart."
 #define PCSX2_FAST_BOOT_LABEL_SK "Rýchly štart"
 #define PCSX2_FAST_BOOT_INFO_0_SK "Preskočí úvodnú animáciu BIOS. Vyžaduje reštart."
+#define PCSX2_OSD_MESSAGES_LABEL_SK "Upozornenia na obrazovke"
+#define PCSX2_OSD_MESSAGES_INFO_0_SK NULL
 #define PCSX2_RENDERER_LABEL_SK "Vykreslenie"
 #define PCSX2_RENDERER_INFO_0_SK "API hardvérového vykresľovača alebo softvérový vykresľovač. Prepnutie na softvérový alebo z neho sa prejaví hneď; prepnutie medzi hardvérovými API sa prejaví po reštarte obsahu. paraLLEl-GS potrebuje video ovládač Vulkan v RetroArchu, prejaví sa po reštarte obsahu a nekreslí zameriavač svetelnej pištole."
 #define OPTION_VAL_VULKAN_SK "Vulkan (hardvér)"
@@ -16070,7 +16242,7 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_IN_STEP_SK "Synchronizované (nižšia latencia)"
 #define OPTION_VAL_PREVIOUS_SK "Predchádzajúca snímka (rovnomerné zobrazovanie)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SK "Preskakovať duplicitné snímky"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK "Neodovzdá frontendu snímku, ktorú GS znova nevykreslil – hra s 30 fps potom dodá 30 jedinečných snímok namiesto 60, z ktorých je každá druhá zopakovaná. Vypnite, ak filter generovania alebo interpolácie snímok potrebuje dostať každú snímku samostatne."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SK NULL
 #define PCSX2_CAS_SHARPNESS_LABEL_SK "Ostrosť CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_SK "Pomer strán"
 #define PCSX2_ASPECT_RATIO_INFO_0_SK "Automaticky hlási 16:9, keď sú zapnuté širokouhlé záplaty, inak 4:3."
@@ -16089,7 +16261,7 @@ struct retro_core_options_v2 options_ru = {
 #define OPTION_VAL_USB2_SK "Port USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SK "Oba porty"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SK "Zameriavač svetelnej pištole"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SK "Vykreslí zameriavač tam, kam GunCon 2 mieri, vo zvolenej farbe. Predvolene vypnuté, ako na konzole. Vyžaduje reštart."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SK NULL
 #define OPTION_VAL_FFFFFF_SK "Biela"
 #define OPTION_VAL_2020FF_SK "Červená"
 #define OPTION_VAL_20FF20_SK "Zelená"
@@ -16176,6 +16348,9 @@ struct retro_core_option_v2_definition option_defs_sk[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_SK, NULL, PCSX2_BIOS_INFO_0_SK, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_SK, NULL, PCSX2_FAST_BOOT_INFO_0_SK, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_SK, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_SK, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -16437,6 +16612,8 @@ struct retro_core_options_v2 options_sk = {
 #define PCSX2_BIOS_INFO_0_SR NULL
 #define PCSX2_FAST_BOOT_LABEL_SR NULL
 #define PCSX2_FAST_BOOT_INFO_0_SR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_SR NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_SR NULL
 #define PCSX2_RENDERER_LABEL_SR NULL
 #define PCSX2_RENDERER_INFO_0_SR NULL
 #define OPTION_VAL_VULKAN_SR NULL
@@ -16644,6 +16821,9 @@ struct retro_core_option_v2_definition option_defs_sr[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_SR, NULL, PCSX2_BIOS_INFO_0_SR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_SR, NULL, PCSX2_FAST_BOOT_INFO_0_SR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_SR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_SR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -16905,6 +17085,8 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_BIOS_INFO_0_SV "BIOS-avbildning att använda från <system>/pcsx2/bios. Kräver omstart."
 #define PCSX2_FAST_BOOT_LABEL_SV "Snabbstart"
 #define PCSX2_FAST_BOOT_INFO_0_SV "Hoppa över BIOS-startanimationen. Kräver omstart."
+#define PCSX2_OSD_MESSAGES_LABEL_SV "Skärmmeddelanden"
+#define PCSX2_OSD_MESSAGES_INFO_0_SV "Emulatorns meddelanden ovanpå bilden, till exempel sparlägen, minneskort och varningar. När inställningen är av visas inga meddelanden, men de skrivs fortfarande i loggen."
 #define PCSX2_RENDERER_LABEL_SV "Renderare"
 #define PCSX2_RENDERER_INFO_0_SV "API för hårdvarurenderare eller programvarurenderare. Att växla till eller från programvara tillämpas direkt; att växla mellan hårdvaru-API:er tillämpas när innehållet startas om. paraLLEl-GS kräver RetroArchs Vulkan-videodrivrutin, tillämpas när innehållet startas om och ritar inget hårkors för ljuspistol."
 #define OPTION_VAL_VULKAN_SV "Vulkan (hårdvara)"
@@ -17006,7 +17188,7 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_IN_STEP_SV "Samma steg (lägre latens)"
 #define OPTION_VAL_PREVIOUS_SV "Föregående bildruta (jämn bildrutetakt)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_SV "Hoppa över visning av dubblettbilder"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV "Lämna inte över en bildruta som GS aldrig ritade om - ett spel i 30 fps levererar då 30 unika bildrutor i stället för 60 där varannan upprepas. Stäng av detta om ett filter för bildrutegenerering eller interpolering behöver få varje bildruta som en egen."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_SV "Upptäcker när ett spel körs under full bildfrekvens, till exempel 30 fps i ett 60 Hz-läge, och signalerar upprepade bildrutor till gränssnittet i stället för att visa dem igen. Krävs för RetroArchs inställning ”Hoppa över upprepade bildrutor”."
 #define PCSX2_CAS_SHARPNESS_LABEL_SV "CAS-skärpa"
 #define PCSX2_ASPECT_RATIO_LABEL_SV "Bildformat"
 #define PCSX2_ASPECT_RATIO_INFO_0_SV "Automatisk rapporterar 16:9 när bredbildspatchar är aktiverade, annars 4:3."
@@ -17025,7 +17207,7 @@ struct retro_core_options_v2 options_sr = {
 #define OPTION_VAL_USB2_SV "USB-port 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_SV "Båda portarna"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_SV "Hårkors för ljuspistol"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SV "Rita ett hårkors där GunCon 2 siktar i den valda färgen. Av som standard, precis som på konsolen. Kräver omstart."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_SV "Ritar ett hårkors där GunCon 2 riktas, i vald färg; även i ljuspistolspel för Namco System 246/256. Inaktiverad som standard, precis som på konsolen. Kräver omstart."
 #define OPTION_VAL_FFFFFF_SV "Vit"
 #define OPTION_VAL_2020FF_SV "Röd"
 #define OPTION_VAL_20FF20_SV "Grön"
@@ -17112,6 +17294,9 @@ struct retro_core_option_v2_definition option_defs_sv[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_SV, NULL, PCSX2_BIOS_INFO_0_SV, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_SV, NULL, PCSX2_FAST_BOOT_INFO_0_SV, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_SV, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_SV, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -17373,6 +17558,8 @@ struct retro_core_options_v2 options_sv = {
 #define PCSX2_BIOS_INFO_0_TH NULL
 #define PCSX2_FAST_BOOT_LABEL_TH NULL
 #define PCSX2_FAST_BOOT_INFO_0_TH NULL
+#define PCSX2_OSD_MESSAGES_LABEL_TH "การแจ้งเตือนบนหน้าจอ"
+#define PCSX2_OSD_MESSAGES_INFO_0_TH NULL
 #define PCSX2_RENDERER_LABEL_TH "การเรนเดอร์"
 #define PCSX2_RENDERER_INFO_0_TH NULL
 #define OPTION_VAL_VULKAN_TH NULL
@@ -17580,6 +17767,9 @@ struct retro_core_option_v2_definition option_defs_th[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_TH, NULL, PCSX2_BIOS_INFO_0_TH, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_TH, NULL, PCSX2_FAST_BOOT_INFO_0_TH, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_TH, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_TH, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -17841,6 +18031,8 @@ struct retro_core_options_v2 options_th = {
 #define PCSX2_BIOS_INFO_0_TR NULL
 #define PCSX2_FAST_BOOT_LABEL_TR NULL
 #define PCSX2_FAST_BOOT_INFO_0_TR NULL
+#define PCSX2_OSD_MESSAGES_LABEL_TR "Ekran Bildirimleri"
+#define PCSX2_OSD_MESSAGES_INFO_0_TR NULL
 #define PCSX2_RENDERER_LABEL_TR NULL
 #define PCSX2_RENDERER_INFO_0_TR NULL
 #define OPTION_VAL_VULKAN_TR NULL
@@ -18048,6 +18240,9 @@ struct retro_core_option_v2_definition option_defs_tr[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_TR, NULL, PCSX2_BIOS_INFO_0_TR, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_TR, NULL, PCSX2_FAST_BOOT_INFO_0_TR, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_TR, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_TR, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -18309,6 +18504,8 @@ struct retro_core_options_v2 options_tr = {
 #define PCSX2_BIOS_INFO_0_TT NULL
 #define PCSX2_FAST_BOOT_LABEL_TT NULL
 #define PCSX2_FAST_BOOT_INFO_0_TT NULL
+#define PCSX2_OSD_MESSAGES_LABEL_TT NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_TT NULL
 #define PCSX2_RENDERER_LABEL_TT NULL
 #define PCSX2_RENDERER_INFO_0_TT NULL
 #define OPTION_VAL_VULKAN_TT NULL
@@ -18516,6 +18713,9 @@ struct retro_core_option_v2_definition option_defs_tt[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_TT, NULL, PCSX2_BIOS_INFO_0_TT, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_TT, NULL, PCSX2_FAST_BOOT_INFO_0_TT, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_TT, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_TT, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -18777,6 +18977,8 @@ struct retro_core_options_v2 options_tt = {
 #define PCSX2_BIOS_INFO_0_UK NULL
 #define PCSX2_FAST_BOOT_LABEL_UK NULL
 #define PCSX2_FAST_BOOT_INFO_0_UK NULL
+#define PCSX2_OSD_MESSAGES_LABEL_UK "Сповіщення на екрані"
+#define PCSX2_OSD_MESSAGES_INFO_0_UK NULL
 #define PCSX2_RENDERER_LABEL_UK "Рендерер"
 #define PCSX2_RENDERER_INFO_0_UK "Апаратний рендер API, або програмний рендерер. Перемикання на або з програми застосовується у польоті; перемикання між апаратним API набуває чинності при перезапуску вмісту. paraLLEl-GS потребує відео-драйвера RetroArchs, який набуває чинності, коли зміст перезапущено, і не буде працювати з легкою зброєю."
 #define OPTION_VAL_VULKAN_UK NULL
@@ -18984,6 +19186,9 @@ struct retro_core_option_v2_definition option_defs_uk[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_UK, NULL, PCSX2_BIOS_INFO_0_UK, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_UK, NULL, PCSX2_FAST_BOOT_INFO_0_UK, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_UK, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_UK, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -19245,6 +19450,8 @@ struct retro_core_options_v2 options_uk = {
 #define PCSX2_BIOS_INFO_0_VAL NULL
 #define PCSX2_FAST_BOOT_LABEL_VAL NULL
 #define PCSX2_FAST_BOOT_INFO_0_VAL NULL
+#define PCSX2_OSD_MESSAGES_LABEL_VAL NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_VAL NULL
 #define PCSX2_RENDERER_LABEL_VAL NULL
 #define PCSX2_RENDERER_INFO_0_VAL NULL
 #define OPTION_VAL_VULKAN_VAL NULL
@@ -19452,6 +19659,9 @@ struct retro_core_option_v2_definition option_defs_val[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_VAL, NULL, PCSX2_BIOS_INFO_0_VAL, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_VAL, NULL, PCSX2_FAST_BOOT_INFO_0_VAL, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_VAL, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_VAL, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
@@ -19713,6 +19923,8 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_BIOS_INFO_0_VN "Tệp BIOS được sử dụng, lấy từ <system>/pcsx2/bios. Yêu cầu khởi động lại."
 #define PCSX2_FAST_BOOT_LABEL_VN "Khởi động nhanh"
 #define PCSX2_FAST_BOOT_INFO_0_VN "Bỏ qua hoạt ảnh khởi động BIOS. Yêu cầu khởi động lại."
+#define PCSX2_OSD_MESSAGES_LABEL_VN "Thông báo trên màn hình"
+#define PCSX2_OSD_MESSAGES_INFO_0_VN "Các thông báo của trình giả lập hiển thị chồng lên hình ảnh (trạng thái lưu, thẻ nhớ, cảnh báo). Tắt sẽ không hiển thị bất kỳ thông báo nào; các thông báo vẫn được ghi vào nhật ký."
 #define PCSX2_RENDERER_LABEL_VN "Renderer (Trình Dựng hình)"
 #define PCSX2_RENDERER_INFO_0_VN "Giao diện lập trình Dựng hình phần cứng hoặc bộ Dựng hình phần mềm. Chuyển sang hoặc rời khỏi chế độ Phần mềm có hiệu lực ngay lập tức; chuyển đổi giữa các giao diện lập trình phần cứng sẽ có hiệu lực khi khởi động lại nội dung. paraLLEl-GS cần trình điều khiển video Vulkan của RetroArch, có hiệu lực khi khởi động lại nội dung và không hiển thị tâm ngắm súng quang."
 #define OPTION_VAL_VULKAN_VN "Vulkan (Phần cứng)"
@@ -19814,7 +20026,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_IN_STEP_VN "Từng bước (độ trễ thấp hơn)"
 #define OPTION_VAL_PREVIOUS_VN "Khung hình trước đó (tốc độ hiển thị đồng đều)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN "Bỏ qua việc xuất các khung hình trùng lặp"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Không chuyển cho giao diện chính một khung hình mà GS không Dựng hình lại - trò chơi 30 fps khi đó sẽ hiển thị 30 khung hình riêng biệt thay vì 60 khung hình với mỗi khung thứ hai bị lặp lại. Tắt tùy chọn này nếu bộ lọc tạo khung hình hoặc nội suy cần nhận từng khung hình dưới dạng một khung hình riêng."
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_VN "Phát hiện khi trò chơi chạy ở tốc độ khung hình thấp hơn mức tối đa (ví dụ: 30 khung hình/giây trong chế độ 60 Hz) và gửi tín hiệu báo khung hình trùng lặp đến giao diện chính thay vì hiển thị lại chúng. Cần thiết để sử dụng thiết lập 'Bỏ qua khung hình trùng lặp' của RetroArch."
 #define PCSX2_CAS_SHARPNESS_LABEL_VN "Độ sắc nét CAS"
 #define PCSX2_ASPECT_RATIO_LABEL_VN "Tỷ lệ khung hình"
 #define PCSX2_ASPECT_RATIO_INFO_0_VN "Tự động báo tỷ lệ 16:9 khi bản vá màn hình rộng được bật, 4:3 trong các trường hợp khác."
@@ -19833,7 +20045,7 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_USB2_VN "Cổng USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_VN "Cả hai cổng"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_VN "Tâm ngắm súng quang"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VN "Hiển thị tâm ngắm tại vị trí GunCon 2 đang ngắm, với màu đã chọn. Mặc định tắt, giống như trên máy chơi game. Cần khởi động lại."
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_VN "Hiển thị dấu chữ thập tại vị trí ngắm của súng GunCon 2 theo màu đã chọn; áp dụng cả với các trò chơi súng quang trên Namco System 246/256. Mặc định tắt, giống như trên máy chơi game gốc. Cần khởi động lại để áp dụng."
 #define OPTION_VAL_FFFFFF_VN "Trắng"
 #define OPTION_VAL_2020FF_VN "Đỏ"
 #define OPTION_VAL_20FF20_VN "Xanh Lá"
@@ -19920,6 +20132,9 @@ struct retro_core_option_v2_definition option_defs_vn[] = {
 	{"pcsx2_bios", PCSX2_BIOS_LABEL_VN, NULL, PCSX2_BIOS_INFO_0_VN, NULL,
 		"system", {{NULL, NULL}}, "auto"},
 	{"pcsx2_fast_boot", PCSX2_FAST_BOOT_LABEL_VN, NULL, PCSX2_FAST_BOOT_INFO_0_VN, NULL,
+		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
+	{"pcsx2_osd_messages", PCSX2_OSD_MESSAGES_LABEL_VN, NULL,
+		PCSX2_OSD_MESSAGES_INFO_0_VN, NULL,
 		"system", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	// graphics
 	// Offering an API this build has no renderer for would leave GSCreateDevice
