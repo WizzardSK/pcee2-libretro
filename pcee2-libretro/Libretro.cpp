@@ -797,8 +797,11 @@ void LibretroHost::RegisterCoreOptions()
 		}
 	}
 
-	// Scan only real .ps2 files. This happens before InitializeConfig(), so the
-	// existing FileMcd_GetAvailableCards() helper cannot be used here: it reads
+	// Scan the .ps2 cards: files, and folder cards as the standalone PCSX2
+	// makes them (a directory named *.ps2 holding _pcsx2_superblock; PCSX2
+	// opens a directory as a folder card by itself, MemoryCardFile.cpp, #70).
+	// This happens before InitializeConfig(), so the existing
+	// FileMcd_GetAvailableCards() helper cannot be used here: it reads
 	// EmuFolders::MemoryCards, which is populated during startup configuration.
 	s_memcard_names.clear();
 	{
@@ -807,12 +810,16 @@ void LibretroHost::RegisterCoreOptions()
 		{
 			FileSystem::FindResultsArray files;
 			const std::string memcards_dir = Path::Combine(Path::Combine(system_dir, "pcsx2"), "memcards");
-			FileSystem::FindFiles(memcards_dir.c_str(), "*", FILESYSTEM_FIND_FILES, &files);
+			FileSystem::FindFiles(memcards_dir.c_str(), "*", FILESYSTEM_FIND_FILES | FILESYSTEM_FIND_FOLDERS, &files);
 			for (const FILESYSTEM_FIND_DATA& fd : files)
 			{
 				const std::string filename(Path::GetFileName(fd.FileName));
-				if (filename.ends_with(".ps2"))
-					s_memcard_names.push_back(filename);
+				if (!filename.ends_with(".ps2"))
+					continue;
+				if ((fd.Attributes & FILESYSTEM_FILE_ATTRIBUTE_DIRECTORY) &&
+					!FileSystem::FileExists(Path::Combine(fd.FileName, "_pcsx2_superblock").c_str()))
+					continue;
+				s_memcard_names.push_back(filename);
 			}
 		}
 	}

@@ -296,10 +296,10 @@ struct retro_core_option_v2_definition option_defs_us[] = {
 		"Enable the Slot 2 PS2 memory card. Changes apply immediately while content is running.",
 		NULL, "memory_cards", {{"enabled", NULL}, {"disabled", NULL}, {NULL, NULL}}, "enabled"},
 	{"pcsx2_memcard_slot1_file", "Slot 1 Card", NULL,
-		"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+		"Select an existing .ps2 card from <system>/pcsx2/memcards: a card file, or a folder card made by the standalone PCSX2. Changes apply immediately while content is running.",
 		NULL, "memory_cards", {{NULL, NULL}}, "Mcd001.ps2"},
 	{"pcsx2_memcard_slot2_file", "Slot 2 Card", NULL,
-		"Select an existing .ps2 card from <system>/pcsx2/memcards. Changes apply immediately while content is running.",
+		"Select an existing .ps2 card from <system>/pcsx2/memcards: a card file, or a folder card made by the standalone PCSX2. Changes apply immediately while content is running.",
 		NULL, "memory_cards", {{NULL, NULL}}, "Mcd002.ps2"},
 	// debug
 	{"pcsx2_gsdump_trigger", "GS Dump Trigger File", NULL,
