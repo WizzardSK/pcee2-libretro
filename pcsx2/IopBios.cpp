@@ -551,8 +551,15 @@ namespace R3000A
 			else if (!hostRoot.empty()) // relative paths
 				new_path = Path::Combine(hostRoot, native_path);
 
-			// Allow opening the ELF override.
-			if (new_path == VMManager::Internal::GetELFOverride())
+			// Allow opening the ELF override. hostRoot is its directory with
+			// symlinks resolved (Hle_SetHostRoot), so a path built from it is
+			// compared with the override resolved the same way: an arcade game
+			// in a folder reached through a symlink (mklink /D) booted its
+			// host:proverb.elf from '' and stayed on a black screen (#71).
+			const std::string& elf_override = VMManager::Internal::GetELFOverride();
+			if (!elf_override.empty() &&
+				(new_path == elf_override ||
+					new_path == Path::ToNativePath(Path::RealPath(elf_override))))
 				return new_path;
 
 			// Allow nothing if hostfs isn't enabled.
