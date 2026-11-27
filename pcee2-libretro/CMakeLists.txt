@@ -66,6 +66,21 @@ if(UNIX AND NOT APPLE)
 		LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/libretro.map")
 endif()
 
+# The same on Apple platforms, where ld64 has no version script: a Mach-O
+# image exports every global symbol, and dyld coalesces weak definitions
+# (inline functions, vtables, typeinfo) across all loaded images, the first
+# one loaded winning. RetroArch 1.22 for macOS has its own glslang built in,
+# so the core's glslang got RetroArch's vtables for its intermediate tree
+# classes - another glslang version, another layout - and crashed in the
+# first Vulkan shader compile (convertSwizzle reading address 0x1, #72).
+# Exporting only the libretro entry points keeps those definitions private.
+if(APPLE)
+	target_link_options(pcee2_libretro PRIVATE
+		"-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/libretro_apple.exp")
+	set_property(TARGET pcee2_libretro APPEND PROPERTY
+		LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/libretro_apple.exp")
+endif()
+
 # The Metal GS device's shaders. A standalone PCSX2 ships them as .metallib
 # files in its app bundle; a core has no bundle of its own - NSBundle's main
 # bundle is the frontend's, whose default.metallib holds the frontend's
