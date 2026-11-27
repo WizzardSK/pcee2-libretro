@@ -2138,7 +2138,7 @@ struct retro_core_options_v2 options_bg = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_CA "Ranura 2 activada"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_CA "Activa la targeta de memòria de PS2 de la ranura 2. Els canvis s'apliquen immediatament mentre s'executa el contingut."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_CA "Ranura 1 de la targeta"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_CA "Selecciona una targeta .ps2 existent a <system>/pcsx2/memcards. Els canvis s'apliquen immediatament mentre el contingut s'està executant."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_CA "Selecciona una targeta .ps2 existent a <system>/pcsx2/memcards: pot ser un fitxer de targeta o una carpeta de targeta creada amb la versió autònoma de PCSX2. Els canvis s'apliquen immediatament mentre s'executa el contingut."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_CA "Ranura 2 de la targeta"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_CA "Fitxer activador de bolcat GS"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_CA "Mentre està activat, un fitxer anomenat `gsdump.trigger` situat a `<system>/pcsx2` registra un bolcament GS dels fotogrames processats (2 si no n'hi ha cap) i després s'elimina; el fitxer de bolcament i una imatge PNG del fotograma es generen al costat. Un bolcament GS (`.gs`) es pot carregar per reproduir els mateixos fotogrames en qualsevol motor de renderització, la qual cosa és útil per informar d'errors en aquests motors."
@@ -2611,7 +2611,7 @@ struct retro_core_options_v2 options_ca = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_CHS "启用槽位 2"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_CHS "启用槽位 2 的 PS2 记忆卡。更改会在游戏运行期间立即生效。"
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_CHS "槽位 1 记忆卡镜像"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_CHS "从 <system>/pcsx2/memcards 目录中选择现有的 .ps2 记忆卡文件。更改会在游戏运行期间矢量立即生效。"
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_CHS NULL
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_CHS "槽位 2 记忆卡镜像"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_CHS "GS 转储触发器文件"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_CHS "启用后，在 <system>/pcsx2 目录下创建一个名为 gsdump.trigger 的文件，用于记录其输出帧的 GS 转储（若文件为空则记录 2 帧）随后该触发文件会被自动删除；转储文件及该帧的 PNG 截图将保存在其旁。GS 转储文件 (.gs) 可作为游戏内容加载，并在任意渲染器上回放相同的画面帧，用于向开发团队反馈渲染器缺陷/Bug。"
@@ -4788,7 +4788,7 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_FAST_BOOT_LABEL_DE NULL
 #define PCSX2_FAST_BOOT_INFO_0_DE "BIOS-Startanimation überspringen. Neustart erforderlich."
 #define PCSX2_OSD_MESSAGES_LABEL_DE "Bildschirm-Benachrichtigungen"
-#define PCSX2_OSD_MESSAGES_INFO_0_DE NULL
+#define PCSX2_OSD_MESSAGES_INFO_0_DE "Benachrichtigungen des Emulators über dem Bild (Spielstände, Speicherkarten, Warnungen). Bei „Aus“ werden keine angezeigt; sie werden weiterhin im Protokoll ausgegeben."
 #define PCSX2_RENDERER_LABEL_DE NULL
 #define PCSX2_RENDERER_INFO_0_DE "Hardware-Renderer-API oder Software-Renderer. Der Wechsel zum oder vom Software-Renderer wird sofort angewendet; ein Wechsel zwischen Hardware-APIs wird beim Neustart des Inhalts wirksam. paraLLEl-GS benötigt den Vulkan-Videotreiber von RetroArch, wird beim Neustart des Inhalts wirksam und zeigt kein Lightgun-Fadenkreuz an."
 #define OPTION_VAL_VULKAN_DE NULL
@@ -4841,7 +4841,7 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_ROV_LABEL_DE "Raster Order Views (Experimentell)"
 #define PCSX2_ROV_INFO_0_DE "Ermöglicht Blend- und Tiefeneffekten, das Renderziel im Shader statt über eine Texturbarriere auszulesen. Auf Apple-GPUs (MoltenVK) unterbricht jede Texturbarriere den Renderdurchlauf, was Leistung kostet. Diese Option vermeidet solche Barrieren, sofern die GPU dies unterstützt. Kann Grafikfehler verursachen. Standardmäßig deaktiviert, wie in PCSX2 als eigenständiger Anwendung."
 #define PCSX2_TEXTURE_FILTERING_LABEL_DE "Texturfilterung"
-#define PCSX2_TEXTURE_FILTERING_INFO_0_DE NULL
+#define PCSX2_TEXTURE_FILTERING_INFO_0_DE "Bilinear (PS2) bildet die Konsole nach; erzwungene Modi glätten alle Texturen. Nur für Hardware- und Software-Renderer: paraLLEl-GS filtert immer wie die Konsole."
 #define OPTION_VAL_NEAREST_DE "Nächster"
 #define OPTION_VAL_BILINEAR_PS2_DE NULL
 #define OPTION_VAL_BILINEAR_FORCED_DE "Bilinear (Erzwungen)"
@@ -4885,12 +4885,12 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_FRAME_LIMITER_INFO_0_DE "Was den Emulator auf voller Geschwindigkeit hält. Das Frontend überlässt die Taktung RetroArch, das drosselt, indem es den Core auf die von ihm übergebenen Audiodaten warten lässt. „Intern“ verwendet stattdessen den eigenen Begrenzer von PCSX2 – für Geräte, bei denen dieses Warten nie stattfindet, weil der Audiotreiber einen Audio-Unterlauf erzeugt, anstatt zu blockieren. Die Geschwindigkeitsschwankungen des Emulators werden dann als ungleichmäßiges Frame Pacing auf dem Bildschirm sichtbar."
 #define OPTION_VAL_FRONTEND_DE NULL
 #define OPTION_VAL_INTERNAL_DE "Intern (PCSX2)"
-#define PCSX2_FRAME_HANDOVER_LABEL_DE NULL
-#define PCSX2_FRAME_HANDOVER_INFO_0_DE NULL
-#define OPTION_VAL_IN_STEP_DE NULL
-#define OPTION_VAL_PREVIOUS_DE NULL
+#define PCSX2_FRAME_HANDOVER_LABEL_DE "Frame-Übergabe"
+#define PCSX2_FRAME_HANDOVER_INFO_0_DE "Legt fest, welcher Frame bei jedem Aufruf an RetroArch übergeben wird. Bei „Schrittweise“ wird auf den Frame gewartet, der zu den Eingaben dieses Aufrufs gehört. Dadurch entsteht dieselbe Eingabeverzögerung wie bei der eigenständigen PCSX2-Version. Die Dauer der Emulation jedes Frames bestimmt dann, wann er auf dem Bildschirm erscheint. Auf einem VRR-Bildschirm ohne VSync führt dies zu einer ungleichmäßigen Frame-Taktung. Bei „Vorheriger Frame“ wird der zuvor fertiggestellte Frame übergeben, während der nächste Frame emuliert wird und RetroArch den vorherigen anzeigt. Dadurch ergibt sich eine gleichmäßige Frame-Taktung bei einer um einen Frame höheren Eingabeverzögerung."
+#define OPTION_VAL_IN_STEP_DE "Schrittweise (geringere Latenz)"
+#define OPTION_VAL_PREVIOUS_DE "Vorheriger Frame (gleichmäßige Frame-Taktung)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_DE "Doppelte Frames bei der Bildausgabe überspringen"
-#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE NULL
+#define PCSX2_SKIP_DUPLICATE_FRAMES_INFO_0_DE "Erkennt, wenn ein Spiel mit einer niedrigeren als der vollen Bildrate läuft (z. B. 30 fps bei einem 60-Hz-Modus), und signalisiert dem Frontend doppelte Frames, anstatt sie erneut auszugeben. Erforderlich für die RetroArch-Einstellung „Doppelte Frames überspringen“."
 #define PCSX2_CAS_SHARPNESS_LABEL_DE "CAS-Schärfe"
 #define PCSX2_ASPECT_RATIO_LABEL_DE "Bildseitenverhältnis"
 #define PCSX2_ASPECT_RATIO_INFO_0_DE "Automatisch: Bei aktivierten Breitbild-Patches wird 16:9 gemeldet, andernfalls 4:3."
@@ -4909,7 +4909,7 @@ struct retro_core_options_v2 options_da = {
 #define OPTION_VAL_USB2_DE "USB-Port 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_DE "Beide Ports"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_DE "Lightgun-Fadenkreuz"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_DE "Ein Fadenkreuz in der ausgewählten Farbe an der Zielposition der GunCon 2 anzeigen, auch in Lightgun-Spielen für Namco System 246/256. Standardmäßig deaktiviert, wie auf der Konsole. Neustart erforderlich."
 #define OPTION_VAL_FFFFFF_DE "Weiß"
 #define OPTION_VAL_2020FF_DE "Rot"
 #define OPTION_VAL_20FF20_DE "Grün"
@@ -4976,7 +4976,7 @@ struct retro_core_options_v2 options_da = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_DE "Slot 2 aktiviert"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_DE "Aktiviert die PS2-Speicherkarte in Steckplatz 2. Änderungen werden sofort übernommen, auch während Inhalte ausgeführt werden."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_DE "Karte in Slot 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_DE "Eine vorhandene .ps2-Speicherkarte aus <system>/pcsx2/memcards auswählen. Änderungen werden sofort übernommen, auch während Inhalte ausgeführt werden."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_DE "Eine vorhandene .ps2-Speicherkarte aus <system>/pcsx2/memcards auswählen: eine Speicherkartendatei oder eine von der eigenständigen PCSX2-Version erstellte Speicherkartenmappe. Änderungen werden sofort übernommen, während Inhalte ausgeführt werden."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_DE "Karte in Slot 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_DE "GS-Dump-Triggerdatei"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_DE "Wenn diese Option aktiviert ist, zeichnet eine Datei mit dem Namen gsdump.trigger in <system>/pcsx2 einen GS-Dump der ausgegebenen Frames auf (2, wenn die Datei leer ist) und wird anschließend entfernt. Der Dump und ein PNG-Bild des Frames werden im selben Verzeichnis gespeichert. Ein GS-Dump (.gs) kann als Inhalt geladen werden und gibt dieselben Frames auf jedem Renderer wieder, um Fehler in Renderern zu melden."
@@ -6801,7 +6801,7 @@ struct retro_core_options_v2 options_eo = {
 #define OPTION_VAL_USB2_ES "Puerto USB 2"
 #define OPTION_VAL_BOTH_PCSX2_LIGHTGUN_ES "Ambos puertos"
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_ES "Punto de mira de lightgun"
-#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES NULL
+#define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_ES "Muestra un punto de mira con el color seleccionado donde esté apuntando la GunCon 2 o en los juegos para lightguns de Namco System 246/256. Esta opción está desactivada por defecto, tal y como ocurriría en la consola. Es necesario reiniciar."
 #define OPTION_VAL_FFFFFF_ES "Blanco"
 #define OPTION_VAL_2020FF_ES "Rojo"
 #define OPTION_VAL_20FF20_ES "Verde"
@@ -6864,11 +6864,11 @@ struct retro_core_options_v2 options_eo = {
 #define PCSX2_REC_VU1_LABEL_ES "  - Recompilador de la VU1"
 #define PCSX2_REC_VU1_INFO_0_ES "Para diagnósticos. Desactiva solo el recompilador dinámico de la microVU VU1 y deja los demás activados para estudiar cuál de todos los recompiladores está provocando un cuelgue. Es necesario reiniciar."
 #define PCSX2_MEMCARD_SLOT1_ENABLE_LABEL_ES "Activar ranura 1"
-#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_ES "Activa la Memory Card de PS2 de la ranura 1. Los cambios con un contenido en marcha se aplicarán inmediatamente."
+#define PCSX2_MEMCARD_SLOT1_ENABLE_INFO_0_ES "Activa la Memory Card de PS2 de la ranura 1. Los cambios se aplicarán inmediatamente mientras haya un contenido en marcha."
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_ES "Activar ranura 2"
-#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_ES "Activa la Memory Card de PS2 de la ranura 2. Los cambios con un contenido en marcha se aplicarán inmediatamente."
+#define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_ES "Activa la Memory Card de PS2 de la ranura 2. Los cambios se aplicarán inmediatamente mientras haya un contenido en marcha."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_ES "Memory Card de la ranura 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_ES "Selecciona una Memory Card ya existente en formato .ps2 ubicada en <system>/pcsx2/memcards. Los cambios con un contenido en marcha se aplicarán inmediatamente."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_ES "Selecciona una Memory Card ya existente en formato .ps2 de <system>/pcsx2/memcards: puede ser un archivo o carpeta de Memory Card creados por la versión independiente de PCSX2. Los cambios se aplicarán inmediatamente mientras haya un contenido en marcha."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_ES "Memory Card de la ranura 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_ES "Archivo desencadenador de volcado del GS"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_ES "Al activar esta opción, un archivo llamado gsdump.trigger guardado en <system>/pcsx2 registrará un volcado del GS con los fotogramas indicados (2 si se deja en blanco) y se eliminará; irá acompañado del volcado y de una imagen PNG del fotograma. Un volcado del GS (.gs) se cargará como si fuese un contenido y reproducirá los mismos fotogramas en cualquier renderizador de cara a informar de fallos de los renderizadores."
@@ -8287,7 +8287,7 @@ struct retro_core_options_v2 options_fi = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_FR "Port 2 activé"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_FR "Activez la carte mémoire PS2 du port 2. Les modifications prennent effet immédiatement pendant l'exécution du contenu."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_FR "Carte port 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_FR "Sélectionner une carte .ps2 existante dans <system>/pcsx2/memcards. Les modifications prennent effet immédiatement pendant l'exécution du contenu."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_FR NULL
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_FR "Carte port 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_FR NULL
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_FR NULL
@@ -8760,7 +8760,7 @@ struct retro_core_options_v2 options_fr = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_GA "Sliotán 2 Cumasaithe"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_GA "Cumasaigh an cárta cuimhne PS2 i Sliotán 2. Cuirtear na hathruithe i bhfeidhm láithreach agus an t-ábhar ag rith."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_GA "Cárta Sliotán 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_GA "Roghnaigh cárta .ps2 atá ann cheana féin ó <system>/pcsx2/memcards. Cuirtear athruithe i bhfeidhm láithreach agus an t-ábhar ag rith."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_GA "Roghnaigh cárta .ps2 atá ann cheana ó <system>/pcsx2/memcards: comhad cárta, nó fillteán cárta a cruthaíodh leis an PCSX2 neamhspleách. Cuirtear athruithe i bhfeidhm láithreach agus ábhar á rith."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_GA "Cárta Sliotán 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_GA "Comhad Spreagtha Dumpála GS"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_GA "Nuair a bhíonn sé cumasaithe, cruthaítear comhad dar ainm gsdump.trigger in <system>/pcsx2; taifeadann sé seo dumpa GS de na frámaí a sholáthraítear (2 fhráma má bhíonn sé folamh) agus baintear an comhad ina dhiaidh sin. Cruthaítear an dumpa GS chomh maith le comhad PNG den fhráma, agus cuirtear iad in aice leis an gcomhad sin. Is féidir dumpa GS (.gs) a luchtú mar ábhar, rud a ligeann d’aon inneall rindreála na frámaí céanna a athsheinm — gné atá úsáideach chun fabhtanna san inneall rindreála a thuairisciú."
@@ -9517,7 +9517,7 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_BIOS_INFO_0_HE NULL
 #define PCSX2_FAST_BOOT_LABEL_HE NULL
 #define PCSX2_FAST_BOOT_INFO_0_HE NULL
-#define PCSX2_OSD_MESSAGES_LABEL_HE NULL
+#define PCSX2_OSD_MESSAGES_LABEL_HE "התראות על המסך"
 #define PCSX2_OSD_MESSAGES_INFO_0_HE NULL
 #define PCSX2_RENDERER_LABEL_HE NULL
 #define PCSX2_RENDERER_INFO_0_HE NULL
@@ -9528,7 +9528,7 @@ struct retro_core_options_v2 options_gl = {
 #define OPTION_VAL_SOFTWARE_HE NULL
 #define PCSX2_PGS_SUPER_SAMPLING_LABEL_HE NULL
 #define PCSX2_PGS_SUPER_SAMPLING_INFO_0_HE NULL
-#define OPTION_VAL_0_HE NULL
+#define OPTION_VAL_0_HE "מקורי"
 #define OPTION_VAL_1_HE NULL
 #define OPTION_VAL_2_HE NULL
 #define OPTION_VAL_3_HE NULL
@@ -9572,7 +9572,7 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_ROV_INFO_0_HE NULL
 #define PCSX2_TEXTURE_FILTERING_LABEL_HE NULL
 #define PCSX2_TEXTURE_FILTERING_INFO_0_HE NULL
-#define OPTION_VAL_NEAREST_HE NULL
+#define OPTION_VAL_NEAREST_HE "השכן הקרוב"
 #define OPTION_VAL_BILINEAR_PS2_HE NULL
 #define OPTION_VAL_BILINEAR_FORCED_HE NULL
 #define OPTION_VAL_BILINEAR_FORCED_SPRITE_HE NULL
@@ -9624,7 +9624,7 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_CAS_SHARPNESS_LABEL_HE NULL
 #define PCSX2_ASPECT_RATIO_LABEL_HE "יחס גובה-רוחב"
 #define PCSX2_ASPECT_RATIO_INFO_0_HE NULL
-#define OPTION_VAL_AUTO_PCSX2_ASPECT_RATIO_HE NULL
+#define OPTION_VAL_AUTO_PCSX2_ASPECT_RATIO_HE "אוטומטי"
 #define OPTION_VAL_4_3_HE NULL
 #define OPTION_VAL_16_9_HE NULL
 #define PCSX2_MULTITAP_LABEL_HE NULL
@@ -9641,10 +9641,10 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_LIGHTGUN_CROSSHAIR_LABEL_HE NULL
 #define PCSX2_LIGHTGUN_CROSSHAIR_INFO_0_HE NULL
 #define OPTION_VAL_FFFFFF_HE NULL
-#define OPTION_VAL_2020FF_HE NULL
-#define OPTION_VAL_20FF20_HE NULL
-#define OPTION_VAL_FFC020_HE NULL
-#define OPTION_VAL_20E0FF_HE NULL
+#define OPTION_VAL_2020FF_HE "אדום"
+#define OPTION_VAL_20FF20_HE "ירוק"
+#define OPTION_VAL_FFC020_HE "כחול"
+#define OPTION_VAL_20E0FF_HE "צהוב"
 #define PCSX2_USB_MOUSE_LABEL_HE NULL
 #define PCSX2_USB_MOUSE_INFO_0_HE NULL
 #define PCSX2_RUMBLE_LABEL_HE NULL
@@ -9655,7 +9655,7 @@ struct retro_core_options_v2 options_gl = {
 #define OPTION_VAL_115_HE NULL
 #define OPTION_VAL_133_HE NULL
 #define OPTION_VAL_150_PCSX2_AXIS_SCALE_HE NULL
-#define PCSX2_AXIS_DEADZONE_LABEL_HE NULL
+#define PCSX2_AXIS_DEADZONE_LABEL_HE "אזור מת אנלוגי"
 #define PCSX2_AXIS_DEADZONE_INFO_0_HE NULL
 #define OPTION_VAL_0_PCSX2_AXIS_DEADZONE_HE NULL
 #define OPTION_VAL_5_PCSX2_AXIS_DEADZONE_HE NULL
@@ -9667,7 +9667,7 @@ struct retro_core_options_v2 options_gl = {
 #define PCSX2_WIDESCREEN_PATCHES_INFO_0_HE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_LABEL_HE NULL
 #define PCSX2_NO_INTERLACING_PATCHES_INFO_0_HE NULL
-#define PCSX2_CHEATS_LABEL_HE NULL
+#define PCSX2_CHEATS_LABEL_HE "צ'יטים"
 #define PCSX2_CHEATS_INFO_0_HE NULL
 #define PCSX2_MTVU_LABEL_HE NULL
 #define PCSX2_MTVU_INFO_0_HE NULL
@@ -16328,7 +16328,7 @@ struct retro_core_options_v2 options_ru = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_SK "Slot 2 zapnutý"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_SK "Zapne pamäťovú kartu PS2 v slote 2. Zmeny sa prejavia hneď, aj keď obsah beží."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_SK "Karta v slote 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_SK "Vyberte existujúcu kartu .ps2 z <system>/pcsx2/memcards. Zmeny sa prejavia hneď, aj keď obsah beží."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_SK NULL
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_SK "Karta v slote 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_SK "Spúšťací súbor GS dumpu"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_SK "Kým je zapnuté, súbor s názvom gsdump.trigger v <system>/pcsx2 zaznamená GS dump toľkých snímok, koľko uvádza (2, ak je prázdny), a odstráni sa; dump a PNG snímky sa uložia vedľa neho. GS dump (.gs) sa načíta ako obsah a prehrá tie isté snímky na ľubovoľnom rendereri, na hlásenie chýb rendereru."
@@ -17274,7 +17274,7 @@ struct retro_core_options_v2 options_sr = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_SV "Plats 2 aktiverad"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_SV "Aktivera PS2-minneskortet i plats 2. Ändringar tillämpas direkt medan innehåll körs."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_SV "Kort i plats 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_SV "Välj ett befintligt .ps2-kort från <system>/pcsx2/memcards. Ändringar tillämpas direkt när innehåll körs."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_SV NULL
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_SV "Kort i plats 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_SV "Utlösarfil för GS-dump"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_SV "När funktionen är aktiverad registrerar filen gsdump.trigger i <system>/pcsx2 en GS-dump av bildrutorna den får (2 om filen är tom) och tas sedan bort. Dumpen och en PNG-bild av bildrutan sparas bredvid filen. En GS-dump (.gs) läses in som innehåll och spelar upp samma bildrutor i valfri renderare för att rapportera renderingsfel."
@@ -20018,11 +20018,11 @@ struct retro_core_options_v2 options_val = {
 #define OPTION_VAL_150_VN "150 mili giây"
 #define OPTION_VAL_200_VN "200 mili giây"
 #define PCSX2_FRAME_LIMITER_LABEL_VN "Giới hạn tốc độ khung hình"
-#define PCSX2_FRAME_LIMITER_INFO_0_VN "Điều gì giữ trình giả lập chạy ở tốc độ tối đa. Giao diện chính để RetroArch tự điều chỉnh tốc độ, bằng cách buộc lõi chờ âm thanh mà nó chuyển giao. Nội bộ sử dụng bộ giới hạn tốc độ riêng của PCSX2 - dành cho thiết bị mà việc chờ này không bao giờ xảy ra vì trình điều khiển âm thanh làm thiếu dữ liệu thay vì chặn, khiến sự dao động tốc độ của trình giả lập được đưa lên màn hình dưới dạng nhịp khung hình không đều."
+#define PCSX2_FRAME_LIMITER_INFO_0_VN "Điều gì giữ trình giả lập chạy ở tốc độ tối đa. Giao diện chính để RetroArch tự điều chỉnh tốc độ, bằng cách buộc trình giả lập chờ âm thanh mà nó chuyển giao. Nội bộ sử dụng bộ giới hạn tốc độ riêng của PCSX2 - dành cho thiết bị mà việc chờ này không bao giờ xảy ra vì trình điều khiển âm thanh làm thiếu dữ liệu thay vì chặn, khiến sự dao động tốc độ của trình giả lập được đưa lên màn hình dưới dạng nhịp khung hình không đều."
 #define OPTION_VAL_FRONTEND_VN "Giao diện chính (RetroArch)"
 #define OPTION_VAL_INTERNAL_VN "Nội bộ (PCSX2)"
 #define PCSX2_FRAME_HANDOVER_LABEL_VN "Chuyển giao khung hình"
-#define PCSX2_FRAME_HANDOVER_INFO_0_VN "Xác định khung hình được chuyển giao cho RetroArch trong mỗi lần gọi. Ở chế độ Từng bước, hệ thống chờ khung hình tương ứng với dữ liệu đầu vào của lần gọi hiện tại, có độ trễ đầu vào tương đương khi chạy PCSX2 độc lập; thời gian mô phỏng mỗi khung hình sau đó sẽ quyết định thời điểm khung hình xuất hiện trên màn hình, khiến tốc độ hiển thị không đồng đều trên màn hình VRR khi không bật đồng bộ dọc. Ở chế độ Khung hình trước đó, hệ thống chuyển giao khung hình đã hoàn thành trước đó và mô phỏng khung hình tiếp theo trong khi RetroArch hiển thị khung hình vừa nhận: tốc độ hiển thị đồng đều hơn, nhưng độ trễ đầu vào tăng thêm một khung hình."
+#define PCSX2_FRAME_HANDOVER_INFO_0_VN "Xác định khung hình được chuyển giao cho RetroArch trong mỗi lần gọi. Ở chế độ Từng bước, hệ thống chờ khung hình tương ứng với dữ liệu điều khiển của lần gọi hiện tại, có độ trễ điều khiển tương đương khi chạy PCSX2 độc lập; thời gian mô phỏng mỗi khung hình sau đó sẽ quyết định thời điểm khung hình xuất hiện trên màn hình, khiến tốc độ hiển thị không đồng đều trên màn hình VRR khi không bật đồng bộ dọc. Ở chế độ Khung hình trước đó, hệ thống chuyển giao khung hình đã hoàn thành trước đó và mô phỏng khung hình tiếp theo trong khi RetroArch hiển thị khung hình vừa nhận: tốc độ hiển thị đồng đều hơn, nhưng độ trễ điều khiển tăng thêm một khung hình."
 #define OPTION_VAL_IN_STEP_VN "Từng bước (độ trễ thấp hơn)"
 #define OPTION_VAL_PREVIOUS_VN "Khung hình trước đó (tốc độ hiển thị đồng đều)"
 #define PCSX2_SKIP_DUPLICATE_FRAMES_LABEL_VN "Bỏ qua việc xuất các khung hình trùng lặp"
@@ -20076,7 +20076,7 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_CHEATS_LABEL_VN "Mã gian lận"
 #define PCSX2_CHEATS_INFO_0_VN "Áp dụng mã gian lận trong system/pcsx2/cheats/: các tệp .pnach được đặt tên theo mã sê-ri và mã kiểm tra CRC của trò chơi, giống như PCSX2 độc lập. Nên áp dụng trước khi khởi chạy trò chơi."
 #define PCSX2_MTVU_LABEL_VN "MTVU (VU1 đa luồng)"
-#define PCSX2_MTVU_INFO_0_VN "Chạy VU1 trên một luồng riêng. Tăng tốc đáng kể trên CPU đa lõi; một số ít trò chơi có thể bị treo khi bật tính năng này."
+#define PCSX2_MTVU_INFO_0_VN "Chạy VU1 trên một luồng riêng. Tăng tốc đáng kể trên CPU đa trình giả lập; một số ít trò chơi có thể bị treo khi bật tính năng này."
 #define PCSX2_INSTANT_VU1_LABEL_VN "VU1 tức thời"
 #define PCSX2_INSTANT_VU1_INFO_0_VN "Chạy VU1 hoàn tất ngay lập tức (bỏ qua khi MTVU được bật). Thường giúp tăng tốc."
 #define PCSX2_EE_CYCLE_RATE_LABEL_VN "Tốc độ chu kỳ EE"
@@ -20112,7 +20112,7 @@ struct retro_core_options_v2 options_val = {
 #define PCSX2_MEMCARD_SLOT2_ENABLE_LABEL_VN "Khe cắm 2 được bật"
 #define PCSX2_MEMCARD_SLOT2_ENABLE_INFO_0_VN "Bật thẻ nhớ PS2 ở Khe cắm 2. Thay đổi có hiệu lực ngay lập tức khi nội dung đang chạy."
 #define PCSX2_MEMCARD_SLOT1_FILE_LABEL_VN "Thẻ nhớ Khe cắm 1"
-#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_VN "Chọn thẻ .ps2 có sẵn từ <system>/pcsx2/memcards. Thay đổi có hiệu lực ngay lập tức khi nội dung đang chạy."
+#define PCSX2_MEMCARD_SLOT1_FILE_INFO_0_VN "Chọn một thẻ nhớ .ps2 có sẵn trong <system>/pcsx2/memcards: tệp thẻ nhớ hoặc thư mục thẻ nhớ được tạo bằng PCSX2 độc lập. Các thay đổi được áp dụng ngay lập tức khi nội dung đang chạy."
 #define PCSX2_MEMCARD_SLOT2_FILE_LABEL_VN "Thẻ nhớ Khe cắm 2"
 #define PCSX2_GSDUMP_TRIGGER_LABEL_VN "Tệp kích hoạt ghi dữ liệu GS"
 #define PCSX2_GSDUMP_TRIGGER_INFO_0_VN "Khi tính năng này được bật, một tệp có tên là gsdump.trigger nằm trong thư mục <system>/pcsx2 sẽ ghi lại dữ liệu GS của các khung hình được xử lý (mặc định là 2 khung hình nếu không chỉ định cụ thể), sau đó tệp này sẽ tự động bị xóa; dữ liệu GS cùng với một tệp ảnh PNG của khung hình đó sẽ được lưu tại cùng vị trí. Dữ liệu GS (.gs) có thể được tải vào chương trình để phát lại các khung hình tương tự trên bất kỳ bộ Dựng hình nào, giúp ích cho việc báo cáo các lỗi liên quan đến bộ Dựng hình đó."
